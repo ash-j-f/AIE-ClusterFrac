@@ -9,8 +9,8 @@
 #include <vector>
 #include <thread>
 
-static constexpr int IMAGE_WIDTH = 1000;
-static constexpr int IMAGE_HEIGHT = 600;
+static constexpr int IMAGE_WIDTH = 1680;
+static constexpr int IMAGE_HEIGHT = 1050;
 
 class Mandelbrot {
 public:
@@ -20,7 +20,7 @@ private:
 	static const int MAX = 127; // maximum number of iterations for mandelbrot()
 								// don't increase MAX or the colouring will look strange
 	std::array<sf::Color, MAX + 1> colors;
-
+	
 	int mandelbrot(double startReal, double startImag) const;
 	sf::Color getColor(int iterations) const;
 	void updateImageSlice(double zoom, double offsetX, double offsetY, sf::Image& image, int minY, int maxY) const;
@@ -35,7 +35,7 @@ Mandelbrot::Mandelbrot() {
 int Mandelbrot::mandelbrot(double startReal, double startImag) const {
 	double zReal = startReal;
 	double zImag = startImag;
-
+	
 	for (int counter = 0; counter < MAX; ++counter) {
 		double r2 = zReal * zReal;
 		double i2 = zImag * zImag;
