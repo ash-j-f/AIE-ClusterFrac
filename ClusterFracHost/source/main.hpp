@@ -4,6 +4,8 @@
 //{
 //}
 
+#include <mpir.h>
+#include <stdio.h>
 #include <SFML\Graphics.hpp>
 #include <array>
 #include <vector>
@@ -102,6 +104,24 @@ void Mandelbrot::updateImage(double zoom, double offsetX, double offsetY, sf::Im
 }
 
 int main() {
+
+	//mpz_t aBigPO2;
+
+	//mpz_init(aBigPO2);
+
+	//mpz_set_ui(aBigPO2, 1073741824); //2^30
+	//mpz_mul(aBigPO2, aBigPO2, aBigPO2); //2^60
+	//mpz_mul(aBigPO2, aBigPO2, aBigPO2); //2^120
+	//mpz_mul(aBigPO2, aBigPO2, aBigPO2); //2^240
+	//mpz_mul(aBigPO2, aBigPO2, aBigPO2); //2^480
+	//mpz_mul(aBigPO2, aBigPO2, aBigPO2); //2^960
+	//mpz_mul(aBigPO2, aBigPO2, aBigPO2); //2^1920
+
+	//mpz_out_str(stdout, 10, aBigPO2);
+	//printf("\n");
+
+	//mpz_clear(aBigPO2);
+
 	double offsetX = -0.7; // and move around
 	double offsetY = 0.0;
 	double zoom = 0.004; // allow the user to zoom in and out...
