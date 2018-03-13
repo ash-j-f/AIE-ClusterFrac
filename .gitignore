@@ -21,6 +21,7 @@ x64/
 x86/
 bld/
 [Bb]in/
+!SFML*/bin/
 [Oo]bj/
 [Ll]og/
 
