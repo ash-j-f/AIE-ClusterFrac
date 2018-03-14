@@ -45,12 +45,12 @@ sf::Color Mandelbrot::getColor(int iterations) const {
 	
 	//Colouring method from https://solarianprogrammer.com/2013/02/28/mandelbrot-set-cpp-11/
 
-	double t = (double)iterations / MAX;
+	double t = (double)iterations / (double)MAX;
 	
 	// Use smooth polynomials for r, g, b
-	int r = (int)(9 * (1 - t)*t*t*t * 255);
-	int g = (int)(15 * (1 - t)*(1 - t)*t*t * 255);
-	int b = (int)(8.5*(1 - t)*(1 - t)*(1 - t)*t * 255);
+	int r = (int)(9.0 * (1.0 - t)*t*t*t * 255.0);
+	int g = (int)(15.0 * (1.0 - t)*(1.0 - t)*t*t * 255.0);
+	int b = (int)(8.5*(1.0 - t)*(1.0 - t)*(1.0 - t)*t * 255.0);
 
 	return sf::Color(r, g, b);
 }
