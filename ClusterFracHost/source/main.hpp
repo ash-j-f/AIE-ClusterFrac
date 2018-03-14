@@ -10,6 +10,7 @@
 #include <array>
 #include <vector>
 #include <thread>
+#include <string>
 
 static constexpr int IMAGE_WIDTH = 1680;
 static constexpr int IMAGE_HEIGHT = 1050;
@@ -104,9 +105,44 @@ void Mandelbrot::updateImage(double zoom, double offsetX, double offsetY, sf::Im
 }
 
 int main() {
+	
+	mpf_t three;
+	mpf_t four;
+	mpf_t a, b, c;
+	mpf_t pi_ish;
+	mpf_inits(three, four, a, b, c, pi_ish);
+	mpf_set_d(three, 3.0);
+	mpf_set_d(four, 4.0);
+	
+	//mpf_set_str(huge1, ((std::string)"22").c_str(), 10);
+	
+	
+	
+	
+	mpf_div(pi_ish, huge1, huge2);
+
+
+
+
+
+	//double result = mpf_get_d(pi_ish);
+
+	//printf("%lf", result);
+
+	//mpf_clears(pi_ish, huge1, huge2);
+	mp_exp_t exp;
+	char * tmp = mpf_get_str(NULL, &exp, 10, 1000, pi_ish);
+	printf("%s", tmp);
+
+	//mpz_t aNumber;
+	//mpz_init(aNumber);
+	//mpz_set_str(aNumber, "123456789", 10);
+
+	//char * tmp = mpz_get_str(NULL, 10, aNumber);
+	//printf("%s", tmp);
 
 	//mpz_t aBigPO2;
-
+	//
 	//mpz_init(aBigPO2);
 
 	//mpz_set_ui(aBigPO2, 1073741824); //2^30
@@ -117,7 +153,10 @@ int main() {
 	//mpz_mul(aBigPO2, aBigPO2, aBigPO2); //2^960
 	//mpz_mul(aBigPO2, aBigPO2, aBigPO2); //2^1920
 
-	//mpz_out_str(stdout, 10, aBigPO2);
+	////mpz_out_str(stdout, 10, aBigPO2);
+	//char * tmp = mpz_get_str(NULL, 10, aBigPO2);
+	//printf("%s", tmp);
+
 	//printf("\n");
 
 	//mpz_clear(aBigPO2);
