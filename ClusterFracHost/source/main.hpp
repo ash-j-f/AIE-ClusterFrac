@@ -150,7 +150,7 @@ void Mandelbrot::updateImage(mpf_t zoom, mpf_t offsetX, mpf_t offsetY, sf::Image
 
 int main() {
 	
-	mpf_set_default_prec(32);
+	//mpf_set_default_prec(32);
 
 	//PI example.
 	//mpf_t two;
