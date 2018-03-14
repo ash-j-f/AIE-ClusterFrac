@@ -106,20 +106,40 @@ void Mandelbrot::updateImage(double zoom, double offsetX, double offsetY, sf::Im
 
 int main() {
 	
-	mpf_t three;
+	mpf_t two;
 	mpf_t four;
-	mpf_t a, b, c;
+	mpf_t sub, a, b, c;
 	mpf_t pi_ish;
-	mpf_inits(three, four, a, b, c, pi_ish);
-	mpf_set_d(three, 3.0);
+	mpf_inits(two, four, sub, a, b, c, pi_ish);
+	mpf_set_d(two, 2.0);
 	mpf_set_d(four, 4.0);
-	
+	mpf_set_d(pi_ish, 3.0);
+	mpf_set_d(a, 2.0);
+	mpf_set_d(b, 3.0);
+	mpf_set_d(c, 4.0);
+
+	bool signPlus = true;
+	for (int i = 0; i <= 100000; i++)
+	{
+		mpf_mul(sub, a, b);
+		mpf_mul(sub, sub, c);
+		mpf_div(sub, four, sub);
+		if (signPlus)
+		{
+			mpf_add(pi_ish, pi_ish, sub);
+		}
+		else
+		{
+			mpf_sub(pi_ish, pi_ish, sub);
+		}
+
+		mpf_add(a, a, two);
+		mpf_add(b, b, two);
+		mpf_add(c, c, two);
+		signPlus = !signPlus;
+	}
 	//mpf_set_str(huge1, ((std::string)"22").c_str(), 10);
 	
-	
-	
-	
-	mpf_div(pi_ish, huge1, huge2);
 
 
 
