@@ -18,7 +18,7 @@ static constexpr int IMAGE_HEIGHT = 1050;
 class Mandelbrot {
 public:
 	Mandelbrot();
-	void updateImage(mpf_t zoom, mpf_t offsetX, mpf_t offsetY, sf::Image& image) const;
+	void updateImage(mpf_t zoomIN, mpf_t offsetXIN, mpf_t offsetYIN, sf::Image& image) const;
 private:
 	static const int MAX = 127; // maximum number of iterations for mandelbrot()
 								// don't increase MAX or the colouring will look strange
@@ -26,7 +26,7 @@ private:
 	
 	int mandelbrot(mpf_t startReal, mpf_t startImag) const;
 	sf::Color getColor(int iterations) const;
-	void updateImageSlice(mpf_t zoom, mpf_t offsetX, mpf_t offsetY, sf::Image& image, int minY, int maxY) const;
+	void updateImageSlice(mpf_t zoomIN, mpf_t offsetXIN, mpf_t offsetYIN, sf::Image& image, int minY, int maxY) const;
 };
 
 Mandelbrot::Mandelbrot() {
@@ -36,24 +36,26 @@ Mandelbrot::Mandelbrot() {
 }
 
 int Mandelbrot::mandelbrot(mpf_t startReal, mpf_t startImag) const {
+	
 	mpf_t zReal;
-	mpf_set(zReal, startReal);
+	mpf_init_set(zReal, startReal);
 	mpf_t zImag;
-	mpf_set(zImag, startImag);
+	mpf_init_set(zImag, startImag);
 	
 	mpf_t r2;
 	mpf_init(r2);
 	mpf_t i2;
 	mpf_init(i2);
 	mpf_t two;
-	mpf_set_d(two, 2.0);
+	mpf_init_set_d(two, 2.0);
 	for (int counter = 0; counter < MAX; ++counter) {
 		mpf_mul(r2, zReal, zReal);
 		mpf_mul(i2, zImag, zImag);
 		
 		mpf_t added;
+		mpf_init(added);
 		mpf_add(added, r2, i2);
-		if (mpf_cmp_d(added, 4.0)) {
+		if (mpf_cmp_d(added, 4.0) > 0) {
 			return counter;
 		}
 
@@ -65,8 +67,8 @@ int Mandelbrot::mandelbrot(mpf_t startReal, mpf_t startImag) const {
 		mpf_add(zReal, i2, startReal);
 		mpf_sub(zReal, r2, zReal);
 
-		mpf_clear(r2);
-		mpf_clear(i2);
+		mpf_init_set_d(r2, 0.0);
+		mpf_init_set_d(i2, 0.0);
 	}
 	return MAX;
 }
@@ -113,16 +115,24 @@ void Mandelbrot::updateImageSlice(mpf_t zoom, mpf_t offsetX, mpf_t offsetY, sf::
 	//double real = 0 * zoom - IMAGE_WIDTH / 2.0 * zoom + offsetX;
 	//double imagstart = minY * zoom - IMAGE_HEIGHT / 2.0 * zoom + offsetY;
 	
-	//TODO
+	//TODO - Convert the following to use ONLY MPIR.
 
-	for (int x = 0; x < IMAGE_WIDTH; x++, /*real += zoom*/ mpf_add(real, real, zoom)) {
+	double NEWreal = 0 * mpf_get_d(zoom) - IMAGE_WIDTH / 2.0 * mpf_get_d(zoom) + mpf_get_d(offsetX);
+	double NEWimagstart = minY * mpf_get_d(zoom) - IMAGE_HEIGHT / 2.0 * mpf_get_d(zoom) + mpf_get_d(offsetY);
+
+	mpf_set_d(real, NEWreal);
+	mpf_set_d(imagstart, NEWimagstart);
+
+	for (int x = 0; x < IMAGE_WIDTH; x++) {
 		//double imag = imagstart;
 		mpf_t imag;
-		mpf_set(imag, imagstart);
-		for (int y = minY; y < maxY; y++, /*imag += zoom*/ mpf_add(imag, imag, zoom)) {
+		mpf_init_set(imag, imagstart);
+		for (int y = minY; y < maxY; y++) {
 			int value = mandelbrot(real, imag);
 			image.setPixel(x, y, colors[value]);
+			mpf_add(imag, imag, zoom);
 		}
+		mpf_add(real, real, zoom);
 	}
 }
 
@@ -140,7 +150,7 @@ void Mandelbrot::updateImage(mpf_t zoom, mpf_t offsetX, mpf_t offsetY, sf::Image
 
 int main() {
 	
-	mpf_set_default_prec(100);
+	mpf_set_default_prec(32);
 
 	//PI example.
 	//mpf_t two;
@@ -182,19 +192,19 @@ int main() {
 
 	//double offsetX = -0.7; // and move around
 	mpf_t offsetX;
-	mpf_set_d(offsetX, -0.7);
+	mpf_init_set_d(offsetX, -0.7);
 	//double offsetY = 0.0;
 	mpf_t offsetY;
-	mpf_set_d(offsetY, 0.0);
+	mpf_init_set_d(offsetY, 0.0);
 	//double zoom = 0.004; // allow the user to zoom in and out...
 	mpf_t zoom;
-	mpf_set_d(zoom, 0.004);
+	mpf_init_set_d(zoom, 0.004);
 
 	mpf_t pointNine;
-	mpf_set_d(pointNine, 0.9);
+	mpf_init_set_d(pointNine, 0.9);
 
 	mpf_t forty;
-	mpf_set_d(forty, 40.0);
+	mpf_init_set_d(forty, 40.0);
 
 	mpf_t zoomForty;
 	mpf_init(zoomForty);
