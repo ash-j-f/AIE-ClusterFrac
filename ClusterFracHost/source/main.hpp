@@ -18,15 +18,15 @@ static constexpr int IMAGE_HEIGHT = 1050;
 class Mandelbrot {
 public:
 	Mandelbrot();
-	void updateImage(double zoom, double offsetX, double offsetY, sf::Image& image) const;
+	void updateImage(mpf_t zoom, mpf_t offsetX, mpf_t offsetY, sf::Image& image) const;
 private:
 	static const int MAX = 127; // maximum number of iterations for mandelbrot()
 								// don't increase MAX or the colouring will look strange
 	std::array<sf::Color, MAX + 1> colors;
 	
-	int mandelbrot(double startReal, double startImag) const;
+	int mandelbrot(mpf_t startReal, mpf_t startImag) const;
 	sf::Color getColor(int iterations) const;
-	void updateImageSlice(double zoom, double offsetX, double offsetY, sf::Image& image, int minY, int maxY) const;
+	void updateImageSlice(mpf_t zoom, mpf_t offsetX, mpf_t offsetY, sf::Image& image, int minY, int maxY) const;
 };
 
 Mandelbrot::Mandelbrot() {
@@ -35,18 +35,38 @@ Mandelbrot::Mandelbrot() {
 	}
 }
 
-int Mandelbrot::mandelbrot(double startReal, double startImag) const {
-	double zReal = startReal;
-	double zImag = startImag;
+int Mandelbrot::mandelbrot(mpf_t startReal, mpf_t startImag) const {
+	mpf_t zReal;
+	mpf_set(zReal, startReal);
+	mpf_t zImag;
+	mpf_set(zImag, startImag);
 	
+	mpf_t r2;
+	mpf_init(r2);
+	mpf_t i2;
+	mpf_init(i2);
+	mpf_t two;
+	mpf_set_d(two, 2.0);
 	for (int counter = 0; counter < MAX; ++counter) {
-		double r2 = zReal * zReal;
-		double i2 = zImag * zImag;
-		if (r2 + i2 > 4.0) {
+		mpf_mul(r2, zReal, zReal);
+		mpf_mul(i2, zImag, zImag);
+		
+		mpf_t added;
+		mpf_add(added, r2, i2);
+		if (mpf_cmp_d(added, 4.0)) {
 			return counter;
 		}
-		zImag = 2.0 * zReal * zImag + startImag;
-		zReal = r2 - i2 + startReal;
+
+		mpf_mul(zImag, zImag, zReal);
+		mpf_mul(zImag, zImag, two);
+		mpf_add(zImag, zImag, startImag);
+		
+		//?? What is order of precedence here? zReal = r2 - i2 + startReal;
+		mpf_add(zReal, i2, startReal);
+		mpf_sub(zReal, r2, zReal);
+
+		mpf_clear(r2);
+		mpf_clear(i2);
 	}
 	return MAX;
 }
@@ -79,20 +99,34 @@ sf::Color Mandelbrot::getColor(int iterations) const {
 	return sf::Color(r, g, b);
 }
 
-void Mandelbrot::updateImageSlice(double zoom, double offsetX, double offsetY, sf::Image& image, int minY, int maxY) const
+void Mandelbrot::updateImageSlice(mpf_t zoom, mpf_t offsetX, mpf_t offsetY, sf::Image& image, int minY, int maxY) const
 {
-	double real = 0 * zoom - IMAGE_WIDTH / 2.0 * zoom + offsetX;
-	double imagstart = minY * zoom - IMAGE_HEIGHT / 2.0 * zoom + offsetY;
-	for (int x = 0; x < IMAGE_WIDTH; x++, real += zoom) {
-		double imag = imagstart;
-		for (int y = minY; y < maxY; y++, imag += zoom) {
+	mpf_t real;
+	mpf_init(real);
+	
+	mpf_t imagstart;
+	mpf_init(imagstart);
+	//ORIGINAL:
+	//double real = (x - IMAGE_WIDTH / 2.0) * zoom + offsetX;
+	//double imag = (y - IMAGE_HEIGHT / 2.0) * zoom + offsetY;
+	//NEW ALETERNATIVE:
+	//double real = 0 * zoom - IMAGE_WIDTH / 2.0 * zoom + offsetX;
+	//double imagstart = minY * zoom - IMAGE_HEIGHT / 2.0 * zoom + offsetY;
+	
+	//TODO
+
+	for (int x = 0; x < IMAGE_WIDTH; x++, /*real += zoom*/ mpf_add(real, real, zoom)) {
+		//double imag = imagstart;
+		mpf_t imag;
+		mpf_set(imag, imagstart);
+		for (int y = minY; y < maxY; y++, /*imag += zoom*/ mpf_add(imag, imag, zoom)) {
 			int value = mandelbrot(real, imag);
 			image.setPixel(x, y, colors[value]);
 		}
 	}
 }
 
-void Mandelbrot::updateImage(double zoom, double offsetX, double offsetY, sf::Image& image) const
+void Mandelbrot::updateImage(mpf_t zoom, mpf_t offsetX, mpf_t offsetY, sf::Image& image) const
 {
 	const int STEP = IMAGE_HEIGHT / std::thread::hardware_concurrency();
 	std::vector<std::thread> threads;
@@ -106,84 +140,65 @@ void Mandelbrot::updateImage(double zoom, double offsetX, double offsetY, sf::Im
 
 int main() {
 	
-	mpf_t two;
-	mpf_t four;
-	mpf_t sub, a, b, c;
-	mpf_t pi_ish;
-	mpf_inits(two, four, sub, a, b, c, pi_ish);
-	mpf_set_d(two, 2.0);
-	mpf_set_d(four, 4.0);
-	mpf_set_d(pi_ish, 3.0);
-	mpf_set_d(a, 2.0);
-	mpf_set_d(b, 3.0);
-	mpf_set_d(c, 4.0);
+	mpf_set_default_prec(100);
 
-	bool signPlus = true;
-	for (int i = 0; i <= 100000; i++)
-	{
-		mpf_mul(sub, a, b);
-		mpf_mul(sub, sub, c);
-		mpf_div(sub, four, sub);
-		if (signPlus)
-		{
-			mpf_add(pi_ish, pi_ish, sub);
-		}
-		else
-		{
-			mpf_sub(pi_ish, pi_ish, sub);
-		}
+	//PI example.
+	//mpf_t two;
+	//mpf_t four;
+	//mpf_t sub, a, b, c;
+	//mpf_t pi_ish;
+	//mpf_inits(two, four, sub, a, b, c, pi_ish);
+	//mpf_set_d(two, 2.0);
+	//mpf_set_d(four, 4.0);
+	//mpf_set_d(pi_ish, 3.0);
+	//mpf_set_d(a, 2.0);
+	//mpf_set_d(b, 3.0);
+	//mpf_set_d(c, 4.0);
 
-		mpf_add(a, a, two);
-		mpf_add(b, b, two);
-		mpf_add(c, c, two);
-		signPlus = !signPlus;
-	}
-	//mpf_set_str(huge1, ((std::string)"22").c_str(), 10);
-	
+	//bool signPlus = true;
+	//for (int i = 0; i <= 1000000; i++)
+	//{
+	//	mpf_mul(sub, a, b);
+	//	mpf_mul(sub, sub, c);
+	//	mpf_div(sub, four, sub);
+	//	if (signPlus)
+	//	{
+	//		mpf_add(pi_ish, pi_ish, sub);
+	//	}
+	//	else
+	//	{
+	//		mpf_sub(pi_ish, pi_ish, sub);
+	//	}
 
-
-
-
-
-	//double result = mpf_get_d(pi_ish);
-
-	//printf("%lf", result);
-
-	//mpf_clears(pi_ish, huge1, huge2);
-	mp_exp_t exp;
-	char * tmp = mpf_get_str(NULL, &exp, 10, 1000, pi_ish);
-	printf("%s", tmp);
-
-	//mpz_t aNumber;
-	//mpz_init(aNumber);
-	//mpz_set_str(aNumber, "123456789", 10);
-
-	//char * tmp = mpz_get_str(NULL, 10, aNumber);
-	//printf("%s", tmp);
-
-	//mpz_t aBigPO2;
+	//	mpf_add(a, a, two);
+	//	mpf_add(b, b, two);
+	//	mpf_add(c, c, two);
+	//	signPlus = !signPlus;
+	//}
 	//
-	//mpz_init(aBigPO2);
-
-	//mpz_set_ui(aBigPO2, 1073741824); //2^30
-	//mpz_mul(aBigPO2, aBigPO2, aBigPO2); //2^60
-	//mpz_mul(aBigPO2, aBigPO2, aBigPO2); //2^120
-	//mpz_mul(aBigPO2, aBigPO2, aBigPO2); //2^240
-	//mpz_mul(aBigPO2, aBigPO2, aBigPO2); //2^480
-	//mpz_mul(aBigPO2, aBigPO2, aBigPO2); //2^960
-	//mpz_mul(aBigPO2, aBigPO2, aBigPO2); //2^1920
-
-	////mpz_out_str(stdout, 10, aBigPO2);
-	//char * tmp = mpz_get_str(NULL, 10, aBigPO2);
+	//mp_exp_t exp;
+	//char * tmp = mpf_get_str(NULL, &exp, 10, 1000, pi_ish);
 	//printf("%s", tmp);
 
-	//printf("\n");
+	//double offsetX = -0.7; // and move around
+	mpf_t offsetX;
+	mpf_set_d(offsetX, -0.7);
+	//double offsetY = 0.0;
+	mpf_t offsetY;
+	mpf_set_d(offsetY, 0.0);
+	//double zoom = 0.004; // allow the user to zoom in and out...
+	mpf_t zoom;
+	mpf_set_d(zoom, 0.004);
 
-	//mpz_clear(aBigPO2);
+	mpf_t pointNine;
+	mpf_set_d(pointNine, 0.9);
 
-	double offsetX = -0.7; // and move around
-	double offsetY = 0.0;
-	double zoom = 0.004; // allow the user to zoom in and out...
+	mpf_t forty;
+	mpf_set_d(forty, 40.0);
+
+	mpf_t zoomForty;
+	mpf_init(zoomForty);
+
 	Mandelbrot mb;
 
 	sf::RenderWindow window(sf::VideoMode(IMAGE_WIDTH, IMAGE_HEIGHT), "Mandelbrot");
@@ -210,22 +225,32 @@ int main() {
 					window.close();
 					break;
 				case sf::Keyboard::Equal:
-					zoom *= 0.9;
+					//zoom *= 0.9;
+					mpf_mul(zoom, zoom, pointNine);
 					break;
 				case sf::Keyboard::Dash:
-					zoom /= 0.9;
+					//zoom /= 0.9;
+					mpf_div(zoom, zoom, pointNine);
 					break;
 				case sf::Keyboard::W:
-					offsetY -= 40 * zoom;
+					//offsetY -= 40 * zoom;
+					mpf_mul(zoomForty, zoom, forty);
+					mpf_sub(offsetY, offsetY, zoomForty);
 					break;
 				case sf::Keyboard::S:
-					offsetY += 40 * zoom;
+					//offsetY += 40 * zoom;
+					mpf_mul(zoomForty, zoom, forty);
+					mpf_add(offsetY, offsetY, zoomForty);
 					break;
 				case sf::Keyboard::A:
-					offsetX -= 40 * zoom;
+					//offsetX -= 40 * zoom;
+					mpf_mul(zoomForty, zoom, forty);
+					mpf_sub(offsetX, offsetX, zoomForty);
 					break;
 				case sf::Keyboard::D:
-					offsetX += 40 * zoom;
+					//offsetX += 40 * zoom;
+					mpf_mul(zoomForty, zoom, forty);
+					mpf_add(offsetX, offsetX, zoomForty);
 					break;
 				default:
 					stateChanged = false;
