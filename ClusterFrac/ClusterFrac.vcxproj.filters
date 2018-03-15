@@ -18,12 +18,18 @@
     <ClCompile Include="source\Task.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="source\Result.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\DllExport.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="source\Task.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Result.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -26,7 +26,7 @@ namespace cf
 		* This value must be unique among all classes.
 		* @returns The subtype ID of this class as a string.
 		*/
-		virtual std::string get_subype() const = 0;
+		virtual std::string get_subtype() const = 0;
 
 		/**
 		* Split this task up as equally as possible in to N chunks, and return

@@ -25,7 +25,7 @@ namespace cf
 		* This value must be unique among all classes.
 		* @returns The subtype ID of this class as a string.
 		*/
-		virtual std::string get_subype() const = 0;
+		virtual std::string get_subtype() const = 0;
 
 		/**
 		* Return a pointer to a new result object that is a merged version
