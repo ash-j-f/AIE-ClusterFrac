@@ -17,8 +17,9 @@
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{25C22F5F-E5B8-4DC3-AE5D-A9465DEAB5FF}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>ClusterFracHost</RootNamespace>
+    <RootNamespace>CFMandelbrot</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
+    <ProjectName>CFMandelbrot</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">

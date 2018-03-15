@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27130.2036
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ClusterFracHost", "ClusterFracHost\ClusterFracHost.vcxproj", "{25C22F5F-E5B8-4DC3-AE5D-A9465DEAB5FF}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CFMandelbrot", "CFMandelbrot\CFMandelbrot.vcxproj", "{25C22F5F-E5B8-4DC3-AE5D-A9465DEAB5FF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
