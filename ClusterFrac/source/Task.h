@@ -18,7 +18,7 @@ namespace cf
 		* This value must be unique among all classes.
 		* @returns The type ID of this class as a string.
 		*/
-		virtual std::string get_type() const { return "Task"; }
+		inline virtual std::string get_type() const { return "Task"; }
 
 		/**
 		* Get the subtype ID of this class.
@@ -36,5 +36,6 @@ namespace cf
 		* @returns A std::vector of pointers to the new split tasks.
 		*/
 		virtual std::vector<Task *> split(int count) const = 0;
+
 	};
 }

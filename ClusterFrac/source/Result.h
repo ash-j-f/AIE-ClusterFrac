@@ -18,7 +18,7 @@ namespace cf
 		* This value must be unique among all classes.
 		* @returns The type ID of this class as a string.
 		*/
-		virtual std::string get_type() const { return "Result"; }
+		inline virtual std::string get_type() const { return "Result"; }
 
 		/**
 		* Get the subtype ID of this class.

@@ -85,11 +85,6 @@
     <ClCompile Include="source\main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ClusterFrac\ClusterFrac.vcxproj">
-      <Project>{955dfd0d-529b-4c4e-b65e-875d80c67175}</Project>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="source\BenchmarkTask.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
