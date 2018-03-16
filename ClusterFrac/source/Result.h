@@ -35,6 +35,14 @@ namespace cf
 		* @param others A std::vector of pointers to the other results to merge with this one.
 		* @returns A pointer to a single new merged result.
 		*/
-		virtual Result *merge(std::vector<Result *> others) const = 0;
+		virtual Result *merge(const std::vector<Result *> others) const = 0;
+	
+	//TODO - Try automatic serialisation via SFML first
+
+	//private:
+
+	//	virtual void serialize(std::ostream &o) const = 0;
+
+	//	virtual void deserialize(std::ostream &o) const = 0;
 	};
 }
