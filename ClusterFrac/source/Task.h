@@ -2,6 +2,7 @@
 #include "DllExport.h"
 #include <vector>
 #include <string>
+#include <SFML\Network.hpp>
 
 namespace cf
 {
