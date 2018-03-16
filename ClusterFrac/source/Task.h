@@ -18,7 +18,7 @@ namespace cf
 		* This value must be unique among all classes.
 		* @returns The type ID of this class as a string.
 		*/
-		inline virtual std::string get_type() const { return "Task"; }
+		inline virtual std::string getType() const { return "Task"; }
 
 		/**
 		* Get the subtype ID of this class.
@@ -27,7 +27,7 @@ namespace cf
 		* This value must be unique among all classes.
 		* @returns The subtype ID of this class as a string.
 		*/
-		virtual std::string get_subtype() const = 0;
+		virtual std::string getSubtype() const = 0;
 
 		/**
 		* Split this task up as equally as possible in to N chunks, and return
@@ -36,6 +36,16 @@ namespace cf
 		* @returns A std::vector of pointers to the new split tasks.
 		*/
 		virtual std::vector<Task *> split(int count) const = 0;
+
+		inline void serialize(sf::Packet &p) { p << getType(); serializeLocal(p); };
+
+		inline void deserialize(sf::Packet &p) { deserializeLocal(p); };
+
+	private:
+
+		virtual void serializeLocal(sf::Packet &p) = 0;
+
+		virtual void deserializeLocal(sf::Packet &p) = 0;
 
 	};
 }

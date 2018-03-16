@@ -3,10 +3,17 @@
 
 int main()
 {
+		BenchmarkTask *bmt1 = new BenchmarkTask();
+		BenchmarkTask *bmt2 = new BenchmarkTask();
 
-		std::vector<sf::Uint8> i = { 1, 2, 3 };
-		std::vector<sf::Uint8> o = { 4, 5, 6 };
-		BenchmarkTask *bmt = new BenchmarkTask();
+		bmt1->numbers = { 1, 2, 3 };
+		bmt2->numbers = { 4, 5, 6 };
+
+		sf::Packet p;
+		bmt1->serialize(p);
+		bmt2->deserialize(p);
+
+		bmt1->serialize(p);
 
 		//p << i.data()[0];
 		//p >> o.data()[0];
