@@ -11,6 +11,11 @@ int main()
 
 		sf::Packet p;
 		bmt1->serialize(p);
+		
+		//Determine type here.
+		std::string type;
+		p >> type;
+		
 		bmt2->deserialize(p);
 
 		bmt1->serialize(p);

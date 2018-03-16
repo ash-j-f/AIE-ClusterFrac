@@ -22,8 +22,6 @@ void BenchmarkTask::serializeLocal(sf::Packet &p)
 
 void BenchmarkTask::deserializeLocal(sf::Packet & p)
 {
-	std::string type;
-	p >> type;
 	sf::Int64 size;
 	p >> size;
 	numbers.resize(size);
