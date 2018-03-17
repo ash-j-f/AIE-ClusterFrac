@@ -11,7 +11,7 @@ const void * cf::WorkPacket::onSend(std::size_t & size)
 	const Bytef* srcData = static_cast<const Bytef*>(getData());
 
 	// Get the size of the packet to send
-	uLong srcSize = getDataSize();
+	uLong srcSize = (uLong)getDataSize();
 
 	// Compute the size of the compressed data
 	uLong dstSize = compressBound(srcSize);
@@ -53,7 +53,7 @@ void cf::WorkPacket::onReceive(const void * data, std::size_t size)
 	uLong dstSize;
 
 	// Uncompress the data (remove the first two bytes)
-	uncompress(oCompressionBuffer.data(), &dstSize, (srcData + 2), size - 2);
+	uncompress(oCompressionBuffer.data(), &dstSize, (srcData + 2), (uLong)size - 2);
 
 	// Assert that the uncompressed size is the same as the
 	// size we were sent for the buffer

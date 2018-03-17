@@ -9,7 +9,7 @@ int main()
 		bmt1->numbers = { 1, 2, 3 };
 		bmt2->numbers = { 4, 5, 6 };
 
-		sf::Packet p;
+		cf::WorkPacket p;
 		bmt1->serialize(p);
 		
 		//Determine type here.

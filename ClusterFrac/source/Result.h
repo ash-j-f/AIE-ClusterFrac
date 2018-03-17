@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <SFML\Network.hpp>
+#include "WorkPacket.h"
 
 namespace cf
 {
@@ -37,12 +38,7 @@ namespace cf
 		*/
 		virtual Result *merge(const std::vector<Result *> others) const = 0;
 	
-	//TODO - Try automatic serialisation via SFML first
+		//TODO - SERIALIZATION
 
-	//private:
-
-	//	virtual void serialize(std::ostream &o) const = 0;
-
-	//	virtual void deserialize(std::ostream &o) const = 0;
 	};
 }

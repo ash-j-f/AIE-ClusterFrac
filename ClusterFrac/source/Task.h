@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <SFML\Network.hpp>
+#include "WorkPacket.h"
 
 namespace cf
 {
@@ -37,15 +38,15 @@ namespace cf
 		*/
 		virtual std::vector<Task *> split(int count) const = 0;
 
-		inline void serialize(sf::Packet &p) { p << getType(); serializeLocal(p); };
+		inline void serialize(cf::WorkPacket &p) { p << getType(); serializeLocal(p); };
 
-		inline void deserialize(sf::Packet &p) { deserializeLocal(p); };
+		inline void deserialize(cf::WorkPacket &p) { deserializeLocal(p); };
 
 	private:
 
-		virtual void serializeLocal(sf::Packet &p) = 0;
+		virtual void serializeLocal(cf::WorkPacket &p) = 0;
 
-		virtual void deserializeLocal(sf::Packet &p) = 0;
+		virtual void deserializeLocal(cf::WorkPacket &p) = 0;
 
 	};
 }
