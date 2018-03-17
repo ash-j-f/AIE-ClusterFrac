@@ -21,7 +21,7 @@ cf::Result *BenchmarkResult::merge(const std::vector<cf::Result*> others) const
 		//Skip ourself, in case the list of others contains this results chunk too.
 		if (r == this) continue;
 
-		tmpResult->numbers.insert(tmpResult->numbers.begin(), ((BenchmarkResult *)r)->numbers.begin(), ((BenchmarkResult *)r)->numbers.end());
+		tmpResult->numbers.insert(tmpResult->numbers.end(), ((BenchmarkResult *)r)->numbers.begin(), ((BenchmarkResult *)r)->numbers.end());
 	}
 	return (Result *)tmpResult;
 }

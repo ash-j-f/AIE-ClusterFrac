@@ -4,6 +4,7 @@
 #include <string>
 #include <SFML\Network.hpp>
 #include "WorkPacket.h"
+#include "Result.h"
 
 namespace cf
 {
@@ -41,6 +42,8 @@ namespace cf
 		inline void serialize(cf::WorkPacket &p) { p << getType(); serializeLocal(p); };
 
 		inline void deserialize(cf::WorkPacket &p) { deserializeLocal(p); };
+
+		virtual cf::Result *run() = 0;
 
 	private:
 

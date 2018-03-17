@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <ClusterFrac.h>
+#include "BenchmarkResult.h"
 
 class BenchmarkTask : public cf::Task
 {
@@ -17,5 +18,7 @@ public:
 	void serializeLocal(cf::WorkPacket &p);
 
 	void deserializeLocal(cf::WorkPacket &p);
+
+	cf::Result *run();
 
 };

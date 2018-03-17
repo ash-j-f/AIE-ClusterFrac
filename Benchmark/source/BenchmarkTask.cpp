@@ -54,3 +54,12 @@ void BenchmarkTask::deserializeLocal(cf::WorkPacket & p)
 	numbers.resize(size);
 	for (sf::Int64 i = 0; i < size; i++) p >> numbers[i];
 }
+
+cf::Result *BenchmarkTask::run()
+{
+	BenchmarkResult *tmpResult = new BenchmarkResult();
+	
+	for (auto &n : numbers) tmpResult->numbers.push_back(sqrtf(n));
+
+	return tmpResult;
+}
