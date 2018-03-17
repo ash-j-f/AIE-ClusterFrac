@@ -6,11 +6,11 @@ int main()
 		BenchmarkTask *bmt1 = new BenchmarkTask();
 		BenchmarkTask *bmt2 = new BenchmarkTask();
 
-		bmt1->numbers = { 1, 2, 3 };
+		for (int i = 0; i < 1000000; i++) bmt1->numbers.push_back((float)rand() / 10.0f);
 		
-		bmt2->numbers = { 4, 5, 6 };
+		bmt2->numbers = { 99, 100, 101 };
 
-		std::vector<cf::Task *> splitTasks = bmt1->split(2);
+		std::vector<cf::Task *> splitTasks = bmt1->split(99);
 
 		cf::WorkPacket p;
 		splitTasks[0]->serialize(p);

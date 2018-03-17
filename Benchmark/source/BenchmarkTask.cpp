@@ -19,11 +19,14 @@ std::vector<cf::Task *> BenchmarkTask::split(int count) const
 	for (int i = 0; i < count; i++) tasks[i] = new BenchmarkTask();
 
 	//Distribute numbers among the new BenchmarkTasks.
-	const int step = (int)ceil((float)numbers.size() / (float)count);
+	const int step = (int)floor((float)numbers.size() / (float)count);
 	int start = 0;
 	int end = step;
 	for (int i = 0; i < count; i++)
 	{	
+		//If this is the final split, then get the remainder of items.
+		if (i == count - 1) end = (int)numbers.size();
+
 		tasks[i]->numbers.insert(tasks[i]->numbers.begin(), numbers.begin() + start, numbers.begin() + std::min(end, (int)numbers.size()));
 		
 		start = start + step;
