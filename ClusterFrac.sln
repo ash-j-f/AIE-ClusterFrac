@@ -15,6 +15,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Benchmark", "Benchmark\Benc
 		{955DFD0D-529B-4C4E-B65E-875D80C67175} = {955DFD0D-529B-4C4E-B65E-875D80C67175}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ClusterFracClient", "ClusterFracClient\ClusterFracClient.vcxproj", "{F5B81703-7A26-40B5-8342-2CDC30B7C5A6}"
+	ProjectSection(ProjectDependencies) = postProject
+		{955DFD0D-529B-4C4E-B65E-875D80C67175} = {955DFD0D-529B-4C4E-B65E-875D80C67175}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -41,6 +46,12 @@ Global
 		{E63AF37B-63AB-4884-B759-D336EF606E65}.Release|x64.ActiveCfg = Release|x64
 		{E63AF37B-63AB-4884-B759-D336EF606E65}.Release|x64.Build.0 = Release|x64
 		{E63AF37B-63AB-4884-B759-D336EF606E65}.Release|x86.ActiveCfg = Release|x64
+		{F5B81703-7A26-40B5-8342-2CDC30B7C5A6}.Debug|x64.ActiveCfg = Debug|x64
+		{F5B81703-7A26-40B5-8342-2CDC30B7C5A6}.Debug|x64.Build.0 = Debug|x64
+		{F5B81703-7A26-40B5-8342-2CDC30B7C5A6}.Debug|x86.ActiveCfg = Debug|x64
+		{F5B81703-7A26-40B5-8342-2CDC30B7C5A6}.Release|x64.ActiveCfg = Release|x64
+		{F5B81703-7A26-40B5-8342-2CDC30B7C5A6}.Release|x64.Build.0 = Release|x64
+		{F5B81703-7A26-40B5-8342-2CDC30B7C5A6}.Release|x86.ActiveCfg = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
