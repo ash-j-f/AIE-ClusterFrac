@@ -22,8 +22,10 @@ x86/
 bld/
 [Bb]in/
 !SFML*/bin/
+!SFML*/lib/
 [Oo]bj/
 [Ll]og/
+!ZLIB*/lib/
 
 # Visual Studio 2015 cache/options directory
 .vs/

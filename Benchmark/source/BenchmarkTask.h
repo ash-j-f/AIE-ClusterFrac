@@ -14,7 +14,7 @@ public:
 
 	std::vector<cf::Task *> split(int count) const;
 
-	void serializeLocal(sf::Packet &p);
+	void serializeLocal(cf::WorkPacket &p);
 
-	void deserializeLocal(sf::Packet &p);
+	void deserializeLocal(cf::WorkPacket &p);
 };
