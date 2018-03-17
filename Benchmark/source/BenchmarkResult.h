@@ -12,7 +12,7 @@ public:
 
 	inline std::string getSubtype() const { return "BenchmarkResult";  };
 
-	virtual Result *merge(const std::vector<Result *> others) const;
+	virtual cf::Result *merge(const std::vector<cf::Result *> others) const;
 
 	void serializeLocal(cf::WorkPacket &p);
 
