@@ -19,7 +19,7 @@ namespace cf
 		* This value must be unique among all classes.
 		* @returns The type ID of this class as a string.
 		*/
-		inline virtual std::string get_type() const { return "Result"; }
+		inline virtual std::string getType() const { return "Result"; }
 
 		/**
 		* Get the subtype ID of this class.
@@ -28,7 +28,7 @@ namespace cf
 		* This value must be unique among all classes.
 		* @returns The subtype ID of this class as a string.
 		*/
-		virtual std::string get_subtype() const = 0;
+		virtual std::string getSubtype() const = 0;
 
 		/**
 		* Return a pointer to a new result object that is a merged version
@@ -38,7 +38,15 @@ namespace cf
 		*/
 		virtual Result *merge(const std::vector<Result *> others) const = 0;
 	
-		//TODO - SERIALIZATION
+		inline void serialize(cf::WorkPacket &p) { p << getType(); serializeLocal(p); };
+
+		inline void deserialize(cf::WorkPacket &p) { deserializeLocal(p); };
+
+	private:
+
+		virtual void serializeLocal(cf::WorkPacket &p) = 0;
+
+		virtual void deserializeLocal(cf::WorkPacket &p) = 0;
 
 	};
 }

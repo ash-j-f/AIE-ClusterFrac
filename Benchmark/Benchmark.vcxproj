@@ -83,10 +83,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="source\BenchmarkResult.cpp" />
     <ClCompile Include="source\BenchmarkTask.cpp" />
     <ClCompile Include="source\main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="source\BenchmarkResult.h" />
     <ClInclude Include="source\BenchmarkTask.h" />
   </ItemGroup>
   <ItemGroup>

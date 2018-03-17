@@ -21,9 +21,15 @@
     <ClCompile Include="source\BenchmarkTask.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="source\BenchmarkResult.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\BenchmarkTask.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\BenchmarkResult.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

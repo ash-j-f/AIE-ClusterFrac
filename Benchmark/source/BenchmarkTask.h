@@ -17,4 +17,5 @@ public:
 	void serializeLocal(cf::WorkPacket &p);
 
 	void deserializeLocal(cf::WorkPacket &p);
+
 };

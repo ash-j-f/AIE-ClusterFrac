@@ -85,7 +85,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="source\main.cpp" />
+    <ClCompile Include="source\Host.cpp" />
     <ClCompile Include="source\Result.cpp" />
     <ClCompile Include="source\Task.cpp" />
     <ClCompile Include="source\WorkPacket.cpp" />
@@ -93,6 +93,7 @@
   <ItemGroup>
     <ClInclude Include="source\ClusterFrac.h" />
     <ClInclude Include="source\DllExport.h" />
+    <ClInclude Include="source\Host.h" />
     <ClInclude Include="source\Result.h" />
     <ClInclude Include="source\Task.h" />
     <ClInclude Include="source\WorkPacket.h" />

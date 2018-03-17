@@ -10,7 +10,31 @@ BenchmarkTask::~BenchmarkTask()
 
 std::vector<cf::Task *> BenchmarkTask::split(int count) const
 {
-	return std::vector<cf::Task *>();
+	//Limit number of tasks to at least number of target numbers.
+	if ((int)numbers.size() < count) count = (int)numbers.size();
+
+	std::vector<BenchmarkTask *> tasks = std::vector<BenchmarkTask *>();
+	tasks.resize(count);
+
+	for (int i = 0; i < count; i++) tasks[i] = new BenchmarkTask();
+
+	//Distribute numbers among the new BenchmarkTasks.
+	const int step = (int)ceil((float)numbers.size() / (float)count);
+	int start = 0;
+	int end = step;
+	for (int i = 0; i < count; i++)
+	{	
+		tasks[i]->numbers.insert(tasks[i]->numbers.begin(), numbers.begin() + start, numbers.begin() + std::min(end, (int)numbers.size()));
+		
+		start = start + step;
+		end = end + step;
+	}
+
+	//Convert BenchmarkTask pointers to Task pointers.
+	std::vector<cf::Task *> tasksConv;
+	for (auto &task : tasks) tasksConv.push_back((Task *) task);
+
+	return tasksConv;
 }
 
 void BenchmarkTask::serializeLocal(cf::WorkPacket &p)
