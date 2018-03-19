@@ -1,7 +1,23 @@
 #include <iostream>
+#include <vector>
 #include <ClusterFrac.h>
 #include "BenchmarkTask.h" 
 #include "BenchmarkResult.h" 
+
+class ClientDetails
+{
+public: 
+	ClientDetails() 
+	{
+		socket = new sf::TcpSocket();
+	};
+	~ClientDetails() 
+	{
+		delete socket;
+	};
+
+	sf::TcpSocket *socket;
+};
 
 int main(int argc, //Number of strings in array argv  
 	char *argv[], //Array of command-line argument strings  
@@ -15,12 +31,17 @@ int main(int argc, //Number of strings in array argv
 
 	std::cout << "My IP address: " << IPADDRESS.toString() << std::endl;
 
-	sf::TcpSocket socket;
+	std::vector<ClientDetails *> clients;
+
+	clients.push_back(new ClientDetails());
 
 	sf::TcpListener listener;
 	listener.listen(PORT);
-	listener.accept(socket);
-	std::cout << "New client connected: " << socket.getRemoteAddress() << std::endl;
+	listener.accept(*clients[0]->socket);
+	std::cout << "New client connected: " << (*clients[0]->socket).getRemoteAddress() << std::endl;
+
+	//Clean up client detail objects.
+	for (auto &c : clients) delete c;
 
 	system("pause");
 
