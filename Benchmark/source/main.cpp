@@ -1,8 +1,8 @@
 #include <iostream>
 #include <vector>
 #include <ClusterFrac.h>
-#include "BenchmarkTask.h" 
-#include "BenchmarkResult.h" 
+#include "BenchmarkTask.hpp" 
+#include "BenchmarkResult.hpp" 
 
 class ClientDetails
 {

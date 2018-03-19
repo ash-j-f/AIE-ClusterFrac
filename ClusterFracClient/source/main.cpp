@@ -1,5 +1,8 @@
 #include <iostream>
 #include <SFML/Network.hpp>
+#include <ClusterFrac.h>
+#include "BenchmarkTask.hpp" 
+#include "BenchmarkResult.hpp"
 
 int main(int argc, //Number of strings in array argv  
 	char *argv[], //Array of command-line argument strings  
@@ -23,6 +26,23 @@ int main(int argc, //Number of strings in array argv
 	{
 		std::cout << "Failed." << std::endl;
 	}
+
+	std::string msg;
+	cf::WorkPacket packet;
+
+	socket.receive(packet);
+
+	std::string type;
+	packet >> type;
+
+	std::string subType;
+	packet >> subType;
+	
+	BenchmarkTask *bmt1 = new BenchmarkTask();
+
+	bmt1->deserialize(packet);
+
+	std::cout << "Done." << std::endl;
 
 	system("pause");
 
