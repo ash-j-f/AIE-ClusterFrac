@@ -40,6 +40,16 @@ int main(int argc, //Number of strings in array argv
 	listener.accept(*clients[0]->socket);
 	std::cout << "New client connected: " << (*clients[0]->socket).getRemoteAddress() << std::endl;
 
+	BenchmarkTask *bmt1 = new BenchmarkTask();
+	for (int i = 0; i < 10; i++) bmt1->numbers.push_back((float)rand() / 10.0f);
+
+	cf::WorkPacket packet;
+	//globalMutex.lock();
+	bmt1->serialize(packet);
+	//globalMutex.unlock();
+
+	clients[0]->socket->send(packet);
+
 	//Clean up client detail objects.
 	for (auto &c : clients) delete c;
 
