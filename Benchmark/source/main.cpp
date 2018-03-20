@@ -84,6 +84,8 @@ int main(int argc, //Number of strings in array argv
 	
 	std::cout << "Computation and network time: " << std::chrono::duration <double, std::milli>(diff).count() << " ms" << std::endl;
 
+	std::cout << "Deserializing results packet." << std::endl;
+
 	std::string type;
 	packet >> type;
 
@@ -105,12 +107,16 @@ int main(int argc, //Number of strings in array argv
 		
 	bmr1->deserialize(packet);
 
+	packet.clear();
+
 	std::cout << "Square Roots (" << std::to_string(((BenchmarkResult *)bmr1)->numbers.size()) << " total):" << std::endl;
 
 	for (int i = 0; i < 5 /*((BenchmarkResult *)bmr1)->numbers.size()*/; i++)
 	{
 		std::cout << std::to_string(((BenchmarkResult *)bmr1)->numbers[i]) << std::endl;
 	}
+
+	std::cout << "..." << std::endl;
 
 	delete bmr1;
 
