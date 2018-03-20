@@ -1,4 +1,5 @@
 #include <iostream>
+#include <string>
 #include <SFML/Network.hpp>
 #include <ClusterFrac.h>
 #include "BenchmarkTask.hpp" 
@@ -8,11 +9,21 @@ int main(int argc, //Number of strings in array argv
 	char *argv[], //Array of command-line argument strings  
 	char *envp[]) // Array of environment variable strings  
 {
-
 	std::cout << "Starting ClusterFrac CLIENT." << std::endl;
 
 	const unsigned short PORT = 5000;
-	const sf::IpAddress IPADDRESS = sf::IpAddress::getLocalAddress();
+
+	//Set host address to connect to from command line.
+	std::string ip;
+	if (argc > 1)
+	{
+		ip = ip.assign(argv[1]);
+	}
+	else
+	{
+		ip = "10.10.1.89";
+	}
+	const sf::IpAddress IPADDRESS(ip);
 	
 	std::cout << "My IP address: " << IPADDRESS.toString() << std::endl;
 	
@@ -40,15 +51,15 @@ int main(int argc, //Number of strings in array argv
 	std::string subType;
 	packet >> subType;
 	
-	BenchmarkTask *bmt1 = new BenchmarkTask();
+	cf::Task *bmt1 = new BenchmarkTask();
 
 	bmt1->deserialize(packet);
 
-	bmt1->run();
+	cf::Result *bmr1 = bmt1->run();
 
 	packet.clear();
 
-	bmt1->serialize(packet);
+	bmr1->serialize(packet);
 
 	socket.send(packet);
 

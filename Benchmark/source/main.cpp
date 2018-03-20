@@ -75,15 +75,15 @@ int main(int argc, //Number of strings in array argv
 	std::string subType;
 	packet >> subType;
 
-	BenchmarkResult *bmr1 = new BenchmarkResult();
+	cf::Result *bmr1 = new BenchmarkResult();
 
 	bmr1->deserialize(packet);
 
 	std::cout << "Square Roots:" << std::endl;
 
-	for (int i = 0; i < bmr1->numbers.size(); i++)
+	for (int i = 0; i < ((BenchmarkResult *)bmr1)->numbers.size(); i++)
 	{
-		std::cout << std::to_string(bmr1->numbers[i]) << std::endl;
+		std::cout << std::to_string(((BenchmarkResult *)bmr1)->numbers[i]) << std::endl;
 	}
 
 	//Clean up client detail objects.
