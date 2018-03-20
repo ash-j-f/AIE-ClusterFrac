@@ -12,24 +12,15 @@ public:
 
 	inline std::string getSubtype() const { return "BenchmarkResult"; };
 
-	virtual cf::Result *merge(const std::vector<cf::Result *> others) const
+	virtual void merge(const std::vector<cf::Result *> others)
 	{
+
+		//Insert the other results into the new merged result.
+		for (auto &r : others)
 		{
-			BenchmarkResult *tmpResult = new BenchmarkResult();
-
-			//Insert our results into the new merged result.
-			tmpResult->numbers.insert(tmpResult->numbers.begin(), numbers.begin(), numbers.end());
-
-			//Insert the other results into the new merged result.
-			for (auto &r : others)
-			{
-				//Skip ourself, in case the list of others contains this results chunk too.
-				if (r == this) continue;
-
-				tmpResult->numbers.insert(tmpResult->numbers.end(), ((BenchmarkResult *)r)->numbers.begin(), ((BenchmarkResult *)r)->numbers.end());
-			}
-			return (Result *)tmpResult;
+			numbers.insert(numbers.end(), ((BenchmarkResult *)r)->numbers.begin(), ((BenchmarkResult *)r)->numbers.end());
 		}
+
 	};
 
 	void serializeLocal(cf::WorkPacket &p)

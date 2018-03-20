@@ -46,7 +46,7 @@ int main(int argc, //Number of strings in array argv
 	std::cout << "Generating test data." << std::endl;
 
 	BenchmarkTask *bmt1 = new BenchmarkTask();
-	for (int i = 0; i < 10000000; i++) bmt1->numbers.push_back((float)rand() / 10.0f);
+	for (int i = 0; i < 1000000000; i++) bmt1->numbers.push_back((float)rand() / 10.0f);
 
 	cf::WorkPacket packet;
 	//globalMutex.lock();

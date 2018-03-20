@@ -1,5 +1,7 @@
 #include <iostream>
 #include <string>
+#include <thread>
+#include <future>
 #include <SFML/Network.hpp>
 #include <ClusterFrac.h>
 #include "BenchmarkTask.hpp" 
@@ -60,8 +62,28 @@ int main(int argc, //Number of strings in array argv
 
 	bmt1->deserialize(packet);
 
-	cf::Result *bmr1 = bmt1->run();
+	std::cout << "Running task on multiple CPU threads." << std::endl;
 
+	//Split the task among available threads and run.
+	std::vector<cf::Task *> tasks = bmt1->split(std::thread::hardware_concurrency());
+
+	std::vector<std::future<cf::Result *>> threads = std::vector<std::future<cf::Result *>>();
+
+	for (auto &task : tasks)
+	{
+		threads.push_back(std::async(std::launch::async, [&task]() { return task->run(); }));
+	}
+
+	cf::Result *bmr1 = new BenchmarkResult();
+
+	std::cout << "Merging results." << std::endl;
+
+	for (auto &thread : threads)
+	{
+		auto result = thread.get();
+		bmr1->merge({result});
+	}
+	
 	packet.clear();
 
 	bmr1->serialize(packet);

@@ -31,12 +31,11 @@ namespace cf
 		virtual std::string getSubtype() const = 0;
 
 		/**
-		* Return a pointer to a new result object that is a merged version
-		* of this result combined with all others in a std::vector.
+		* Merge other results in a std::vector into this result.
 		* @param others A std::vector of pointers to the other results to merge with this one.
 		* @returns A pointer to a single new merged result.
 		*/
-		virtual Result *merge(const std::vector<Result *> others) const = 0;
+		virtual void merge(const std::vector<Result *> others) = 0;
 	
 		inline void serialize(cf::WorkPacket &p) { p << getType(); p << getSubtype(); serializeLocal(p); };
 
