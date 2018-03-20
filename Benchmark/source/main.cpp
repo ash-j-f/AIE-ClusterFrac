@@ -42,7 +42,7 @@ int main(int argc, //Number of strings in array argv
 	std::cout << "New client connected: " << (*clients[0]->socket).getRemoteAddress() << std::endl;
 
 	BenchmarkTask *bmt1 = new BenchmarkTask();
-	for (int i = 0; i < 10; i++) bmt1->numbers.push_back((float)rand() / 10.0f);
+	for (int i = 0; i < 1000000; i++) bmt1->numbers.push_back((float)rand() / 10.0f);
 
 	cf::WorkPacket packet;
 	//globalMutex.lock();
@@ -75,13 +75,24 @@ int main(int argc, //Number of strings in array argv
 	std::string subType;
 	packet >> subType;
 
-	cf::Result *bmr1 = new BenchmarkResult();
+	if (type != "Result") throw "Not a result type.";
 
+	cf::Result *bmr1;
+	
+	if (subType == "BenchmarkResult")
+	{
+		bmr1 = new BenchmarkResult();
+	}
+	else
+	{
+		throw "Not a recognised result type.";
+	}
+		
 	bmr1->deserialize(packet);
 
 	std::cout << "Square Roots:" << std::endl;
 
-	for (int i = 0; i < ((BenchmarkResult *)bmr1)->numbers.size(); i++)
+	for (int i = 0; i < 5 /*((BenchmarkResult *)bmr1)->numbers.size()*/; i++)
 	{
 		std::cout << std::to_string(((BenchmarkResult *)bmr1)->numbers[i]) << std::endl;
 	}
