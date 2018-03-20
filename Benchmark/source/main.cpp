@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <chrono>
 #include <ClusterFrac.h>
 #include "BenchmarkTask.hpp" 
 #include "BenchmarkResult.hpp" 
@@ -45,6 +46,11 @@ int main(int argc, //Number of strings in array argv
 
 	cf::WorkPacket packet;
 	//globalMutex.lock();
+	
+	
+	//TIME TEST START
+	auto start = std::chrono::steady_clock::now();
+
 	bmt1->serialize(packet);
 	//globalMutex.unlock();
 
@@ -52,7 +58,16 @@ int main(int argc, //Number of strings in array argv
 
 	packet.clear();
 
-	clients[0]->socket->receive(packet);
+	while (packet.getDataSize() == 0)
+	{
+		clients[0]->socket->receive(packet);
+	}
+
+	//TIME TEST END
+	auto end = std::chrono::steady_clock::now();
+	auto diff = end - start;
+	
+	std::cout << "Computation and network time: " << std::chrono::duration <double, std::milli>(diff).count() << " ms" << std::endl;
 
 	std::string type;
 	packet >> type;
@@ -62,13 +77,13 @@ int main(int argc, //Number of strings in array argv
 
 	BenchmarkResult *bmr1 = new BenchmarkResult();
 
-	bmt1->deserialize(packet);
+	bmr1->deserialize(packet);
 
 	std::cout << "Square Roots:" << std::endl;
 
-	for (int i = 0; i < bmt1->numbers.size(); i++)
+	for (int i = 0; i < bmr1->numbers.size(); i++)
 	{
-		std::cout << std::to_string(bmt1->numbers[i]) << std::endl;
+		std::cout << std::to_string(bmr1->numbers[i]) << std::endl;
 	}
 
 	//Clean up client detail objects.
@@ -76,29 +91,4 @@ int main(int argc, //Number of strings in array argv
 
 	system("pause");
 
-		//BenchmarkTask *bmt1 = new BenchmarkTask();
-
-		//for (int i = 0; i < 1000000; i++) bmt1->numbers.push_back((float)rand() / 10.0f);
-
-		//std::vector<cf::Task *> splitTasks = bmt1->split(8);
-
-		//std::vector<cf::Result *> resultList;
-		//for (auto task : splitTasks) resultList.push_back(task->run());
-
-		//cf::Result *mergedResults = resultList[0]->merge(resultList);
-
-		////cf::Result *mergedResults = bmr1->merge(std::vector<cf::Result *> { bmr1, bmr2 });
-
-		//cf::WorkPacket p;
-		////splitTasks[0]->serialize(p);
-		////
-		//////Determine type here.
-		////std::string type;
-		////p >> type;
-		////
-		////bmt2->deserialize(p);
-
-		//bmt1->serialize(p);
-
-	
 }

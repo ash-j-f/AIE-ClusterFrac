@@ -29,7 +29,10 @@ int main(int argc, //Number of strings in array argv
 
 	cf::WorkPacket packet;
 
-	socket.receive(packet);
+	while (packet.getDataSize() == 0)
+	{
+		socket.receive(packet);
+	}
 
 	std::string type;
 	packet >> type;
