@@ -3,7 +3,7 @@
 cf::WorkPacket::WorkPacket()
 {
 	//Compression default status.
-	compression = true;
+	compression = false;
 }
 
 cf::WorkPacket::~WorkPacket()
@@ -16,10 +16,6 @@ const void * cf::WorkPacket::onSend(std::size_t & size)
 
 	if (compression)
 	{
-		// We only support data with a maximum size of
-		// an unsigned short (so the size can be sent
-		// in the first two bytes of the packet)
-		//assert(size <= 65535);
 
 		// Cast the data to a bytef pointer
 		const Bytef* srcData = static_cast<const Bytef*>(getData());
@@ -31,24 +27,20 @@ const void * cf::WorkPacket::onSend(std::size_t & size)
 		uLong dstSize = compressBound(srcSize);
 
 		// Resize the vector to accomodate the compressed data,
-		// plus two bytes for our uncompressed size
+		// plus four bytes for our uncompressed size
 		oCompressionBuffer.resize(dstSize + 4);
 
-		// Take the first 8 bytes of srcSize
+		// Store srcSize as the first four bytes of the buffer
 		oCompressionBuffer[0] = srcSize & 0xFF;
-
-		// And the second 8 bytes
 		oCompressionBuffer[1] = (srcSize >> 8) & 0xFF;
-
 		oCompressionBuffer[2] = (srcSize >> 16) & 0xFF;
-
 		oCompressionBuffer[3] = (srcSize >> 24) & 0xFF;
 
 		// Compress the data into the rest of the buffer
 		compress(oCompressionBuffer.data() + 4, &dstSize, srcData, srcSize);
 
 		// Set the size to the compressed size plus
-		// two bytes for the size marker
+		// the four bytes for the size marker
 		size = (dstSize + 4);
 
 		tmpData = oCompressionBuffer.data();
@@ -71,7 +63,7 @@ void cf::WorkPacket::onReceive(const void * data, std::size_t size)
 		// Cast the data to Bytef*, the format zlib deals with
 		const Bytef* srcData = static_cast<const Bytef*>(data);
 
-		// Extract the uncompressed data size from the first two
+		// Extract the uncompressed data size from the first four
 		// bytes in the packet so we can use it for the buffer
 		sf::Uint32 uncompressedSize = srcData[3] << 24 | srcData[2] << 16 | srcData[1] << 8 | srcData[0];
 
@@ -81,18 +73,18 @@ void cf::WorkPacket::onReceive(const void * data, std::size_t size)
 		// Declare a variable for the destination size
 		uLong dstSize;
 
-		// Uncompress the data (remove the first two bytes)
+		// Uncompress the data (skip the first four bytes which were the size data)
 		uncompress(oCompressionBuffer.data(), &dstSize, (srcData + 4), (uLong)size - 4);
 
 		// Assert that the uncompressed size is the same as the
 		// size we were sent for the buffer
 		//assert(dstSize == uncompressedSize);
 
-		// Append it to the packet
+		// Append data to the packet
 		append(oCompressionBuffer.data(), dstSize);
 	}
 	else
 	{
-		//append(data, size);
+		append(data, size);
 	}
 }
