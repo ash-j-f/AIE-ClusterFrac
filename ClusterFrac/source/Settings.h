@@ -1,6 +1,6 @@
 #pragma once
 
-#define SETTINGS cf::Settings::getInstance()
+#define CF_SETTINGS cf::Settings::getInstance()
 
 namespace cf
 {

@@ -1,18 +1,21 @@
 #include "Settings.h"
 
-Settings::Settings()
+namespace cf
 {
-	//Defaults
-	debug = false;
-}
+	Settings::Settings()
+	{
+		//Defaults
+		debug = false;
+	}
 
-Settings::~Settings()
-{
-}
+	Settings::~Settings()
+	{
+	}
 
-Settings *Settings::getInstance()
-{
-	static Settings settings;
+	Settings *Settings::getInstance()
+	{
+		static Settings settings;
 
-	return &settings;
+		return &settings;
+	}
 }

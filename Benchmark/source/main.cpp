@@ -10,7 +10,9 @@ int main(int argc, //Number of strings in array argv
 	char *envp[]) // Array of environment variable strings  
 {
 
-	cf::Host
+	CF_SETTINGS->debug = true;
+	cf::Host *host = new cf::Host();
+	host->start();
 
 	///////////
 	// REFERENCE HOST

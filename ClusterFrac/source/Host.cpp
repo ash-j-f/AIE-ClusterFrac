@@ -19,7 +19,7 @@ namespace cf
 
 	void Host::start()
 	{
-		SAY("Starting ClusterFrac HOST on port " << std::to_string(port) << ".");
+		CF_SAY("Starting ClusterFrac HOST on port " << std::to_string(port) << ".");
 
 		//Initialise incoming connection listener.
 		listening = true;
