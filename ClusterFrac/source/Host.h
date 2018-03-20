@@ -1,6 +1,8 @@
 #pragma once
 #include <vector>
 #include <atomic>
+#include <thread>
+#include <future>
 #include <SFML\Network.hpp>
 #include "DllExport.h"
 #include "ConsoleMessage.h"
@@ -38,6 +40,13 @@ namespace cf
 		* @returns void.
 		*/
 		inline void setPort(int portNum) { if (portNum > 0 && portNum <= 65535) { port = portNum; } else { throw "Invalid port number.";  }; };
+
+		/**
+		* Listen for incoming connections.
+		* To be used by a dedicated thread.
+		* @returns void.
+		*/
+		void listenThread();
 
 	private:
 		
@@ -87,14 +96,14 @@ namespace cf
 		//Listener for incoming connections
 		sf::TcpListener listener;
 
+		//Should the listener thread be listening for connections?
+		std::atomic<bool> listen;
+
 		//Is the server listening for connections?
 		std::atomic<bool> listening;
 
-		/**
-		* Listen for incoming connections.
-		* To be used by a dedicated thread.
-		* @returns void.
-		*/
-		void listenThread();
+		//Connection listening thread.
+		std::thread listenerThread;
+
 	};
 }

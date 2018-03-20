@@ -8,11 +8,17 @@ namespace cf
 		port = 5000;
 
 		//Listening default status.
-		listening = false;
+		listen = false;
 	}
 	
 	Host::~Host()
 	{
+		//Set listening status to signal listener thread to shut down.
+		listen = false;
+
+		//Wait for the listening thread to shut down.
+		if (listenerThread.joinable()) listenerThread.join();
+
 		//Clean up any remaining registered clients.
 		for (auto &c : clients) delete c;
 	}
@@ -26,12 +32,23 @@ namespace cf
 		listener.listen(port);
 		//Add the listener to the selector.
 		selector.add(listener);
+
+		//Launch listener thread.
+		listenerThread = std::thread(std::launch::async, [&]() { this->listenThread(); });
 	}
 
 	void Host::listenThread()
 	{
+		//If there is already a thread listening, abort.
+		if (listening) return;
+
+		//Register listening active.
+		listening = true;
+
+		CF_SAY("Listener thread started.");
 		//Endless loop that waits for new connections.
-		while (listening)
+		//Aborts if listening flag is set false.
+		while (listen)
 		{
 			//Make the selector wait for data on any socket.
 			if (selector.wait())
@@ -74,6 +91,9 @@ namespace cf
 				}
 			}
 		}
+
+		listening = false;
+		CF_SAY("Listener thread ended.");
 	}
 
 }
