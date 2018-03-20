@@ -21,9 +21,10 @@ int main(int argc, //Number of strings in array argv
 	}
 	else
 	{
-		ip = "10.10.1.89";
+		//Use local address if none given.
+		ip = sf::IpAddress::getLocalAddress().toString();
 	}
-	const sf::IpAddress IPADDRESS(ip);
+	sf::IpAddress IPADDRESS(ip);
 	
 	std::cout << "My IP address: " << IPADDRESS.toString() << std::endl;
 	
@@ -31,19 +32,23 @@ int main(int argc, //Number of strings in array argv
 
 	if (socket.connect(IPADDRESS, PORT) == sf::Socket::Done)
 	{
-		std::cout << "Connected." << std::endl;
+		std::cout << "Connected to host at " << IPADDRESS.toString() << "." << std::endl;
 	}
 	else
 	{
-		std::cout << "Failed." << std::endl;
+		std::cout << "Failed to connect to host." << std::endl;
 	}
 
 	cf::WorkPacket packet;
+
+	std::cout << "Waiting for work packet." << std::endl;
 
 	while (packet.getDataSize() == 0)
 	{
 		socket.receive(packet);
 	}
+
+	std::cout << "Received work packet." << std::endl;
 
 	std::string type;
 	packet >> type;
@@ -60,6 +65,8 @@ int main(int argc, //Number of strings in array argv
 	packet.clear();
 
 	bmr1->serialize(packet);
+
+	std::cout << "Sending results packet." << std::endl;
 
 	socket.send(packet);
 

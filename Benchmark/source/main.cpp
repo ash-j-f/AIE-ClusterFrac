@@ -35,19 +35,25 @@ int main(int argc, //Number of strings in array argv
 	std::vector<ClientDetails *> clients;
 
 	clients.push_back(new ClientDetails());
+	
+	std::cout << "Waiting for client to connect." << std::endl;
 
 	sf::TcpListener listener;
 	listener.listen(PORT);
 	listener.accept(*clients[0]->socket);
 	std::cout << "New client connected: " << (*clients[0]->socket).getRemoteAddress() << std::endl;
 
+	std::cout << "Generating test data." << std::endl;
+
 	BenchmarkTask *bmt1 = new BenchmarkTask();
-	for (int i = 0; i < 1000000; i++) bmt1->numbers.push_back((float)rand() / 10.0f);
+	for (int i = 0; i < 10000000; i++) bmt1->numbers.push_back((float)rand() / 10.0f);
 
 	cf::WorkPacket packet;
 	//globalMutex.lock();
 	
 	
+	std::cout << "Sending data." << std::endl;
+
 	//TIME TEST START
 	auto start = std::chrono::steady_clock::now();
 
@@ -56,12 +62,18 @@ int main(int argc, //Number of strings in array argv
 
 	clients[0]->socket->send(packet);
 
+	std::cout << "Data sent." << std::endl;
+
 	packet.clear();
+
+	std::cout << "Waiting for results." << std::endl;
 
 	while (packet.getDataSize() == 0)
 	{
 		clients[0]->socket->receive(packet);
 	}
+
+	std::cout << "Results received." << std::endl;
 
 	//TIME TEST END
 	auto end = std::chrono::steady_clock::now();
@@ -90,7 +102,7 @@ int main(int argc, //Number of strings in array argv
 		
 	bmr1->deserialize(packet);
 
-	std::cout << "Square Roots:" << std::endl;
+	std::cout << "Square Roots (" << std::to_string(((BenchmarkResult *)bmr1)->numbers.size()) << " total):" << std::endl;
 
 	for (int i = 0; i < 5 /*((BenchmarkResult *)bmr1)->numbers.size()*/; i++)
 	{
@@ -99,6 +111,8 @@ int main(int argc, //Number of strings in array argv
 
 	//Clean up client detail objects.
 	for (auto &c : clients) delete c;
+
+	std::cout << "Done" << std::endl;
 
 	system("pause");
 

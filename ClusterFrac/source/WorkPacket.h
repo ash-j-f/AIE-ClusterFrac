@@ -16,7 +16,7 @@ namespace cf
 
 	private:
 		std::vector<Bytef> oCompressionBuffer;
-		//virtual const void* onSend(std::size_t& size);
-		//virtual void onReceive(const void* data, std::size_t size);
+		virtual const void* onSend(std::size_t& size);
+		virtual void onReceive(const void* data, std::size_t size);
 	};
 }
