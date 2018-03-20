@@ -1,8 +1,9 @@
 #pragma once
-#include "DllExport.h"
 #include <vector>
 #include <atomic>
 #include <SFML\Network.hpp>
+#include "DllExport.h"
+#include "ConsoleMessage.h"
 
 namespace cf
 {
