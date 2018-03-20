@@ -10,9 +10,16 @@ int main(int argc, //Number of strings in array argv
 	char *envp[]) // Array of environment variable strings  
 {
 
-	CF_SETTINGS->debug = true;
+	//Set debug mode on for verbose console debug message output.
+	CF_SETTINGS->setDebug(true);
+
+	//Create new host object.
 	cf::Host *host = new cf::Host();
+
+	//Start the host.
 	host->start();
+
+
 
 	///////////
 	// REFERENCE HOST
