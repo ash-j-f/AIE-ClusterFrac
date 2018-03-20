@@ -10,6 +10,9 @@ namespace cf
 		//Listening default status.
 		listen = false;
 		listening = false;
+
+		//Default starting client ID.
+		nextClientID = 0;
 	}
 	
 	Host::~Host()
@@ -58,7 +61,7 @@ namespace cf
 				if (selector.isReady(listener))
 				{
 					//The listener is ready: there is a pending connection.
-					ClientDetails *newClient = new ClientDetails();
+					ClientDetails *newClient = new ClientDetails(getNextClientID());
 					if (listener.accept(*newClient->socket) == sf::Socket::Done)
 					{
 						//Add the new client to the clients list.
@@ -66,6 +69,8 @@ namespace cf
 						//Add the new client to the selector so that we will
 						//be notified when it sends something.
 						selector.add(*newClient->socket);
+						
+						CF_SAY("Client ID " << std::to_string(newClient->getClientID()) << " connected from IP " << (*newClient->socket).getRemoteAddress().toString() << ".");
 					}
 					else
 					{

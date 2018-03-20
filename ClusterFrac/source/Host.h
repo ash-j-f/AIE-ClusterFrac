@@ -48,6 +48,12 @@ namespace cf
 		*/
 		void listenThread();
 
+		/**
+		* Get and reserve the next available client ID, and then increment the internal next client ID counter.
+		* @returns The next available client ID.
+		*/
+		int getNextClientID() { return nextClientID++; }
+
 	private:
 		
 		////////////////////////////////////////////////////
@@ -67,6 +73,17 @@ namespace cf
 			ClientDetails()
 			{
 				socket = new sf::TcpSocket();
+				ID = 0;
+			};
+
+			/**
+			* Constructor with client ID.
+			* @param newID The client ID to use for this new client.
+			*/
+			ClientDetails(int newID)
+			{
+				socket = new sf::TcpSocket();
+				ID = newID;
 			};
 
 			/**
@@ -79,6 +96,17 @@ namespace cf
 
 			//Socket used to communicate with this client.
 			sf::TcpSocket *socket;
+		
+			/**
+			* Get client ID.
+			* @returns The client's ID.
+			*/
+			int getClientID() { return ID; }
+
+		private:
+
+			//Unique client ID on this host.
+			int ID;
 		};
 		////////////////////////////////////////////////////
 		// End ClientDetails class.
@@ -105,5 +133,7 @@ namespace cf
 		//Connection listening thread.
 		std::thread listenerThread;
 
+		//Next client ID to use.
+		int nextClientID;
 	};
 }

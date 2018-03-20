@@ -19,6 +19,11 @@ int main(int argc, //Number of strings in array argv
 	//Start the host.
 	host->start();
 
+	while (true)
+	{
+		//DO STUFF HERE
+	}
+
 	delete host;
 
 	///////////
