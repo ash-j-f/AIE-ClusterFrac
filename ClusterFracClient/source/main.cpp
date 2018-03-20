@@ -11,106 +11,111 @@ int main(int argc, //Number of strings in array argv
 	char *argv[], //Array of command-line argument strings  
 	char *envp[]) // Array of environment variable strings  
 {
-	std::cout << "Starting ClusterFrac CLIENT." << std::endl;
 
-	const unsigned short PORT = 5000;
+	///////////
+	// REFERENCE CLIENT
+	///////////
 
-	//Set host address to connect to from command line.
-	std::string ip;
-	if (argc > 1)
-	{
-		ip = ip.assign(argv[1]);
-	}
-	else
-	{
-		//Use local address if none given.
-		ip = sf::IpAddress::getLocalAddress().toString();
-	}
-	sf::IpAddress IPADDRESS(ip);
-	
-	std::cout << "My IP address: " << IPADDRESS.toString() << std::endl;
-	
-	sf::TcpSocket socket;
+	//std::cout << "Starting ClusterFrac CLIENT." << std::endl;
 
-	if (socket.connect(IPADDRESS, PORT) == sf::Socket::Done)
-	{
-		std::cout << "Connected to host at " << IPADDRESS.toString() << "." << std::endl;
-	}
-	else
-	{
-		std::cout << "Failed to connect to host." << std::endl;
-	}
+	//const unsigned short PORT = 5000;
 
-	cf::WorkPacket packet;
+	////Set host address to connect to from command line.
+	//std::string ip;
+	//if (argc > 1)
+	//{
+	//	ip = ip.assign(argv[1]);
+	//}
+	//else
+	//{
+	//	//Use local address if none given.
+	//	ip = sf::IpAddress::getLocalAddress().toString();
+	//}
+	//sf::IpAddress IPADDRESS(ip);
+	//
+	//std::cout << "My IP address: " << IPADDRESS.toString() << std::endl;
+	//
+	//sf::TcpSocket socket;
 
-	std::cout << "Waiting for work packet." << std::endl;
+	//if (socket.connect(IPADDRESS, PORT) == sf::Socket::Done)
+	//{
+	//	std::cout << "Connected to host at " << IPADDRESS.toString() << "." << std::endl;
+	//}
+	//else
+	//{
+	//	std::cout << "Failed to connect to host." << std::endl;
+	//}
 
-	while (packet.getDataSize() == 0)
-	{
-		socket.receive(packet);
-	}
+	//cf::WorkPacket packet;
 
-	std::cout << "Received work packet." << std::endl;
+	//std::cout << "Waiting for work packet." << std::endl;
 
-	std::string type;
-	packet >> type;
+	//while (packet.getDataSize() == 0)
+	//{
+	//	socket.receive(packet);
+	//}
 
-	std::string subType;
-	packet >> subType;
-	
-	cf::Task *bmt1 = new BenchmarkTask();
+	//std::cout << "Received work packet." << std::endl;
 
-	bmt1->deserialize(packet);
+	//std::string type;
+	//packet >> type;
 
-	packet.clear();
+	//std::string subType;
+	//packet >> subType;
+	//
+	//cf::Task *bmt1 = new BenchmarkTask();
 
-	std::cout << "Running task on multiple CPU threads." << std::endl;
+	//bmt1->deserialize(packet);
 
-	//Split the task among available threads and run.
-	std::vector<cf::Task *> tasks = bmt1->split(std::thread::hardware_concurrency());
+	//packet.clear();
 
-	delete bmt1;
+	//std::cout << "Running task on multiple CPU threads." << std::endl;
 
-	std::vector<std::future<cf::Result *>> threads = std::vector<std::future<cf::Result *>>();
+	////Split the task among available threads and run.
+	//std::vector<cf::Task *> tasks = bmt1->split(std::thread::hardware_concurrency());
 
-	for (auto &task : tasks)
-	{
-		threads.push_back(std::async(std::launch::async, [&task]() { return task->run(); }));
-	}
+	//delete bmt1;
 
-	cf::Result *bmr1 = new BenchmarkResult();
+	//std::vector<std::future<cf::Result *>> threads = std::vector<std::future<cf::Result *>>();
 
-	for (auto &thread : threads)
-	{
-		auto result = thread.get();
-		std::cout << "Waiting for results and merging..." << std::endl;
-		bmr1->merge({result});
-		delete result;
-	}
+	//for (auto &task : tasks)
+	//{
+	//	threads.push_back(std::async(std::launch::async, [&task]() { return task->run(); }));
+	//}
 
-	std::cout << "Task complete." << std::endl;
+	//cf::Result *bmr1 = new BenchmarkResult();
 
-	for (auto &task : tasks)
-	{
-		delete task;
-	}
-	
-	//Remove old thread data.
-	threads.clear();
+	//for (auto &thread : threads)
+	//{
+	//	auto result = thread.get();
+	//	std::cout << "Waiting for results and merging..." << std::endl;
+	//	bmr1->merge({result});
+	//	delete result;
+	//}
 
-	packet.clear();
+	//std::cout << "Task complete." << std::endl;
 
-	bmr1->serialize(packet);
+	//for (auto &task : tasks)
+	//{
+	//	delete task;
+	//}
+	//
+	////Remove old thread data.
+	//threads.clear();
 
-	delete bmr1;
+	//packet.clear();
 
-	std::cout << "Sending results packet." << std::endl;
+	//bmr1->serialize(packet);
 
-	socket.send(packet);
+	//delete bmr1;
 
-	packet.clear();
-	
-	std::cout << "Done." << std::endl;
+	//std::cout << "Sending results packet." << std::endl;
+
+	//socket.send(packet);
+
+	//packet.clear();
+	//
+	//std::cout << "Done." << std::endl;
 
 	system("pause");
 

@@ -5,125 +5,116 @@
 #include "BenchmarkTask.hpp" 
 #include "BenchmarkResult.hpp" 
 
-class ClientDetails
-{
-public: 
-	ClientDetails() 
-	{
-		socket = new sf::TcpSocket();
-	};
-	~ClientDetails() 
-	{
-		delete socket;
-	};
-
-	sf::TcpSocket *socket;
-};
-
 int main(int argc, //Number of strings in array argv  
 	char *argv[], //Array of command-line argument strings  
 	char *envp[]) // Array of environment variable strings  
 {
 
-	std::cout << "Starting ClusterFrac HOST." << std::endl;
+	cf::Host
 
-	const unsigned short PORT = 5000;
-	const sf::IpAddress IPADDRESS = sf::IpAddress::getLocalAddress();
+	///////////
+	// REFERENCE HOST
+	///////////
 
-	std::cout << "My IP address: " << IPADDRESS.toString() << std::endl;
+	//std::cout << "Starting ClusterFrac HOST." << std::endl;
 
-	std::vector<ClientDetails *> clients;
+	//const unsigned short PORT = 5000;
+	//const sf::IpAddress IPADDRESS = sf::IpAddress::getLocalAddress();
 
-	clients.push_back(new ClientDetails());
-	
-	std::cout << "Waiting for client to connect." << std::endl;
+	//std::cout << "My IP address: " << IPADDRESS.toString() << std::endl;
 
-	sf::TcpListener listener;
-	listener.listen(PORT);
-	listener.accept(*clients[0]->socket);
-	std::cout << "New client connected: " << (*clients[0]->socket).getRemoteAddress() << std::endl;
+	//std::vector<ClientDetails *> clients;
 
-	std::cout << "Generating test data." << std::endl;
+	//clients.push_back(new ClientDetails());
+	//
+	//std::cout << "Waiting for client to connect." << std::endl;
 
-	BenchmarkTask *bmt1 = new BenchmarkTask();
-	for (int i = 0; i < 1000000000; i++) bmt1->numbers.push_back((float)rand() / 10.0f);
+	//sf::TcpListener listener;
+	//listener.listen(PORT);
+	//listener.accept(*clients[0]->socket);
+	//std::cout << "New client connected: " << (*clients[0]->socket).getRemoteAddress() << std::endl;
 
-	cf::WorkPacket packet;
-	//globalMutex.lock();
-	
-	
-	std::cout << "Sending data." << std::endl;
+	//std::cout << "Generating test data." << std::endl;
 
-	//TIME TEST START
-	auto start = std::chrono::steady_clock::now();
+	//BenchmarkTask *bmt1 = new BenchmarkTask();
+	//for (int i = 0; i < 1000000000; i++) bmt1->numbers.push_back((float)rand() / 10.0f);
 
-	bmt1->serialize(packet);
+	//cf::WorkPacket packet;
+	////globalMutex.lock();
+	//
+	//
+	//std::cout << "Sending data." << std::endl;
 
-	delete bmt1;
+	////TIME TEST START
+	//auto start = std::chrono::steady_clock::now();
 
-	//globalMutex.unlock();
+	//bmt1->serialize(packet);
 
-	clients[0]->socket->send(packet);
+	//delete bmt1;
 
-	std::cout << "Data sent." << std::endl;
+	////globalMutex.unlock();
 
-	packet.clear();
+	//clients[0]->socket->send(packet);
 
-	std::cout << "Waiting for results." << std::endl;
+	//std::cout << "Data sent." << std::endl;
 
-	while (packet.getDataSize() == 0)
-	{
-		clients[0]->socket->receive(packet);
-	}
+	//packet.clear();
 
-	std::cout << "Results received." << std::endl;
+	//std::cout << "Waiting for results." << std::endl;
 
-	//TIME TEST END
-	auto end = std::chrono::steady_clock::now();
-	auto diff = end - start;
-	
-	std::cout << "Computation and network time: " << std::chrono::duration <double, std::milli>(diff).count() << " ms" << std::endl;
+	//while (packet.getDataSize() == 0)
+	//{
+	//	clients[0]->socket->receive(packet);
+	//}
 
-	std::cout << "Deserializing results packet." << std::endl;
+	//std::cout << "Results received." << std::endl;
 
-	std::string type;
-	packet >> type;
+	////TIME TEST END
+	//auto end = std::chrono::steady_clock::now();
+	//auto diff = end - start;
+	//
+	//std::cout << "Computation and network time: " << std::chrono::duration <double, std::milli>(diff).count() << " ms" << std::endl;
 
-	std::string subType;
-	packet >> subType;
+	//std::cout << "Deserializing results packet." << std::endl;
 
-	if (type != "Result") throw "Not a result type.";
+	//std::string type;
+	//packet >> type;
 
-	cf::Result *bmr1;
-	
-	if (subType == "BenchmarkResult")
-	{
-		bmr1 = new BenchmarkResult();
-	}
-	else
-	{
-		throw "Not a recognised result type.";
-	}
-		
-	bmr1->deserialize(packet);
+	//std::string subType;
+	//packet >> subType;
 
-	packet.clear();
+	//if (type != "Result") throw "Not a result type.";
 
-	std::cout << "Square Roots (" << std::to_string(((BenchmarkResult *)bmr1)->numbers.size()) << " total):" << std::endl;
+	//cf::Result *bmr1;
+	//
+	//if (subType == "BenchmarkResult")
+	//{
+	//	bmr1 = new BenchmarkResult();
+	//}
+	//else
+	//{
+	//	throw "Not a recognised result type.";
+	//}
+	//	
+	//bmr1->deserialize(packet);
 
-	for (int i = 0; i < 5 /*((BenchmarkResult *)bmr1)->numbers.size()*/; i++)
-	{
-		std::cout << std::to_string(((BenchmarkResult *)bmr1)->numbers[i]) << std::endl;
-	}
+	//packet.clear();
 
-	std::cout << "..." << std::endl;
+	//std::cout << "Square Roots (" << std::to_string(((BenchmarkResult *)bmr1)->numbers.size()) << " total):" << std::endl;
 
-	delete bmr1;
+	//for (int i = 0; i < 5 /*((BenchmarkResult *)bmr1)->numbers.size()*/; i++)
+	//{
+	//	std::cout << std::to_string(((BenchmarkResult *)bmr1)->numbers[i]) << std::endl;
+	//}
 
-	//Clean up client detail objects.
-	for (auto &c : clients) delete c;
+	//std::cout << "..." << std::endl;
 
-	std::cout << "Done" << std::endl;
+	//delete bmr1;
+
+	////Clean up client detail objects.
+	//for (auto &c : clients) delete c;
+
+	//std::cout << "Done" << std::endl;
 
 	system("pause");
 
