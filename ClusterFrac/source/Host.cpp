@@ -9,6 +9,7 @@ namespace cf
 
 		//Listening default status.
 		listen = false;
+		listening = false;
 	}
 	
 	Host::~Host()
@@ -28,13 +29,13 @@ namespace cf
 		CF_SAY("Starting ClusterFrac HOST on port " << std::to_string(port) << ".");
 
 		//Initialise incoming connection listener.
-		listening = true;
 		listener.listen(port);
 		//Add the listener to the selector.
 		selector.add(listener);
 
 		//Launch listener thread.
-		listenerThread = std::thread(std::launch::async, [&]() { this->listenThread(); });
+		listen = true;
+		listenerThread = std::thread([this] { listenThread(); });
 	}
 
 	void Host::listenThread()

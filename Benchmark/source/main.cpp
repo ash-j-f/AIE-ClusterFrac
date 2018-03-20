@@ -19,7 +19,7 @@ int main(int argc, //Number of strings in array argv
 	//Start the host.
 	host->start();
 
-
+	delete host;
 
 	///////////
 	// REFERENCE HOST
