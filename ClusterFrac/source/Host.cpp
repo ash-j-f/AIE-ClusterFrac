@@ -81,8 +81,14 @@ namespace cf
 				else
 				{
 					// The listener socket is not ready, test all other sockets (the clients)
-					for (auto &client: clients)
+					std::vector<ClientDetails *>::iterator it;
+					//Using erase-or-increment method here, so increment iterator at END of loop.
+					for (it = clients.begin(); it != clients.end();)
 					{
+						bool erasedOne = false;
+						
+						ClientDetails *client = *it;
+
 						if (selector.isReady(*client->socket))
 						{
 							// The client has sent some data, we can receive it
@@ -91,8 +97,21 @@ namespace cf
 							{
 								//DO STUFF HERE
 							}
+							else if ((*client->socket).receive(*packet) == sf::Socket::Disconnected)
+							{
+								CF_SAY("Client ID " << std::to_string(client->getClientID()) << " disconnected.");
+								selector.remove(*client->socket);
+								(*client->socket).disconnect();
+								delete client;
+								//Erase the client, and increment the client iterator to the next client.
+								it = clients.erase(it);
+								erasedOne = true;
+							}
 							delete packet;
 						}
+
+						//Increment client iterator only if an erase wasn't called.
+						if (!erasedOne) it++;
 					}
 				}
 			}
