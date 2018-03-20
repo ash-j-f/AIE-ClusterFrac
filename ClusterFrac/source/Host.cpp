@@ -49,7 +49,7 @@ namespace cf
 		//Register listening active.
 		listening = true;
 
-		CF_SAY("Listener thread started.");
+		CF_SAY("Listener thread started. Waiting for clients to connect.");
 		//Endless loop that waits for new connections.
 		//Aborts if listening flag is set false.
 		while (listen)
@@ -70,7 +70,8 @@ namespace cf
 						//be notified when it sends something.
 						selector.add(*newClient->socket);
 						
-						CF_SAY("Client ID " << std::to_string(newClient->getClientID()) << " connected from IP " << (*newClient->socket).getRemoteAddress().toString() << ".");
+						CF_SAY("Client ID " << std::to_string(newClient->getClientID()) << " from IP " 
+							<< (*newClient->socket).getRemoteAddress().toString() << " connected.");
 					}
 					else
 					{
@@ -99,7 +100,8 @@ namespace cf
 							}
 							else if ((*client->socket).receive(*packet) == sf::Socket::Disconnected)
 							{
-								CF_SAY("Client ID " << std::to_string(client->getClientID()) << " disconnected.");
+								CF_SAY("Client ID " << std::to_string(client->getClientID()) << " from IP " 
+									<< (*client->socket).getRemoteAddress().toString() << " disconnected.");
 								selector.remove(*client->socket);
 								(*client->socket).disconnect();
 								delete client;
