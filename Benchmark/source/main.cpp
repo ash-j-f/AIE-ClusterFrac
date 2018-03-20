@@ -58,6 +58,9 @@ int main(int argc, //Number of strings in array argv
 	auto start = std::chrono::steady_clock::now();
 
 	bmt1->serialize(packet);
+
+	delete bmt1;
+
 	//globalMutex.unlock();
 
 	clients[0]->socket->send(packet);
@@ -108,6 +111,8 @@ int main(int argc, //Number of strings in array argv
 	{
 		std::cout << std::to_string(((BenchmarkResult *)bmr1)->numbers[i]) << std::endl;
 	}
+
+	delete bmr1;
 
 	//Clean up client detail objects.
 	for (auto &c : clients) delete c;

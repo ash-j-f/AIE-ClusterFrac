@@ -62,10 +62,14 @@ int main(int argc, //Number of strings in array argv
 
 	bmt1->deserialize(packet);
 
+	packet.clear();
+
 	std::cout << "Running task on multiple CPU threads." << std::endl;
 
 	//Split the task among available threads and run.
 	std::vector<cf::Task *> tasks = bmt1->split(std::thread::hardware_concurrency());
+
+	delete bmt1;
 
 	std::vector<std::future<cf::Result *>> threads = std::vector<std::future<cf::Result *>>();
 
@@ -76,22 +80,36 @@ int main(int argc, //Number of strings in array argv
 
 	cf::Result *bmr1 = new BenchmarkResult();
 
-	std::cout << "Merging results." << std::endl;
-
 	for (auto &thread : threads)
 	{
 		auto result = thread.get();
+		std::cout << "Waiting for results and merging..." << std::endl;
 		bmr1->merge({result});
+		delete result;
+	}
+
+	std::cout << "Task complete." << std::endl;
+
+	for (auto &task : tasks)
+	{
+		delete task;
 	}
 	
+	//Remove old thread data.
+	threads.clear();
+
 	packet.clear();
 
 	bmr1->serialize(packet);
+
+	delete bmr1;
 
 	std::cout << "Sending results packet." << std::endl;
 
 	socket.send(packet);
 
+	packet.clear();
+	
 	std::cout << "Done." << std::endl;
 
 	system("pause");
