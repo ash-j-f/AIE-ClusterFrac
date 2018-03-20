@@ -50,6 +50,27 @@ int main(int argc, //Number of strings in array argv
 
 	clients[0]->socket->send(packet);
 
+	packet.clear();
+
+	clients[0]->socket->receive(packet);
+
+	std::string type;
+	packet >> type;
+
+	std::string subType;
+	packet >> subType;
+
+	BenchmarkResult *bmr1 = new BenchmarkResult();
+
+	bmt1->deserialize(packet);
+
+	std::cout << "Square Roots:" << std::endl;
+
+	for (int i = 0; i < bmt1->numbers.size(); i++)
+	{
+		std::cout << std::to_string(bmt1->numbers[i]) << std::endl;
+	}
+
 	//Clean up client detail objects.
 	for (auto &c : clients) delete c;
 

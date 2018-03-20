@@ -27,7 +27,6 @@ int main(int argc, //Number of strings in array argv
 		std::cout << "Failed." << std::endl;
 	}
 
-	std::string msg;
 	cf::WorkPacket packet;
 
 	socket.receive(packet);
@@ -41,6 +40,14 @@ int main(int argc, //Number of strings in array argv
 	BenchmarkTask *bmt1 = new BenchmarkTask();
 
 	bmt1->deserialize(packet);
+
+	bmt1->run();
+
+	packet.clear();
+
+	bmt1->serialize(packet);
+
+	socket.send(packet);
 
 	std::cout << "Done." << std::endl;
 
