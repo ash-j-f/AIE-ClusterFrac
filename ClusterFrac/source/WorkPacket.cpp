@@ -16,12 +16,17 @@ const void * cf::WorkPacket::onSend(std::size_t & size)
 
 	if (compression)
 	{
-
+		
 		// Cast the data to a bytef pointer
 		const Bytef* srcData = static_cast<const Bytef*>(getData());
 
 		// Get the size of the packet to send
-		uLong srcSize = (uLong)getDataSize();
+		size_t tmpSize = getDataSize();
+
+		//Zlib by default only supports 32 bits max for the size integer.
+		if (tmpSize > ULONG_MAX) throw "Data too large to compress using Zlib.";
+
+		uLong srcSize = (uLong)tmpSize;
 
 		// Compute the size of the compressed data
 		uLong dstSize = compressBound(srcSize);
@@ -48,6 +53,7 @@ const void * cf::WorkPacket::onSend(std::size_t & size)
 	}
 	else
 	{
+		//Skip compression.
 		size = getDataSize();
 		tmpData = getData();
 	}
@@ -65,6 +71,7 @@ void cf::WorkPacket::onReceive(const void * data, std::size_t size)
 
 		// Extract the uncompressed data size from the first four
 		// bytes in the packet so we can use it for the buffer
+		//Use SFML sf::Uint32 to ensure byte order and size is sane across different platforms.
 		sf::Uint32 uncompressedSize = srcData[3] << 24 | srcData[2] << 16 | srcData[1] << 8 | srcData[0];
 
 		// Resize the vector to accomodate the uncompressed data
@@ -85,6 +92,7 @@ void cf::WorkPacket::onReceive(const void * data, std::size_t size)
 	}
 	else
 	{
+		//Skip decompression.
 		append(data, size);
 	}
 }
