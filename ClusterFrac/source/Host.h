@@ -1,6 +1,7 @@
 #pragma once
 #include "DllExport.h"
 #include <vector>
+#include <atomic>
 #include <SFML\Network.hpp>
 
 namespace cf
@@ -77,12 +78,22 @@ namespace cf
 		int port;
 
 		//Connected client details.
-		std::vector<ClientDetails> clients;
+		std::vector<ClientDetails *> clients;
 
 		//Socket selector for managing multiple connections.
 		sf::SocketSelector selector;
 
 		//Listener for incoming connections
 		sf::TcpListener listener;
+
+		//Is the server listening for connections?
+		std::atomic<bool> listening;
+
+		/**
+		* Listen for incoming connections.
+		* To be used by a dedicated thread.
+		* @returns void.
+		*/
+		void listenThread();
 	};
 }
