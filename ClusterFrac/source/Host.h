@@ -59,9 +59,9 @@ namespace cf
 
 		/**
 		* Send tasks to clients for processing.
-		* @returns void.
+		* @returns True if sending succeeded, false if not.
 		*/
-		void sendTasks();
+		bool sendTasks();
 
 		/**
 		* Get a count of all connected clients.

@@ -144,20 +144,36 @@ namespace cf
 		CF_SAY("Added task to queue.");
 	}
 
-	void Host::sendTasks()
+	bool Host::sendTasks()
 	{
+		if (getClientsCount() < 1)
+		{
+			CF_SAY("Cannot send tasks. No clients connected.");
+			return false;
+		}
+
+		//Divide tasks among clients.
+		std::vector<Task *> subTaskQueue;
+		std::vector<Task *> dividedTasks;
+		CF_SAY("Diving tasks among clients.");
+		for (auto &task : taskQueue)
+		{
+			dividedTasks = task->split(getClientsCount());
+			subTaskQueue.insert(subTaskQueue.end(), dividedTasks.begin(), dividedTasks.end());
+		}
+
 		CF_SAY("Sending tasks to clients.");
 		//Spawn a sender thread for each task.
 		std::vector<std::thread> taskSendThreads;
 		//Distribute tasks among available clients.
-		while (taskQueue.size() > 0)
+		while (subTaskQueue.size() > 0)
 		{
 			for (auto &client : clients)
 			{
 				//Skip busy clients.
 				if (client->busy) continue;
 				client->busy = true;
-				Task *task = taskQueue.front;
+				Task *task = taskQueue.front();
 				taskQueue.pop_front();
 				taskSendThreads.push_back(std::thread([this, client, task]() { sendTaskThread(client, task); }));
 				CF_SAY("Task send thread started for client " << std::to_string(client->getClientID()) << ".");
@@ -174,6 +190,8 @@ namespace cf
 		}
 
 		CF_SAY("Task sending finished.");
+
+		return true;
 	}
 
 	void Host::sendTaskThread(ClientDetails *client, Task *task)
