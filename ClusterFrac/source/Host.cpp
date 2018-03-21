@@ -10,9 +10,6 @@ namespace cf
 		//Listening default status.
 		listen = false;
 		listening = false;
-
-		//Default starting client ID.
-		nextClientID = 0;
 	}
 	
 	Host::~Host()
@@ -62,7 +59,7 @@ namespace cf
 				if (selector.isReady(listener))
 				{
 					//The listener is ready: there is a pending connection.
-					ClientDetails *newClient = new ClientDetails(getNextClientID());
+					ClientDetails *newClient = new ClientDetails(CF_ID->getNextClientID());
 					std::unique_lock<std::mutex> lock(newClient->socketMutex);
 					if (listener.accept(*newClient->socket) == sf::Socket::Done)
 					{

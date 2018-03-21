@@ -5,6 +5,7 @@
 #include <SFML\Network.hpp>
 #include "WorkPacket.h"
 #include "Result.h"
+#include "IDManager.h"
 
 namespace cf
 {
@@ -13,8 +14,6 @@ namespace cf
 	public:
 
 		Task();
-
-		Task(int parentID);
 
 		~Task();
 
@@ -35,13 +34,13 @@ namespace cf
 		*/
 		virtual std::string getSubtype() const = 0;
 
-		inline std::vector<Task *> split(int count);
+		std::vector<Task *> split(int count);
 
-		inline void serialize(cf::WorkPacket &p) { p << getType(); p << getSubtype(); serializeLocal(p); };
+		inline void serialize(WorkPacket &p) { p << getType(); p << getSubtype(); serializeLocal(p); };
 
-		inline void deserialize(cf::WorkPacket &p) { deserializeLocal(p); };
+		inline void deserialize(WorkPacket &p) { deserializeLocal(p); };
 
-		virtual cf::Result *run() = 0;
+		virtual Result *run() = 0;
 
 	private:
 
@@ -53,19 +52,21 @@ namespace cf
 		*/
 		virtual std::vector<Task *> splitLocal(int count) const = 0;
 
-		virtual void serializeLocal(cf::WorkPacket &p) = 0;
+		virtual void serializeLocal(WorkPacket &p) = 0;
 
-		virtual void deserializeLocal(cf::WorkPacket &p) = 0;
+		virtual void deserializeLocal(WorkPacket &p) = 0;
 
+		//The ID of this task.
 		int taskID;
 		
-		int parentID;
+		//The ID of the initial task before it was split.
+		int initialTaskID;
 
+		//Part number of this task relative to initial task since last split.
 		int taskPartNumber;
 
+		//Total parts relative to initial task since last split.
 		int taskPartsTotal;
-
-		inline int generateID() { return //TODO: Make ID generator singleton. Add ids to serialisation. Pass parent id to split tasks.; };
 
 	};
 }

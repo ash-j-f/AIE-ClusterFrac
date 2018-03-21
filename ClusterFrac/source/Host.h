@@ -10,6 +10,7 @@
 #include "DllExport.h"
 #include "ConsoleMessager.hpp"
 #include "Task.h"
+#include "IDManager.h"
 
 namespace cf
 {
@@ -44,12 +45,6 @@ namespace cf
 		* @returns void.
 		*/
 		inline void setPort(int portNum) { if (portNum > 0 && portNum <= 65535) { port = portNum; } else { throw "Invalid port number.";  }; };
-
-		/**
-		* Get and reserve the next available client ID, and then increment the internal next client ID counter.
-		* @returns The next available client ID.
-		*/
-		inline int getNextClientID() { return nextClientID++; }
 
 		/**
 		* Add a task to the task queue for sending to clients.
@@ -94,7 +89,7 @@ namespace cf
 			* Constructor with client ID.
 			* @param newID The client ID to use for this new client.
 			*/
-			ClientDetails(int newID)
+			ClientDetails(unsigned int newID)
 			{
 				ID = newID;
 				init();
@@ -131,12 +126,12 @@ namespace cf
 			* Get client ID.
 			* @returns The client's ID.
 			*/
-			int getClientID() { return ID; }
+			unsigned int getClientID() { return ID; }
 
 		private:
 
 			//Unique client ID on this host.
-			int ID;
+			unsigned int ID;
 		};
 		////////////////////////////////////////////////////
 		// End ClientDetails class.
@@ -162,9 +157,6 @@ namespace cf
 
 		//Connection listening thread.
 		std::thread listenerThread;
-
-		//Next client ID to use.
-		int nextClientID;
 
 		//Task queue.
 		std::list<cf::Task *> taskQueue;
