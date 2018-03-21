@@ -116,6 +116,8 @@ namespace cf
 										+ (*client->socket).getRemoteAddress().toString() + " disconnected.");
 									selector.remove(*client->socket);
 									(*client->socket).disconnect();
+									//Release lock on socket as we are about to delete the client object that contains the socket and mutex.
+									lock.unlock();
 									delete client;
 									//Erase the client, and increment the client iterator to the next client.
 									it = clients.erase(it);
