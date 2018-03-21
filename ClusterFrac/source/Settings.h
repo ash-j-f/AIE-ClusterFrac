@@ -6,14 +6,15 @@
 namespace cf
 {
 
+	/**
+	* Settings management class.
+	* Singleton class.
+	* @author Ashley Flynn - Academy of Interactive Entertainment - 2018.
+	*/
 	class DLL Settings
 	{
 
 	public:
-
-		Settings();
-
-		~Settings();
 
 		/**
 		* Create or get static instance.
@@ -35,6 +36,16 @@ namespace cf
 		void setDebug(bool state) { debug = state; };
 
 	private:
+
+		/**
+		* Default constructor.
+		*/
+		Settings();
+
+		/**
+		* Default destructor.
+		*/
+		~Settings();
 
 		//The current debug mode status.
 		bool debug;

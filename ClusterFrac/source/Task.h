@@ -11,7 +11,11 @@ namespace cf
 	class DLL Task
 	{
 	public:
+
 		Task();
+
+		Task(int parentID);
+
 		~Task();
 
 		/**
@@ -31,13 +35,7 @@ namespace cf
 		*/
 		virtual std::string getSubtype() const = 0;
 
-		/**
-		* Split this task up as equally as possible in to N chunks, and return
-		* a std::vector of pointers to those split tasks.
-		* @param count Split the task into this many subtasks.
-		* @returns A std::vector of pointers to the new split tasks.
-		*/
-		virtual std::vector<Task *> split(int count) const = 0;
+		inline std::vector<Task *> split(int count);
 
 		inline void serialize(cf::WorkPacket &p) { p << getType(); p << getSubtype(); serializeLocal(p); };
 
@@ -47,9 +45,27 @@ namespace cf
 
 	private:
 
+		/**
+		* Split this task up as equally as possible in to N chunks, and return
+		* a std::vector of pointers to those split tasks.
+		* @param count Split the task into this many subtasks.
+		* @returns A std::vector of pointers to the new split tasks.
+		*/
+		virtual std::vector<Task *> splitLocal(int count) const = 0;
+
 		virtual void serializeLocal(cf::WorkPacket &p) = 0;
 
 		virtual void deserializeLocal(cf::WorkPacket &p) = 0;
+
+		int taskID;
+		
+		int parentID;
+
+		int taskPartNumber;
+
+		int taskPartsTotal;
+
+		inline int generateID() { return //TODO: Make ID generator singleton. Add ids to serialisation. Pass parent id to split tasks.; };
 
 	};
 }

@@ -207,6 +207,12 @@ namespace cf
 		return true;
 	}
 
+	void Host::addResultToQueue(Result *result)
+	{
+		resultQueue.push_back(result);
+		CF_SAY("Added result to queue.");
+	}
+
 	void Host::sendTaskThread(ClientDetails *client, Task *task)
 	{
 		bool done = false;

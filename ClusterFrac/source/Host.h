@@ -65,6 +65,13 @@ namespace cf
 		bool sendTasks();
 
 		/**
+		* Add a result to the result queue.
+		* @param result The result to add.
+		* @returns void.
+		*/
+		void addResultToQueue(Result *result);
+
+		/**
 		* Get a count of all connected clients.
 		* @returns The number of connected clients.
 		*/
@@ -82,15 +89,6 @@ namespace cf
 		class ClientDetails
 		{
 		public:
-			
-			/**
-			* Default constructor.
-			*/
-			ClientDetails()
-			{
-				ID = 0;
-				init();
-			};
 
 			/**
 			* Constructor with client ID.
@@ -170,6 +168,9 @@ namespace cf
 
 		//Task queue.
 		std::list<cf::Task *> taskQueue;
+
+		//Results queue.
+		std::list<cf::Result *> resultQueue;
 
 		/**
 		* Listen for incoming connections.
