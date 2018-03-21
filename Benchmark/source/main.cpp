@@ -20,23 +20,31 @@ int main(int argc, //Number of strings in array argv
 	//Start the host.
 	host->start();
 
-	CF_SAY("Generating test data");
+	CF_SAY("Generating test data.");
 
 	BenchmarkTask *testTask = new BenchmarkTask();
 	for (int i = 0; i < 1000; i++) testTask->numbers.push_back((float)rand() / 10.0f);
 
 	host->addTaskToQueue(testTask);
 
-	if (!host->sendTasks())
+	//Wait for at least one client.
+	CF_SAY("Waiting for clients.");
+	while (host->getClientsCount() < 1)
 	{
-		CF_SAY("Aborting.");
-		exit(0);
+		//WAIT.
 	}
 
-	//Wait for user input to continue.
-	while (!sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
+	if (host->sendTasks())
 	{
-		//DO STUFF HERE
+		//Wait for user input to continue.
+		while (!sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
+		{
+			//DO STUFF HERE
+		}
+	}
+	else
+	{
+		CF_SAY("Aborting.");
 	}
 
 	delete testTask;
