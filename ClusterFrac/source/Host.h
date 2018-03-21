@@ -47,7 +47,7 @@ namespace cf
 		* Get and reserve the next available client ID, and then increment the internal next client ID counter.
 		* @returns The next available client ID.
 		*/
-		int getNextClientID() { return nextClientID++; }
+		inline int getNextClientID() { return nextClientID++; }
 
 		/**
 		* Add a task to the task queue for sending to clients.

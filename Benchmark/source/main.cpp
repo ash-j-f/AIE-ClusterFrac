@@ -2,6 +2,7 @@
 #include <vector>
 #include <chrono>
 #include <ClusterFrac.h>
+#include <SFML\Window\Keyboard.hpp>
 #include "BenchmarkTask.hpp" 
 #include "BenchmarkResult.hpp" 
 
@@ -19,7 +20,7 @@ int main(int argc, //Number of strings in array argv
 	//Start the host.
 	host->start();
 
-	while (true)
+	while (!sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
 	{
 		//DO STUFF HERE
 	}
