@@ -3,9 +3,11 @@
 #include <atomic>
 #include <thread>
 #include <future>
+#include <mutex>
 #include <SFML\Network.hpp>
 #include "DllExport.h"
 #include "ConsoleMessage.h"
+#include "Task.h"
 
 namespace cf
 {
@@ -42,17 +44,29 @@ namespace cf
 		inline void setPort(int portNum) { if (portNum > 0 && portNum <= 65535) { port = portNum; } else { throw "Invalid port number.";  }; };
 
 		/**
-		* Listen for incoming connections.
-		* To be used by a dedicated thread.
-		* @returns void.
-		*/
-		void listenThread();
-
-		/**
 		* Get and reserve the next available client ID, and then increment the internal next client ID counter.
 		* @returns The next available client ID.
 		*/
 		int getNextClientID() { return nextClientID++; }
+
+		/**
+		* Add a task to the task queue for sending to clients.
+		* @param task The task to add.
+		* @returns void.
+		*/
+		void addTaskToQueue(Task *task);
+
+		/**
+		* Send tasks to clients for processing.
+		* @returns void.
+		*/
+		void sendTasks();
+
+		/**
+		* Get a count of all connected clients.
+		* @returns The number of connected clients.
+		*/
+		inline int getClientsCount() const { return (int)clients.size(); };
 
 	private:
 		
@@ -97,6 +111,9 @@ namespace cf
 			//Socket used to communicate with this client.
 			sf::TcpSocket *socket;
 		
+			//Socket mutex for this client, for locking the socket during use.
+			std::mutex socketMutex;
+
 			/**
 			* Get client ID.
 			* @returns The client's ID.
@@ -135,5 +152,24 @@ namespace cf
 
 		//Next client ID to use.
 		int nextClientID;
+
+		//Task queue.
+		std::vector<cf::Task *> taskQueue;
+
+		/**
+		* Listen for incoming connections.
+		* To be used by a dedicated thread.
+		* @returns void.
+		*/
+		void listenThread();
+
+		/**
+		* Send task to a client.
+		* To be used by a dedicated thread.
+		* @param client The client to send the task to.
+		* @param Task the task to send.
+		* @returns void.
+		*/
+		void sendTaskThread(ClientDetails *client, Task *task);
 	};
 }

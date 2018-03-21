@@ -55,7 +55,8 @@ namespace cf
 		while (listen)
 		{
 			//Make the selector wait for data on any socket.
-			if (selector.wait())
+			//A timeout of N seconds is set to avoid locking the thread indefinitely.
+			if (selector.wait(sf::Time(sf::seconds(5))))
 			{
 				//Test the listener.
 				if (selector.isReady(listener))
@@ -81,7 +82,7 @@ namespace cf
 				}
 				else
 				{
-					// The listener socket is not ready, test all other sockets (the clients)
+					//The listener socket is not ready, test all other sockets (the clients)
 					std::vector<ClientDetails *>::iterator it;
 					//Using erase-or-increment method here, so increment iterator at END of loop.
 					for (it = clients.begin(); it != clients.end();)
@@ -89,29 +90,35 @@ namespace cf
 						bool erasedOne = false;
 						
 						ClientDetails *client = *it;
-
-						if (selector.isReady(*client->socket))
+						std::unique_lock<std::mutex> lock(client->socketMutex, std::try_to_lock);
+						if (lock.owns_lock())
 						{
-							// The client has sent some data, we can receive it
-							sf::Packet *packet = new sf::Packet();
-							if ((*client->socket).receive(*packet) == sf::Socket::Done)
+							if (selector.isReady(*client->socket))
 							{
-								//DO STUFF HERE
-							}
-							else if ((*client->socket).receive(*packet) == sf::Socket::Disconnected)
-							{
-								CF_SAY("Client ID " << std::to_string(client->getClientID()) << " from IP " 
-									<< (*client->socket).getRemoteAddress().toString() << " disconnected.");
-								selector.remove(*client->socket);
-								(*client->socket).disconnect();
-								delete client;
-								//Erase the client, and increment the client iterator to the next client.
-								it = clients.erase(it);
-								erasedOne = true;
-							}
-							delete packet;
-						}
+								// The client has sent some data, we can receive it
+								sf::Packet *packet = new sf::Packet();
+								if ((*client->socket).receive(*packet) == sf::Socket::Done)
+								{
+									//Check incoming packet type.
+									//TODO
 
+									//Perform action based on packet type.
+									//TODO
+								}
+								else if ((*client->socket).receive(*packet) == sf::Socket::Disconnected)
+								{
+									CF_SAY("Client ID " << std::to_string(client->getClientID()) << " from IP "
+										<< (*client->socket).getRemoteAddress().toString() << " disconnected.");
+									selector.remove(*client->socket);
+									(*client->socket).disconnect();
+									delete client;
+									//Erase the client, and increment the client iterator to the next client.
+									it = clients.erase(it);
+									erasedOne = true;
+								}
+								delete packet;
+							}
+						}
 						//Increment client iterator only if an erase wasn't called.
 						if (!erasedOne) it++;
 					}
@@ -121,6 +128,30 @@ namespace cf
 
 		listening = false;
 		CF_SAY("Listener thread ended.");
+	}
+
+	void Host::addTaskToQueue(Task *task)
+	{
+		taskQueue.push_back(task);
+	}
+
+	void Host::sendTasks()
+	{
+		//Spawn a sender thread for each client.
+		//TODO
+
+		//Empty the task queue.
+		taskQueue.clear();
+	}
+
+	void Host::sendTaskThread(ClientDetails *client, Task *task)
+	{
+		std::unique_lock<std::mutex> lock(client->socketMutex);
+		if (lock.owns_lock())
+		{
+			//Send task to client.
+			//TODO 
+		}
 	}
 
 }

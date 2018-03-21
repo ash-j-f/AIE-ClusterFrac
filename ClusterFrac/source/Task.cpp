@@ -10,7 +10,6 @@ namespace cf
 		sf::Packet p;
 	}
 
-
 	Task::~Task()
 	{
 	}
