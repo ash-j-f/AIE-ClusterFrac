@@ -10,6 +10,8 @@ namespace cf
 {
 	class DLL Result
 	{
+
+		//Task class needs access to Result private members.
 		friend class Task;
 
 	public:

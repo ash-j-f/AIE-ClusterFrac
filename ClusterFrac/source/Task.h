@@ -16,8 +16,6 @@ namespace cf
 
 		Task();
 
-		//Task(unsigned int newInitialTaskID, unsigned int newTaskPartNumber, unsigned int newTaskPartsTotal);
-
 		~Task();
 
 		/**

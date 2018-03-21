@@ -45,7 +45,7 @@ namespace cf
 		std::sort(others.begin(), others.end(), 
 			[](cf::Result *a, cf::Result *b) 
 			{ 
-				return (a->getTaskPartNumber() > b->getTaskPartNumber());
+				return (a->getTaskPartNumber() < b->getTaskPartNumber());
 			}
 		);
 

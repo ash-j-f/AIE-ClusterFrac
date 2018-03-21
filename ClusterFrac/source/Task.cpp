@@ -12,14 +12,6 @@ namespace cf
 		taskPartsTotalStack.push_back(1);
 	}
 
-	//Task::Task(unsigned int newInitialTaskID, unsigned int newTaskPartNumber, unsigned int newTaskPartsTotal)
-	//{
-	//	taskID = CF_ID->getNextTaskID();
-	//	initialTaskID = newInitialTaskID;
-	//	taskPartNumber = newTaskPartNumber;
-	//	taskPartsTotal = newTaskPartsTotal;
-	//}
-
 	Task::~Task()
 	{
 	}
@@ -78,11 +70,12 @@ namespace cf
 		Result *result = runLocal();
 
 		//Add task data to the result.
+
 		result->initialTaskID = initialTaskID;
 
 		result->taskPartNumberStack = taskPartNumberStack;
 
-		result->taskPartsTotalStack = result->taskPartsTotalStack;
+		result->taskPartsTotalStack = taskPartsTotalStack;
 
 		return result;
 	}

@@ -93,7 +93,6 @@ int main(int argc, //Number of strings in array argv
 	}
 	
 	cf::Result *bmr1 = new BenchmarkResult();
-	std::random_shuffle(results.begin(), results.end());
 	bmr1->merge(results);
 
 	//Clean up temporary results objects.
