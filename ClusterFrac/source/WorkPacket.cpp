@@ -2,6 +2,15 @@
 
 cf::WorkPacket::WorkPacket()
 {
+
+	//Packets have no flag by default.
+	flag = None;
+}
+
+cf::WorkPacket::WorkPacket(Flag newFlag)
+{
+	flag = newFlag;
+
 	//Compression default status.
 	compression = false;
 }

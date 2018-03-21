@@ -223,7 +223,7 @@ namespace cf
 				CF_SAY("Sending task to client " + std::to_string(client->getClientID()) + ".");
 
 				//Send task to client.
-				cf::WorkPacket packet;
+				cf::WorkPacket packet(cf::WorkPacket::Flag::Task);
 				task->serialize(packet);
 
 				client->socket->send(packet);

@@ -12,7 +12,7 @@ public:
 
 	inline std::string getSubtype() const { return "BenchmarkResult"; };
 
-	virtual void mergeLocal(const std::vector<cf::Result *> others)
+	inline virtual void mergeLocal(const std::vector<cf::Result *> others)
 	{
 
 		//Insert the other results into the new merged result.
@@ -23,14 +23,14 @@ public:
 
 	};
 
-	void serializeLocal(cf::WorkPacket &p)
+	inline void serializeLocal(cf::WorkPacket &p)
 	{
 		sf::Int64 size = numbers.size();
 		p << size;
 		for (sf::Int64 i = 0; i < size; i++) p << numbers[i];
 	};
 
-	void deserializeLocal(cf::WorkPacket &p)
+	inline void deserializeLocal(cf::WorkPacket &p)
 	{
 		sf::Int64 size;
 		p >> size;

@@ -13,7 +13,7 @@ public:
 
 	inline std::string getSubtype() const { return "BenchmarkTask"; };
 
-	std::vector<cf::Task *> splitLocal(int count) const
+	inline std::vector<cf::Task *> splitLocal(int count) const
 	{
 		//Limit number of tasks to at least number of target numbers.
 		if ((int)numbers.size() < count) count = (int)numbers.size();
@@ -48,14 +48,14 @@ public:
 		return tasksConv;
 	};
 
-	void serializeLocal(cf::WorkPacket &p)
+	inline void serializeLocal(cf::WorkPacket &p)
 	{
 		sf::Int64 size = numbers.size();
 		p << size;
 		for (sf::Int64 i = 0; i < size; i++) p << numbers[i];
 	};
 
-	void deserializeLocal(cf::WorkPacket &p)
+	inline void deserializeLocal(cf::WorkPacket &p)
 	{
 		sf::Int64 size;
 		p >> size;
@@ -63,7 +63,7 @@ public:
 		for (sf::Int64 i = 0; i < size; i++) p >> numbers[i];
 	};
 
-	cf::Result *runLocal()
+	inline cf::Result *runLocal()
 	{
 		BenchmarkResult *result = new BenchmarkResult();
 

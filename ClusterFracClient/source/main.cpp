@@ -108,6 +108,8 @@ int main(int argc, //Number of strings in array argv
 
 	packet.clear();
 
+	packet.setFlag(cf::WorkPacket::Flag::Result);
+
 	bmr1->serialize(packet);
 
 	delete bmr1;
