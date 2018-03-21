@@ -2,6 +2,7 @@
 #include "DllExport.h"
 #include <vector>
 #include <string>
+#include <algorithm>
 #include <SFML\Network.hpp>
 #include "WorkPacket.h"
 
@@ -29,6 +30,8 @@ namespace cf
 		* @returns The subtype ID of this class as a string.
 		*/
 		virtual std::string getSubtype() const = 0;
+
+		inline int getTaskPartNumber() const { return taskPartNumberStack.back(); };
 
 		/**
 		* Merge other results in a std::vector into this result.

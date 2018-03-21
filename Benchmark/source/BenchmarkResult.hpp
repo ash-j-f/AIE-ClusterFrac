@@ -12,7 +12,7 @@ public:
 
 	inline std::string getSubtype() const { return "BenchmarkResult"; };
 
-	virtual void merge(const std::vector<cf::Result *> others)
+	virtual void mergeLocal(const std::vector<cf::Result *> others)
 	{
 
 		//Insert the other results into the new merged result.
