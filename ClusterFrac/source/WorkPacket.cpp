@@ -24,7 +24,7 @@ cf::WorkPacket::~WorkPacket()
 void cf::WorkPacket::init()
 {
 	//Compression default status.
-	compression = true;
+	compression = false;
 }
 
 const void * cf::WorkPacket::onSend(std::size_t & size)
