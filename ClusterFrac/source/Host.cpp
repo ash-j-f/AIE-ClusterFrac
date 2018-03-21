@@ -56,13 +56,14 @@ namespace cf
 		{
 			//Make the selector wait for data on any socket.
 			//A timeout of N seconds is set to avoid locking the thread indefinitely.
-			if (selector.wait(sf::Time(sf::seconds(5))))
+			if (selector.wait(sf::Time(sf::seconds(1.0f))))
 			{
 				//Test the listener.
 				if (selector.isReady(listener))
 				{
 					//The listener is ready: there is a pending connection.
 					ClientDetails *newClient = new ClientDetails(getNextClientID());
+					std::unique_lock<std::mutex> lock(newClient->socketMutex);
 					if (listener.accept(*newClient->socket) == sf::Socket::Done)
 					{
 						//Add the new client to the clients list.
@@ -90,6 +91,7 @@ namespace cf
 						bool erasedOne = false;
 						
 						ClientDetails *client = *it;
+						//Attempt to get socket lock. Try again later if another process already has a lock on this socket.
 						std::unique_lock<std::mutex> lock(client->socketMutex, std::try_to_lock);
 						if (lock.owns_lock())
 						{
@@ -104,6 +106,12 @@ namespace cf
 
 									//Perform action based on packet type.
 									//TODO
+									//{
+										//If packet was a finished work task, mark the client not busy.
+										//TODO
+										//client->busy = false;
+									//}
+
 								}
 								else if ((*client->socket).receive(*packet) == sf::Socket::Disconnected)
 								{
@@ -133,24 +141,67 @@ namespace cf
 	void Host::addTaskToQueue(Task *task)
 	{
 		taskQueue.push_back(task);
+		CF_SAY("Added task to queue.");
 	}
 
 	void Host::sendTasks()
 	{
-		//Spawn a sender thread for each client.
-		//TODO
+		CF_SAY("Sending tasks to clients.");
+		//Spawn a sender thread for each task.
+		std::vector<std::thread> taskSendThreads;
+		//Distribute tasks among available clients.
+		while (taskQueue.size() > 0)
+		{
+			for (auto &client : clients)
+			{
+				//Skip busy clients.
+				if (client->busy) continue;
+				client->busy = true;
+				Task *task = taskQueue.front;
+				taskQueue.pop_front();
+				taskSendThreads.push_back(std::thread([this, client, task]() { sendTaskThread(client, task); }));
+				CF_SAY("Task send thread started for client " << std::to_string(client->getClientID()) << ".");
+			}
+		}
 
 		//Empty the task queue.
 		taskQueue.clear();
+
+		//Wait for threads to finish.
+		for (auto &thread : taskSendThreads)
+		{
+			thread.join();
+		}
+
+		CF_SAY("Task sending finished.");
 	}
 
 	void Host::sendTaskThread(ClientDetails *client, Task *task)
 	{
-		std::unique_lock<std::mutex> lock(client->socketMutex);
-		if (lock.owns_lock())
+		bool done = false;
+		while (!done)
 		{
-			//Send task to client.
-			//TODO 
+			std::unique_lock<std::mutex> lock(client->socketMutex, std::try_to_lock);
+			if (lock.owns_lock())
+			{
+				CF_SAY("Sending task to client " << std::to_string(client->getClientID()) << ".");
+
+				//Send task to client.
+				cf::WorkPacket packet;
+				task->serialize(packet);
+
+				client->socket->send(packet);
+
+				packet.clear();
+
+				CF_SAY("Sending task finished for client " << std::to_string(client->getClientID()) << ".");
+
+				done = true;
+			}
+
+			//Abort after a timeout.
+			//TODO
+			//done = true;
 		}
 	}
 

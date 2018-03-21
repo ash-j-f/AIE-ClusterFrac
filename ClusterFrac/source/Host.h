@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <list>
 #include <atomic>
 #include <thread>
 #include <future>
@@ -86,8 +87,8 @@ namespace cf
 			*/
 			ClientDetails()
 			{
-				socket = new sf::TcpSocket();
 				ID = 0;
+				init();
 			};
 
 			/**
@@ -96,8 +97,8 @@ namespace cf
 			*/
 			ClientDetails(int newID)
 			{
-				socket = new sf::TcpSocket();
 				ID = newID;
+				init();
 			};
 
 			/**
@@ -108,11 +109,24 @@ namespace cf
 				delete socket;
 			};
 
+			/**
+			* Standard class initialisation.
+			* @returns void.
+			*/
+			void init()
+			{
+				socket = new sf::TcpSocket();
+				busy = false;
+			};
+
 			//Socket used to communicate with this client.
 			sf::TcpSocket *socket;
 		
 			//Socket mutex for this client, for locking the socket during use.
 			std::mutex socketMutex;
+
+			//Is this client busy with a task?
+			std::atomic<bool> busy;
 
 			/**
 			* Get client ID.
@@ -154,7 +168,7 @@ namespace cf
 		int nextClientID;
 
 		//Task queue.
-		std::vector<cf::Task *> taskQueue;
+		std::list<cf::Task *> taskQueue;
 
 		/**
 		* Listen for incoming connections.
