@@ -28,16 +28,24 @@ int main(int argc, //Number of strings in array argv
 	host->addTaskToQueue(testTask);
 
 	//Wait for at least one client.
-	CF_SAY("Waiting for clients.");
-	while (host->getClientsCount() < 1)
+	CF_SAY("Waiting for 2 clients.");
+	while (host->getClientsCount() < 2)
 	{
 		//WAIT.
+	}
+
+	//Wait for user input to continue.
+	CF_SAY("Waiting for user to press B to start test.");
+	while (!sf::Keyboard::isKeyPressed(sf::Keyboard::B))
+	{
+		//DO STUFF HERE
 	}
 
 	if (host->sendTasks())
 	{
 		//Wait for user input to continue.
-		while (!sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
+		CF_SAY("Waiting for user to press E to end test.");
+		while (!sf::Keyboard::isKeyPressed(sf::Keyboard::E))
 		{
 			//DO STUFF HERE
 		}

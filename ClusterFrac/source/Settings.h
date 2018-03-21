@@ -1,11 +1,12 @@
 #pragma once
+#include "DllExport.h"
 
 #define CF_SETTINGS cf::Settings::getInstance()
 
 namespace cf
 {
 
-	class Settings
+	class DLL Settings
 	{
 
 	public:

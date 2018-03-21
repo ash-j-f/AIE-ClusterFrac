@@ -93,7 +93,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\ClusterFrac.h" />
-    <ClInclude Include="source\ConsoleMessage.h" />
+    <ClInclude Include="source\ConsoleMessager.hpp" />
     <ClInclude Include="source\DllExport.h" />
     <ClInclude Include="source\Host.h" />
     <ClInclude Include="source\Result.h" />

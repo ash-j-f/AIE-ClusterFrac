@@ -5,9 +5,10 @@
 #include <thread>
 #include <future>
 #include <mutex>
+#include <string>
 #include <SFML\Network.hpp>
 #include "DllExport.h"
-#include "ConsoleMessage.h"
+#include "ConsoleMessager.hpp"
 #include "Task.h"
 
 namespace cf

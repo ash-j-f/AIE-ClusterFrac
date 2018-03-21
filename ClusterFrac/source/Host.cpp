@@ -29,7 +29,7 @@ namespace cf
 
 	void Host::start()
 	{
-		CF_SAY("Starting ClusterFrac HOST on port " << std::to_string(port) << ".");
+		CF_SAY("Starting ClusterFrac HOST on port " + std::to_string(port) + ".");
 
 		//Initialise incoming connection listener.
 		listener.listen(port);
@@ -72,8 +72,8 @@ namespace cf
 						//be notified when it sends something.
 						selector.add(*newClient->socket);
 						
-						CF_SAY("Client ID " << std::to_string(newClient->getClientID()) << " from IP " 
-							<< (*newClient->socket).getRemoteAddress().toString() << " connected.");
+						CF_SAY("Client ID " + std::to_string(newClient->getClientID()) + " from IP " 
+							+ (*newClient->socket).getRemoteAddress().toString() + " connected.");
 					}
 					else
 					{
@@ -115,8 +115,8 @@ namespace cf
 								}
 								else if ((*client->socket).receive(*packet) == sf::Socket::Disconnected)
 								{
-									CF_SAY("Client ID " << std::to_string(client->getClientID()) << " from IP "
-										<< (*client->socket).getRemoteAddress().toString() << " disconnected.");
+									CF_SAY("Client ID " + std::to_string(client->getClientID()) + " from IP "
+										+ (*client->socket).getRemoteAddress().toString() + " disconnected.");
 									selector.remove(*client->socket);
 									(*client->socket).disconnect();
 									delete client;
@@ -166,18 +166,27 @@ namespace cf
 		//Spawn a sender thread for each task.
 		std::vector<std::thread> taskSendThreads;
 		//Distribute tasks among available clients.
-		while (subTaskQueue.size() > 0)
+		std::vector<Task *>::iterator it = subTaskQueue.begin();
+		while (it != subTaskQueue.end())
 		{
+			//Search for the next available client.
+			ClientDetails *freeClient = nullptr;
 			for (auto &client : clients)
 			{
 				//Skip busy clients.
 				if (client->busy) continue;
-				client->busy = true;
-				Task *task = taskQueue.front();
-				taskQueue.pop_front();
-				taskSendThreads.push_back(std::thread([this, client, task]() { sendTaskThread(client, task); }));
-				CF_SAY("Task send thread started for client " << std::to_string(client->getClientID()) << ".");
+				freeClient = client;
 			}
+
+			if (freeClient != nullptr)
+			{
+				freeClient->busy = true;
+				Task *task = *it;
+				it++;
+				taskSendThreads.push_back(std::thread([this, freeClient, task]() { sendTaskThread(freeClient, task); }));
+				CF_SAY("Task send thread started for client " + std::to_string(freeClient->getClientID()) + ".");
+			}
+			
 		}
 
 		//Empty the task queue.
@@ -188,6 +197,10 @@ namespace cf
 		{
 			thread.join();
 		}
+
+		//Destroy the subtask copies and empty the subtask list.
+		for (auto &task : subTaskQueue) delete task;
+		subTaskQueue.clear();
 
 		CF_SAY("Task sending finished.");
 
@@ -202,7 +215,7 @@ namespace cf
 			std::unique_lock<std::mutex> lock(client->socketMutex, std::try_to_lock);
 			if (lock.owns_lock())
 			{
-				CF_SAY("Sending task to client " << std::to_string(client->getClientID()) << ".");
+				CF_SAY("Sending task to client " + std::to_string(client->getClientID()) + ".");
 
 				//Send task to client.
 				cf::WorkPacket packet;
@@ -212,7 +225,7 @@ namespace cf
 
 				packet.clear();
 
-				CF_SAY("Sending task finished for client " << std::to_string(client->getClientID()) << ".");
+				CF_SAY("Sending task finished for client " + std::to_string(client->getClientID()) + ".");
 
 				done = true;
 			}

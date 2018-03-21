@@ -50,10 +50,10 @@
     <ClInclude Include="source\Host.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="source\ConsoleMessage.h">
+    <ClInclude Include="source\Settings.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="source\Settings.h">
+    <ClInclude Include="source\ConsoleMessager.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
