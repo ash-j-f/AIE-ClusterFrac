@@ -5,22 +5,33 @@ cf::WorkPacket::WorkPacket()
 
 	//Packets have no flag by default.
 	flag = None;
+
+	init();
 }
 
 cf::WorkPacket::WorkPacket(Flag newFlag)
 {
+	//Set flag.
 	flag = newFlag;
 
-	//Compression default status.
-	compression = false;
+	init();
 }
 
 cf::WorkPacket::~WorkPacket()
 {
 }
 
+void cf::WorkPacket::init()
+{
+	//Compression default status.
+	compression = true;
+}
+
 const void * cf::WorkPacket::onSend(std::size_t & size)
 {
+	//Append flag to data stream.
+	*this << flag;
+
 	const void *tmpData;
 
 	if (compression)
@@ -71,7 +82,7 @@ const void * cf::WorkPacket::onSend(std::size_t & size)
 	return tmpData;
 }
 
-void cf::WorkPacket::onReceive(const void * data, std::size_t size)
+void cf::WorkPacket::onReceive(const void *data, std::size_t size)
 {
 	if (compression)
 	{
@@ -96,12 +107,25 @@ void cf::WorkPacket::onReceive(const void * data, std::size_t size)
 		//size we were sent for the buffer
 		if (dstSize != uncompressedSize) throw "Size mismatch during data decompression.";
 
-		// Append data to the packet
-		append(oCompressionBuffer.data(), dstSize);
+		//Retrieve the packet flag data.
+		std::size_t soFlag = sizeof flag;
+		std::memcpy(&flag, oCompressionBuffer.data() + dstSize - soFlag, soFlag);
+
+		//Append data to the packet.
+		append(oCompressionBuffer.data(), dstSize - soFlag);
+
+		oCompressionBuffer.clear();
+		oCompressionBuffer.resize(0);
 	}
 	else
 	{
 		//Skip decompression.
-		append(data, size);
+
+		//Retrieve the packet flag data.
+		std::size_t soFlag = sizeof flag;
+		std::memcpy(&flag, (Bytef*)data + size - soFlag, soFlag);
+
+		//Append data to the packet.
+		append(data, size - soFlag);
 	}
 }

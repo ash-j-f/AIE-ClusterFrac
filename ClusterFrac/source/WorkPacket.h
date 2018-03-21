@@ -21,6 +21,8 @@ namespace cf
 		WorkPacket(Flag newFlag);
 		~WorkPacket();
 
+		void init();
+
 		//Is compression during network send on or off?
 		bool compression;
 

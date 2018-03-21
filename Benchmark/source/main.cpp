@@ -23,7 +23,7 @@ int main(int argc, //Number of strings in array argv
 	CF_SAY("Generating test data.");
 
 	BenchmarkTask *testTask = new BenchmarkTask();
-	for (int i = 0; i < 1000; i++) testTask->numbers.push_back((float)rand() / 10.0f);
+	for (int i = 0; i < 8; i++) testTask->numbers.push_back((float)rand() / 10.0f);
 
 	host->addTaskToQueue(testTask);
 

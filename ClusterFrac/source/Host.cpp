@@ -95,9 +95,10 @@ namespace cf
 							if (selector.isReady(*client->socket))
 							{
 								// The client has sent some data, we can receive it
-								sf::Packet *packet = new sf::Packet();
+								cf::WorkPacket *packet = new cf::WorkPacket();
 								if ((*client->socket).receive(*packet) == sf::Socket::Done)
 								{
+									CF_SAY("Received packet from client.");
 									//Check incoming packet type.
 									//TODO
 
