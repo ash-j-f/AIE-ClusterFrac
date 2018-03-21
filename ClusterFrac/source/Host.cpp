@@ -98,7 +98,18 @@ namespace cf
 								cf::WorkPacket *packet = new cf::WorkPacket();
 								if ((*client->socket).receive(*packet) == sf::Socket::Done)
 								{
-									CF_SAY("Received packet from client.");
+									switch (packet->getFlag())
+									{
+									case cf::WorkPacket::Flag::None:
+										CF_SAY("Received unknown packet from client.");
+										break;
+									case cf::WorkPacket::Flag::Result:
+										CF_SAY("Received result packet from client.");
+										break;
+									default:
+										throw "Invalid flag data in packet.";
+									}
+										
 									//Check incoming packet type.
 									//TODO
 

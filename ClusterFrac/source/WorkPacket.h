@@ -28,6 +28,8 @@ namespace cf
 
 		inline void setFlag(Flag newFlag) { flag = newFlag; };
 
+		inline Flag getFlag() const { return static_cast<Flag>(flag); }
+
 		/**
 		* Clear the packet, and set the packet flag to None.
 		* Hides the base class clear() function.
