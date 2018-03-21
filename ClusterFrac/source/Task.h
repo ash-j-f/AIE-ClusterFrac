@@ -1,5 +1,6 @@
 #pragma once
 #include "DllExport.h"
+#include <list>
 #include <vector>
 #include <string>
 #include <SFML\Network.hpp>
@@ -15,7 +16,7 @@ namespace cf
 
 		Task();
 
-		Task(unsigned int newInitialTaskID, unsigned int newTaskPartNumber, unsigned int newTaskPartsTotal);
+		//Task(unsigned int newInitialTaskID, unsigned int newTaskPartNumber, unsigned int newTaskPartsTotal);
 
 		~Task();
 
@@ -38,25 +39,9 @@ namespace cf
 
 		std::vector<Task *> split(int count);
 
-		inline void serialize(WorkPacket &p) 
-		{ 
-			p << getType(); 
-			p << getSubtype(); 
-			p << taskID;  
-			p << initialTaskID;
-			p << taskPartNumber;
-			p << taskPartsTotal;
-			serializeLocal(p); 
-		};
+		void serialize(WorkPacket &p);
 
-		inline void deserialize(WorkPacket &p) 
-		{ 
-			p >> taskID;
-			p >> initialTaskID;
-			p >> taskPartNumber;
-			p >> taskPartsTotal;
-			deserializeLocal(p); 
-		};
+		void deserialize(WorkPacket &p);
 
 		virtual Result *run() = 0;
 
@@ -73,18 +58,21 @@ namespace cf
 		virtual void serializeLocal(WorkPacket &p) = 0;
 
 		virtual void deserializeLocal(WorkPacket &p) = 0;
-
-		//The ID of this task.
-		sf::Uint32 taskID;
 		
 		//The ID of the initial task before it was split.
 		sf::Uint32 initialTaskID;
 
-		//Part number of this task relative to initial task since last split.
-		sf::Uint32 taskPartNumber;
+		//Part number of this task after last split.
+		//Stored as a stack of all values up the task tree from this point
+		//to allow growing and unrolling of the stack as tasks are split and 
+		//results are merged.
+		std::vector<sf::Uint32> taskPartNumberStack;
 
-		//Total parts relative to initial task since last split.
-		sf::Uint32 taskPartsTotal;
+		//Total parts since last split.
+		//Stored as a stack of all values up the task tree from this point
+		//to allow growing and unrolling of the stack as tasks are split and 
+		//results are merged.
+		std::vector<sf::Uint32> taskPartsTotalStack;
 
 	};
 }
