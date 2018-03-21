@@ -28,8 +28,8 @@ int main(int argc, //Number of strings in array argv
 	host->addTaskToQueue(testTask);
 
 	//Wait for at least one client.
-	CF_SAY("Waiting for 2 clients.");
-	while (host->getClientsCount() < 2)
+	CF_SAY("Waiting for clients.");
+	while (host->getClientsCount() < 1)
 	{
 		//WAIT.
 	}

@@ -21,7 +21,10 @@ public:
 		std::vector<BenchmarkTask *> tasks = std::vector<BenchmarkTask *>();
 		tasks.resize(count);
 
-		for (int i = 0; i < count; i++) tasks[i] = new BenchmarkTask();
+		for (int i = 0; i < count; i++)
+		{
+			tasks[i] = new BenchmarkTask();
+		}
 
 		//Distribute numbers among the new BenchmarkTasks.
 		const int step = (int)floor((float)numbers.size() / (float)count);

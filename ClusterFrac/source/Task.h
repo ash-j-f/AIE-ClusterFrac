@@ -15,6 +15,8 @@ namespace cf
 
 		Task();
 
+		Task(unsigned int newInitialTaskID, unsigned int newTaskPartNumber, unsigned int newTaskPartsTotal);
+
 		~Task();
 
 		/**
@@ -36,9 +38,25 @@ namespace cf
 
 		std::vector<Task *> split(int count);
 
-		inline void serialize(WorkPacket &p) { p << getType(); p << getSubtype(); serializeLocal(p); };
+		inline void serialize(WorkPacket &p) 
+		{ 
+			p << getType(); 
+			p << getSubtype(); 
+			p << taskID;  
+			p << initialTaskID;
+			p << taskPartNumber;
+			p << taskPartsTotal;
+			serializeLocal(p); 
+		};
 
-		inline void deserialize(WorkPacket &p) { deserializeLocal(p); };
+		inline void deserialize(WorkPacket &p) 
+		{ 
+			p >> taskID;
+			p >> initialTaskID;
+			p >> taskPartNumber;
+			p >> taskPartsTotal;
+			deserializeLocal(p); 
+		};
 
 		virtual Result *run() = 0;
 
@@ -57,16 +75,16 @@ namespace cf
 		virtual void deserializeLocal(WorkPacket &p) = 0;
 
 		//The ID of this task.
-		int taskID;
+		sf::Uint32 taskID;
 		
 		//The ID of the initial task before it was split.
-		int initialTaskID;
+		sf::Uint32 initialTaskID;
 
 		//Part number of this task relative to initial task since last split.
-		int taskPartNumber;
+		sf::Uint32 taskPartNumber;
 
 		//Total parts relative to initial task since last split.
-		int taskPartsTotal;
+		sf::Uint32 taskPartsTotal;
 
 	};
 }

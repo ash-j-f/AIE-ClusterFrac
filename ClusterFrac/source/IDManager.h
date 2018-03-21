@@ -35,6 +35,12 @@ namespace cf
 		*/
 		inline unsigned int getNextTaskID() { return nextTaskID++; }
 
+		/**
+		* Get and reserve the next available result ID, and then increment the internal next result ID counter.
+		* @returns The next available result ID.
+		*/
+		inline unsigned int getNextResultID() { return nextResultID++; }
+
 	private:
 
 		/**
@@ -48,9 +54,12 @@ namespace cf
 		~IDManager();
 
 		//Next client ID to use.
-		int nextClientID;
+		unsigned int nextClientID;
 
 		//Next task ID to use.
-		int nextTaskID;
+		unsigned int nextTaskID;
+
+		//Next result ID to use.
+		unsigned int nextResultID;
 	};
 }

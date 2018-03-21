@@ -9,8 +9,16 @@ namespace cf
 	{
 		taskID = CF_ID->getNextTaskID();
 		initialTaskID = taskID;
-		taskPartNumber = 1;
+		taskPartNumber = 0;
 		taskPartsTotal = 1;
+	}
+
+	Task::Task(unsigned int newInitialTaskID, unsigned int newTaskPartNumber, unsigned int newTaskPartsTotal)
+	{
+		taskID = CF_ID->getNextTaskID();
+		initialTaskID = newInitialTaskID;
+		taskPartNumber = newTaskPartNumber;
+		taskPartsTotal = newTaskPartsTotal;
 	}
 
 	Task::~Task()
@@ -20,12 +28,12 @@ namespace cf
 	std::vector<Task*> Task::split(int count)
 	{
 		std::vector<Task *> tmp = splitLocal(count); 
-		int i = 0; 
+		sf::Uint32 i = 0;
 		for (auto &t : tmp) 
 		{ 
 			t->initialTaskID = initialTaskID;
 			t->taskPartNumber = i++; 
-			t->taskPartsTotal = (int)tmp.size(); 
+			t->taskPartsTotal = (sf::Uint32)tmp.size();
 		};  
 		return tmp;
 	}
