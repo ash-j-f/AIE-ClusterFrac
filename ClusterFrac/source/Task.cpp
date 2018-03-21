@@ -31,8 +31,10 @@ namespace cf
 		for (auto &t : tmp) 
 		{ 
 			t->initialTaskID = initialTaskID;
-			t->taskPartNumber = i++; 
-			t->taskPartsTotal = (sf::Uint32)tmp.size();
+			t->taskPartNumberStack = taskPartNumberStack;
+			t->taskPartNumberStack.push_back(i++);
+			t->taskPartsTotalStack = taskPartsTotalStack;
+			t->taskPartsTotalStack.push_back((sf::Uint32)tmp.size());
 		};  
 		return tmp;
 	}
@@ -43,11 +45,12 @@ namespace cf
 		p << getSubtype();
 		p << initialTaskID;
 
-		sf::Uint32 size = taskPartNumberStack.size();
+		//Uint32 for best cross platform compatibility for serialisation/deserialisation.
+		sf::Uint32 size = (sf::Uint32)taskPartNumberStack.size();
 		p << size;
 		for (sf::Uint32 i = 0; i < size; i++) p << taskPartNumberStack[i];
 
-		size = taskPartsTotalStack.size();
+		size = (sf::Uint32)taskPartsTotalStack.size();
 		p << size;
 		for (sf::Uint32 i = 0; i < size; i++) p << taskPartsTotalStack[i];
 
@@ -57,6 +60,7 @@ namespace cf
 	{
 		p >> initialTaskID;
 
+		//Uint32 for best cross platform compatibility for serialisation/deserialisation.
 		sf::Uint32 size;
 		p >> size;
 		taskPartNumberStack.resize(size);

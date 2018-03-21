@@ -32,10 +32,11 @@ namespace cf
 
 		/**
 		* Merge other results in a std::vector into this result.
-		* @param others A std::vector of pointers to the other results to merge with this one.
+		* Must be all results in the current set or merge will fail with an error.
+		* @param others A std::vector of pointers to the all results in a set to merge with this one.
 		* @returns A pointer to a single new merged result.
 		*/
-		virtual void merge(const std::vector<Result *> others) = 0;
+		virtual void merge(const std::vector<Result *> others);
 	
 		inline void serialize(cf::WorkPacket &p) { p << getType(); p << getSubtype(); serializeLocal(p); };
 
@@ -43,9 +44,26 @@ namespace cf
 
 	private:
 
+		virtual void mergeLocal(const std::vector<Result *> others) = 0;
+
 		virtual void serializeLocal(cf::WorkPacket &p) = 0;
 
 		virtual void deserializeLocal(cf::WorkPacket &p) = 0;
+
+		//The ID of the initial task before it was split.
+		sf::Uint32 initialTaskID;
+
+		//Part number of this task after last split.
+		//Stored as a stack of all values up the task tree from this point
+		//to allow growing and unrolling of the stack as tasks are split and 
+		//results are merged.
+		std::vector<sf::Uint32> taskPartNumberStack;
+
+		//Total parts since last split.
+		//Stored as a stack of all values up the task tree from this point
+		//to allow growing and unrolling of the stack as tasks are split and 
+		//results are merged.
+		std::vector<sf::Uint32> taskPartsTotalStack;
 
 	};
 }

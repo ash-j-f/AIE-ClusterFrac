@@ -11,11 +11,13 @@ namespace cf
 
 	IDManager::IDManager()
 	{
-		nextClientID = 0;
+		//Initialise IDs at 1, as 0 indicates the value is unset.
 
-		nextTaskID = 0;
+		nextClientID = 1;
 
-		nextResultID = 0;
+		nextTaskID = 1;
+
+		nextResultID = 1;
 	}
 
 	IDManager::~IDManager()

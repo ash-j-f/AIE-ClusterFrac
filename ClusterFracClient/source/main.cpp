@@ -83,22 +83,25 @@ int main(int argc, //Number of strings in array argv
 		threads.push_back(std::async(std::launch::async, [&task]() { return task->run(); }));
 	}
 
-	cf::Result *bmr1 = new BenchmarkResult();
+	std::vector<cf::Result *> results;
 
 	for (auto &thread : threads)
 	{
 		auto result = thread.get();
 		std::cout << "Waiting for results and merging..." << std::endl;
-		bmr1->merge({result});
-		delete result;
+		results.push_back(result);
 	}
+	
+	cf::Result *bmr1 = new BenchmarkResult();
+	bmr1->merge(results);
+
+	//Clean up temporary results objects.
+	for (auto &r : results ) delete r;
 
 	std::cout << "Task complete." << std::endl;
 
-	for (auto &task : tasks)
-	{
-		delete task;
-	}
+	//Clean up temporary task objects.
+	for (auto &task : tasks) delete task;
 	
 	//Remove old thread data.
 	threads.clear();
