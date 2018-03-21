@@ -72,4 +72,18 @@ namespace cf
 
 		deserializeLocal(p);
 	}
+
+	Result *Task::run()
+	{
+		Result *result = runLocal();
+
+		//Add task data to the result.
+		result->initialTaskID = initialTaskID;
+
+		result->taskPartNumberStack = taskPartNumberStack;
+
+		result->taskPartsTotalStack = result->taskPartsTotalStack;
+
+		return result;
+	}
 }

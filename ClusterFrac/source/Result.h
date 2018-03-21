@@ -10,6 +10,8 @@ namespace cf
 {
 	class DLL Result
 	{
+		friend class Task;
+
 	public:
 		Result();
 		~Result();
@@ -35,7 +37,7 @@ namespace cf
 
 		/**
 		* Merge other results in a std::vector into this result.
-		* Must be all results in the current set or merge will fail with an error.
+		* Merge must include all results in the current set or merge will fail with an error.
 		* @param others A std::vector of pointers to the all results in a set to merge with this one.
 		* @returns A pointer to a single new merged result.
 		*/

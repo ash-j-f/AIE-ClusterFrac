@@ -43,7 +43,7 @@ namespace cf
 
 		void deserialize(WorkPacket &p);
 
-		virtual Result *run() = 0;
+		Result *run();
 
 	private:
 
@@ -59,6 +59,8 @@ namespace cf
 
 		virtual void deserializeLocal(WorkPacket &p) = 0;
 		
+		virtual Result *runLocal() = 0;
+
 		//The ID of the initial task before it was split.
 		sf::Uint32 initialTaskID;
 

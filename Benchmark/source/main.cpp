@@ -25,9 +25,6 @@ int main(int argc, //Number of strings in array argv
 	BenchmarkTask *testTask = new BenchmarkTask();
 	for (int i = 0; i < 1000; i++) testTask->numbers.push_back((float)rand() / 10.0f);
 
-	//TEST delete me
-	std::vector<cf::Task *> test = testTask->split(8);
-
 	host->addTaskToQueue(testTask);
 
 	//Wait for at least one client.

@@ -63,13 +63,13 @@ public:
 		for (sf::Int64 i = 0; i < size; i++) p >> numbers[i];
 	};
 
-	cf::Result *run()
+	cf::Result *runLocal()
 	{
-		BenchmarkResult *tmpResult = new BenchmarkResult();
+		BenchmarkResult *result = new BenchmarkResult();
 
-		for (auto &n : numbers) tmpResult->numbers.push_back(sqrtf(n));
+		for (auto &n : numbers) result->numbers.push_back(sqrtf(n));
 
-		return tmpResult;
+		return result;
 	};
 
 };

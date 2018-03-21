@@ -41,7 +41,7 @@ namespace cf
 		taskPartsTotalStack = others[0]->taskPartsTotalStack;
 		taskPartsTotalStack.pop_back(); //Unwind the stack by one.
 
-		//Order of results must be preserved. Reorder parts before passing them to local merge.
+		//Order of results must be preserved. Reorder parts by part number before passing them to local merge.
 		std::sort(others.begin(), others.end(), 
 			[](cf::Result *a, cf::Result *b) 
 			{ 
