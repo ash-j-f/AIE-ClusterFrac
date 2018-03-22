@@ -168,7 +168,7 @@ namespace cf
 		std::thread loopingThread;
 
 		//Should the continous loop thread keep running?
-		std::atomic<bool> loopThreadrun;
+		std::atomic<bool> loopThreadRun;
 
 		//Listener for incoming connections
 		sf::TcpListener listener;

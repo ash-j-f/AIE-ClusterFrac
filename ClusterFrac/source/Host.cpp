@@ -26,10 +26,10 @@ namespace cf
 			if (listenerThread.joinable()) listenerThread.join();
 		}
 
-		if (loopThreadrun)
+		if (loopThreadRun)
 		{
 			//Shut down the continous loop thread.
-			loopThreadrun = false;
+			loopThreadRun = false;
 
 			//Wait for loop thread to shut down.
 			if (loopingThread.joinable()) loopingThread.join();
@@ -62,17 +62,22 @@ namespace cf
 		listenerThread = std::thread([this] { listenThread(); });
 
 		//Launch internal loop thread.
+		loopThreadRun = true;
 		loopingThread = std::thread([this] { loopThread(); });
 
 		//Launch host as client task processing thread.
-		if (hostAsClient) std::thread([this] { hostAsClientProcessTaskThread(); });
+		if (hostAsClient)
+		{
+			hostAsClientTaskProcessThreadRun = true;
+			std::thread([this] { hostAsClientProcessTaskThread(); });
+		}
 	}
 
 
 
 	void Host::loopThread()
 	{
-		while (loopThreadrun)
+		while (loopThreadRun)
 		{
 			//Sleep before running loop again.
 			std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -303,6 +308,9 @@ namespace cf
 
 	Result *Host::getAvailableResult(int taskID)
 	{
+		//Aquire lock on result queues.
+		std::unique_lock<std::mutex> lock(resultsQueueMutex);
+
 		if (resultQueueComplete.size() > 0)
 		{
 			for (auto &r : resultQueueComplete)
@@ -361,6 +369,9 @@ namespace cf
 
 	bool Host::checkAvailableResult(int taskID)
 	{
+		//Aquire lock on result queues.
+		std::unique_lock<std::mutex> lock(resultsQueueMutex);
+
 		if (resultQueueComplete.size() > 0)
 		{
 			for (auto &r : resultQueueComplete)
