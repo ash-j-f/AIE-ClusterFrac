@@ -49,9 +49,9 @@ namespace cf
 		*/
 		virtual void merge(const std::vector<Result *> others);
 	
-		inline void serialize(cf::WorkPacket &p) { p << getType(); p << getSubtype(); serializeLocal(p); };
+		void serialize(cf::WorkPacket &p);
 
-		inline void deserialize(cf::WorkPacket &p) { deserializeLocal(p); };
+		void deserialize(cf::WorkPacket &p);
 
 	private:
 

@@ -55,4 +55,40 @@ namespace cf
 
 		mergeLocal(others);
 	}
+
+	void Result::serialize(cf::WorkPacket & p)
+	{
+		p << getType(); 
+		p << getSubtype(); 
+		
+		p << initialTaskID;
+
+		//Uint32 for best cross platform compatibility for serialisation/deserialisation.
+		sf::Uint32 size = (sf::Uint32)taskPartNumberStack.size();
+		p << size;
+		for (sf::Uint32 i = 0; i < size; i++) p << taskPartNumberStack[i];
+
+		size = (sf::Uint32)taskPartsTotalStack.size();
+		p << size;
+		for (sf::Uint32 i = 0; i < size; i++) p << taskPartsTotalStack[i];
+
+		serializeLocal(p);
+	}
+	void Result::deserialize(cf::WorkPacket & p)
+	{
+
+		p >> initialTaskID;
+
+		//Uint32 for best cross platform compatibility for serialisation/deserialisation.
+		sf::Uint32 size;
+		p >> size;
+		taskPartNumberStack.resize(size);
+		for (sf::Uint32 i = 0; i < size; i++) p >> taskPartNumberStack[i];
+
+		p >> size;
+		taskPartsTotalStack.resize(size);
+		for (sf::Uint32 i = 0; i < size; i++) p >> taskPartsTotalStack[i];
+
+		deserializeLocal(p);
+	}
 }
