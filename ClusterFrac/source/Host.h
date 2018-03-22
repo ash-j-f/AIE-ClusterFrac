@@ -6,6 +6,7 @@
 #include <future>
 #include <mutex>
 #include <string>
+#include <map>
 #include <SFML\Network.hpp>
 #include "DllExport.h"
 #include "ConsoleMessager.hpp"
@@ -32,6 +33,9 @@ namespace cf
 		* Default destructor.
 		*/
 		~Host();
+
+		//Decode map for user defined Task and Result types.
+		std::map<std::string,std::function<Result *()>> decodeMap;
 
 		/**
 		* Start a host server.

@@ -17,6 +17,9 @@ int main(int argc, //Number of strings in array argv
 	//Create new host object.
 	cf::Host *host = new cf::Host();
 
+	//Set user defined Task and Result types.
+	host->decodeMap["BenchmarkResult"] = []() { BenchmarkResult *b = new BenchmarkResult(); return (cf::Result *)b; };
+
 	//Start the host.
 	host->start();
 

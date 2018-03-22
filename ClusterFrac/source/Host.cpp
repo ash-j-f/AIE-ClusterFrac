@@ -270,6 +270,7 @@ namespace cf
 	void Host::clientReceiveThread(ClientDetails *client, std::atomic<bool> *cFlag)
 	{
 		//CF_SAY("clientReceiveThread lock.");
+
 		//Obtain lock on the client socket.
 		std::unique_lock<std::mutex> lock(client->socketMutex);
 
@@ -277,6 +278,9 @@ namespace cf
 		cf::WorkPacket *packet = new cf::WorkPacket();
 		if ((*client->socket).receive(*packet) == sf::Socket::Done)
 		{
+			std::string type;
+			std::string subType;
+
 			switch (packet->getFlag())
 			{
 			case cf::WorkPacket::Flag::None:
@@ -284,6 +288,33 @@ namespace cf
 				break;
 			case cf::WorkPacket::Flag::Result:
 				CF_SAY("Received result packet from client.");
+
+
+				*packet >> type;
+				*packet >> subType;
+
+				if (type != "Result") throw "Incoming packet not a valid result type.";
+
+				//Check subtype exists in the decode map.
+				//TODO
+
+				//Instantiate the resulting derived class.
+				cf::Result *result = decodeMap[subType]();
+				
+				/*if (subType == "BenchmarkResult")
+				{
+					bmr1 = new BenchmarkResult();
+				}
+				else
+				{
+					throw "Not a recognised result type.";
+				}*/
+					
+				result->deserialize(*packet);
+
+				//Add result data to the host results buffer.
+				//TODO
+
 				break;
 			default:
 				throw "Invalid flag data in packet.";
