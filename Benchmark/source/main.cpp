@@ -55,7 +55,8 @@ int main(int argc, //Number of strings in array argv
 		CF_SAY("Waiting for user to press E to end test.");
 		while (!sf::Keyboard::isKeyPressed(sf::Keyboard::E))
 		{
-			//DO STUFF HERE
+			//WAIT
+			std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		}
 	}
 	else

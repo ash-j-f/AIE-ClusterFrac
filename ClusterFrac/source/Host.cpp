@@ -233,7 +233,7 @@ namespace cf
 
 	void Host::addResultToQueue(Result *result)
 	{
-		resultQueue.push_back(result);
+		resultQueueIncomplete.push_back(result);
 		CF_SAY("Added result to queue.");
 	}
 
@@ -296,7 +296,7 @@ namespace cf
 				if (type != "Result") throw "Incoming packet not a valid result type.";
 
 				//Check subtype exists in the constuction map.
-				if (resultConstructMap.find(subType) == resultConstructMap.end()) {
+				if (resultConstructMap.size() == 0 || resultConstructMap.find(subType) == resultConstructMap.end()) {
 					throw "Unknown subtype.";
 				}
 
@@ -305,8 +305,12 @@ namespace cf
 
 				result->deserialize(*packet);
 
-				//Add result data to the host results buffer.
-				//TODO
+				//Add result data to the host incomplete results queue.
+				resultQueueIncomplete.push_back(result);
+
+				//Scan the incomplete results queue for complete results sets and move them to the complete results queue.
+				checkForCompleteResults();
+
 				client->busy = false;
 
 			}
@@ -330,6 +334,60 @@ namespace cf
 		//Signal to our parent thread that this thread has finished.
 		*cFlag = true;
 		lock.unlock();
+	}
+
+	void Host::checkForCompleteResults()
+	{
+		//Aquire lock on result queues.
+		std::unique_lock<std::mutex> lock(resultsQueueMutex);
+
+		std::vector<Result *> set;
+		std::vector<Result *> remove;
+		for (auto &r1 : resultQueueIncomplete)
+		{
+			//If this result part is already in the removal list, then skip it.
+			if (remove.size() > 0 && std::find(remove.begin(), remove.end(), r1) != remove.end()) continue;
+
+			set.push_back(r1);
+
+			for (auto &r2 : resultQueueIncomplete)
+			{
+				//Skip checking against ourself.
+				if (r1 == r2) continue;
+
+				//If this result part is already in the removal list, then skip it.
+				if (remove.size() > 0 && std::find(remove.begin(), remove.end(), r2) != remove.end()) continue;
+
+				//Compare initial task ID of the two result parts.
+				if (r2->getInitialTaskID() == r1->getInitialTaskID()) set.push_back(r2);
+			}
+
+			//If all parts of the result set are present, merge them and place the 
+			//combined result on the completed results queue.
+			if (set.size() == r1->getCurrentTaskPartsTotal())
+			{
+				cf::Result *rNew = resultConstructMap[r1->getSubtype()]();
+				
+				rNew->merge(set);
+
+				resultQueueComplete.push_back(rNew);
+
+				//Record these results for removal from the incomplete results set.
+				remove.insert(remove.end(), set.begin(), set.end());
+
+			}
+			set.clear();
+		}
+
+		for (auto &r : remove)
+		{
+			//Delete the result part from memory.
+			delete r;
+
+			//Remove completed results from incomplete results set.
+			resultQueueIncomplete.erase(std::remove(resultQueueIncomplete.begin(), resultQueueIncomplete.end(), r), resultQueueIncomplete.end());
+		}
+
 	}
 
 }

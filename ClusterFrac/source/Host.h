@@ -176,8 +176,14 @@ namespace cf
 		//Task queue.
 		std::list<cf::Task *> taskQueue;
 
-		//Results queue.
-		std::list<cf::Result *> resultQueue;
+		//Incomplete results queue.
+		std::list<cf::Result *> resultQueueIncomplete;
+
+		//Complete results queue.
+		std::list<cf::Result *> resultQueueComplete;
+
+		//Mutex for results queues
+		std::mutex resultsQueueMutex;
 
 		//Construction map for user defined Tasks.
 		std::map<std::string, std::function<Task *()>> taskConstuctMap;
@@ -202,5 +208,12 @@ namespace cf
 		void sendTaskThread(ClientDetails *client, Task *task);
 
 		void clientReceiveThread(ClientDetails *client, std::atomic<bool> *cFlag);
+
+		/**
+		* Check the incomplete results queue for complete result sets.
+		* Completed results set that are found are moved to the complete results queue.
+		* @returns void.
+		*/
+		void checkForCompleteResults();
 	};
 }
