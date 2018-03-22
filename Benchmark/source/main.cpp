@@ -20,10 +20,12 @@ int main(int argc, //Number of strings in array argv
 	//Start the host.
 	host->start();
 
-	CF_SAY("Generating test data.");
+	CF_SAY("Generating test data - started.");
 
 	BenchmarkTask *testTask = new BenchmarkTask();
-	for (int i = 0; i < 8; i++) testTask->numbers.push_back((float)rand() / 10.0f);
+	for (int i = 0; i < 10000000; i++) testTask->numbers.push_back((float)rand() / 10.0f);
+
+	CF_SAY("Generating test data - complete.");
 
 	host->addTaskToQueue(testTask);
 
@@ -32,13 +34,15 @@ int main(int argc, //Number of strings in array argv
 	while (host->getClientsCount() < 1)
 	{
 		//WAIT.
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
 
 	//Wait for user input to continue.
 	CF_SAY("Waiting for user to press B to start test.");
 	while (!sf::Keyboard::isKeyPressed(sf::Keyboard::B))
 	{
-		//DO STUFF HERE
+		//WAIT.
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
 
 	if (host->sendTasks())

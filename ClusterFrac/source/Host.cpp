@@ -99,6 +99,7 @@ namespace cf
 						{
 							if (selector.isReady(*client->socket))
 							{
+								CF_SAY("Incoming client data. Launching receiver thread.");
 								//Launch a thread to deal with this client data.
 								lock.unlock();
 								std::atomic<bool> *cFlag = new std::atomic<bool>();
@@ -155,7 +156,6 @@ namespace cf
 				if (!removedOne) deadIt++;
 
 			}
-
 		}
 
 		listening = false;
@@ -267,7 +267,7 @@ namespace cf
 		}
 	}
 
-	void Host::clientReceiveThread(ClientDetails * client, std::atomic<bool> *cFlag)
+	void Host::clientReceiveThread(ClientDetails *client, std::atomic<bool> *cFlag)
 	{
 		//CF_SAY("clientReceiveThread lock.");
 		//Obtain lock on the client socket.
