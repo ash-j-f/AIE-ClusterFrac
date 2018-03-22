@@ -34,8 +34,9 @@ namespace cf
 		*/
 		~Host();
 
-		//Decode map for user defined Task and Result types.
-		std::map<std::string,std::function<Result *()>> decodeMap;
+		inline void registerTaskType(std::string name, std::function<Task *()> f) { taskConstuctMap[name] = f; };
+
+		inline void registerResultType(std::string name, std::function<Result *()> f) { resultConstructMap[name] = f; };
 
 		/**
 		* Start a host server.
@@ -177,6 +178,12 @@ namespace cf
 
 		//Results queue.
 		std::list<cf::Result *> resultQueue;
+
+		//Construction map for user defined Tasks.
+		std::map<std::string, std::function<Task *()>> taskConstuctMap;
+
+		//Construction map for user defined Results.
+		std::map<std::string, std::function<Result *()>> resultConstructMap;
 
 		/**
 		* Listen for incoming connections.

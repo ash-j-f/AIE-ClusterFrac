@@ -278,58 +278,42 @@ namespace cf
 		cf::WorkPacket *packet = new cf::WorkPacket();
 		if ((*client->socket).receive(*packet) == sf::Socket::Done)
 		{
-			std::string type;
-			std::string subType;
 
-			switch (packet->getFlag())
+			if (packet->getFlag() == cf::WorkPacket::Flag::None)
 			{
-			case cf::WorkPacket::Flag::None:
 				CF_SAY("Received unknown packet from client.");
-				break;
-			case cf::WorkPacket::Flag::Result:
+			}
+			else if (packet->getFlag() == cf::WorkPacket::Flag::Result)
+			{
 				CF_SAY("Received result packet from client.");
 
+				std::string type;
+				std::string subType;
 
 				*packet >> type;
 				*packet >> subType;
 
 				if (type != "Result") throw "Incoming packet not a valid result type.";
 
-				//Check subtype exists in the decode map.
-				//TODO
+				//Check subtype exists in the constuction map.
+				if (resultConstructMap.find(subType) == resultConstructMap.end()) {
+					throw "Unknown subtype.";
+				}
 
 				//Instantiate the resulting derived class.
-				cf::Result *result = decodeMap[subType]();
-				
-				/*if (subType == "BenchmarkResult")
-				{
-					bmr1 = new BenchmarkResult();
-				}
-				else
-				{
-					throw "Not a recognised result type.";
-				}*/
-					
+				cf::Result *result = resultConstructMap[subType]();
+
 				result->deserialize(*packet);
 
 				//Add result data to the host results buffer.
 				//TODO
+				client->busy = false;
 
-				break;
-			default:
+			}
+			else
+			{
 				throw "Invalid flag data in packet.";
 			}
-
-			//Check incoming packet type.
-			//TODO
-
-			//Perform action based on packet type.
-			//TODO
-			//{
-			//If packet was a finished work task, mark the client not busy.
-			//TODO
-			//client->busy = false;
-			//}
 
 		}
 		else if ((*client->socket).receive(*packet) == sf::Socket::Disconnected)
