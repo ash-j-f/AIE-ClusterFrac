@@ -85,64 +85,73 @@ namespace cf
 					//Using erase-or-increment method here, so increment iterator at END of loop.
 					for (it = clients.begin(); it != clients.end();)
 					{
-						bool erasedOne = false;
-						
 						ClientDetails *client = *it;
+
+						//Skip deleted clients.
+						if (client->remove) continue;
+
 						//Attempt to get socket lock. Try again later if another process already has a lock on this socket.
 						std::unique_lock<std::mutex> lock(client->socketMutex, std::try_to_lock);
 						if (lock.owns_lock())
 						{
 							if (selector.isReady(*client->socket))
 							{
-								// The client has sent some data, we can receive it
-								cf::WorkPacket *packet = new cf::WorkPacket();
-								if ((*client->socket).receive(*packet) == sf::Socket::Done)
-								{
-									switch (packet->getFlag())
-									{
-									case cf::WorkPacket::Flag::None:
-										CF_SAY("Received unknown packet from client.");
-										break;
-									case cf::WorkPacket::Flag::Result:
-										CF_SAY("Received result packet from client.");
-										break;
-									default:
-										throw "Invalid flag data in packet.";
-									}
-										
-									//Check incoming packet type.
-									//TODO
-
-									//Perform action based on packet type.
-									//TODO
-									//{
-										//If packet was a finished work task, mark the client not busy.
-										//TODO
-										//client->busy = false;
-									//}
-
-								}
-								else if ((*client->socket).receive(*packet) == sf::Socket::Disconnected)
-								{
-									CF_SAY("Client ID " + std::to_string(client->getClientID()) + " from IP "
-										+ (*client->socket).getRemoteAddress().toString() + " disconnected.");
-									selector.remove(*client->socket);
-									(*client->socket).disconnect();
-									//Release lock on socket as we are about to delete the client object that contains the socket and mutex.
-									lock.unlock();
-									delete client;
-									//Erase the client, and increment the client iterator to the next client.
-									it = clients.erase(it);
-									erasedOne = true;
-								}
-								delete packet;
+								//Launch a thread to deal with this client data.
+								lock.unlock();
+								std::atomic<bool> *cFlag = new std::atomic<bool>();
+								//Set completion flag to false by default.
+								*cFlag = false;
+								clientReceiveThreads.push_back(std::thread([this, client, cFlag] { clientReceiveThread(client, cFlag); }));
+								clientReceiveThreadsFinishedFlags.push_back(cFlag);
 							}
 						}
-						//Increment client iterator only if an erase wasn't called.
-						if (!erasedOne) it++;
 					}
 				}
 			}
+
+			//Remove completed client receive threads.
+			//Loop backwards as we are removing elements.
+			for (int i = (int)clientReceiveThreads.size() - 1; i >= 0; i--)
+			{
+				if (clientReceiveThreadsFinishedFlags[i])
+				{
+					clientReceiveThreads[i].join();
+					clientReceiveThreads.erase(clientReceiveThreads.begin() + i);
+					delete clientReceiveThreadsFinishedFlags[i];
+					clientReceiveThreadsFinishedFlags.erase(clientReceiveThreadsFinishedFlags.begin() + i);
+				}
+			}
+
+			//Erase dead clients from client list.
+			std::vector<ClientDetails *>::iterator deadIt;
+			for (deadIt = clients.begin(); deadIt != clients.end();)
+			{
+				ClientDetails *client = *deadIt;
+
+				bool removedOne = false;
+				if (client->remove)
+				{
+					//Check if any other process still using the client socket.
+					//If so, then try again later.
+					std::unique_lock<std::mutex> lock(client->socketMutex, std::try_to_lock);
+					if (lock.owns_lock())
+					{
+						//Remove the socket from the selector.
+						selector.remove(*client->socket);
+
+						//Immediately unlock as we are about to delete the object that contains the mutex.
+						lock.unlock();
+
+						delete client;
+						deadIt = clients.erase(deadIt);
+						removedOne = true;
+					}
+				}
+
+				if (!removedOne) deadIt++;
+
+			}
+
 		}
 
 		listening = false;
@@ -245,12 +254,61 @@ namespace cf
 				CF_SAY("Sending task finished for client " + std::to_string(client->getClientID()) + ".");
 
 				done = true;
+				lock.unlock();
 			}
-
 			//Abort after a timeout.
 			//TODO
 			//done = true;
 		}
+	}
+
+	void Host::clientReceiveThread(ClientDetails * client, std::atomic<bool> *cFlag)
+	{
+		//Obtain lock on the client socket.
+		std::unique_lock<std::mutex> lock(client->socketMutex);
+
+		// The client has sent some data, we can receive it
+		cf::WorkPacket *packet = new cf::WorkPacket();
+		if ((*client->socket).receive(*packet) == sf::Socket::Done)
+		{
+			switch (packet->getFlag())
+			{
+			case cf::WorkPacket::Flag::None:
+				CF_SAY("Received unknown packet from client.");
+				break;
+			case cf::WorkPacket::Flag::Result:
+				CF_SAY("Received result packet from client.");
+				break;
+			default:
+				throw "Invalid flag data in packet.";
+			}
+
+			//Check incoming packet type.
+			//TODO
+
+			//Perform action based on packet type.
+			//TODO
+			//{
+			//If packet was a finished work task, mark the client not busy.
+			//TODO
+			//client->busy = false;
+			//}
+
+		}
+		else if ((*client->socket).receive(*packet) == sf::Socket::Disconnected)
+		{
+			CF_SAY("Client ID " + std::to_string(client->getClientID()) + " from IP "
+				+ (*client->socket).getRemoteAddress().toString() + " disconnected.");
+			selector.remove(*client->socket);
+			(*client->socket).disconnect();
+			//Mark client data for erasure.
+			client->remove = true;
+		}
+		delete packet;
+
+		//Signal to our parent thread that this thread has finished.
+		*cFlag = true;
+		lock.unlock();
 	}
 
 }

@@ -111,6 +111,7 @@ namespace cf
 			{
 				socket = new sf::TcpSocket();
 				busy = false;
+				remove = false;
 			};
 
 			//Socket used to communicate with this client.
@@ -121,6 +122,9 @@ namespace cf
 
 			//Is this client busy with a task?
 			std::atomic<bool> busy;
+
+			//Should this client be removed?
+			std::atomic<bool> remove;
 
 			/**
 			* Get client ID.
@@ -157,6 +161,12 @@ namespace cf
 
 		//Connection listening thread.
 		std::thread listenerThread;
+		
+		//Client data receive threads.
+		std::vector<std::thread> clientReceiveThreads;
+
+		//Indicators for when client data recieve threads have finished.
+		std::vector<std::atomic<bool> *> clientReceiveThreadsFinishedFlags;
 
 		//Task queue.
 		std::list<cf::Task *> taskQueue;
@@ -179,5 +189,7 @@ namespace cf
 		* @returns void.
 		*/
 		void sendTaskThread(ClientDetails *client, Task *task);
+
+		void clientReceiveThread(ClientDetails *client, std::atomic<bool> *cFlag);
 	};
 }
