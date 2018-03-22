@@ -12,7 +12,8 @@
 namespace cf
 {
 	/**
-	* Console message management class. Prints messages to the console and ensures thread safety while doing so.
+	* Console message management class. Prints messages to the console and ensures thread safety 
+	* by using a dedicated console mutex while doing so.
 	* Singleton class.
 	* @author Ashley Flynn - Academy of Interactive Entertainment - 2018.
 	*/

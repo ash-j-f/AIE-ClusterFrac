@@ -51,6 +51,8 @@ namespace cf
 		//Aborts if listening flag is set false.
 		while (listen)
 		{
+			//CF_SAY("Listening.");
+
 			//Make the selector wait for data on any socket.
 			//A timeout of N seconds is set to avoid locking the thread indefinitely.
 			if (selector.wait(sf::Time(sf::seconds(1.0f))))
@@ -60,6 +62,7 @@ namespace cf
 				{
 					//The listener is ready: there is a pending connection.
 					ClientDetails *newClient = new ClientDetails(CF_ID->getNextClientID());
+					//CF_SAY("listenThread incoming connection lock.");
 					std::unique_lock<std::mutex> lock(newClient->socketMutex);
 					if (listener.accept(*newClient->socket) == sf::Socket::Done)
 					{
@@ -82,8 +85,7 @@ namespace cf
 				{
 					//The listener socket is not ready, test all other sockets (the clients)
 					std::vector<ClientDetails *>::iterator it;
-					//Using erase-or-increment method here, so increment iterator at END of loop.
-					for (it = clients.begin(); it != clients.end();)
+					for (it = clients.begin(); it != clients.end(); it++)
 					{
 						ClientDetails *client = *it;
 
@@ -91,6 +93,7 @@ namespace cf
 						if (client->remove) continue;
 
 						//Attempt to get socket lock. Try again later if another process already has a lock on this socket.
+						//CF_SAY("listenThread incoming client data try lock.");
 						std::unique_lock<std::mutex> lock(client->socketMutex, std::try_to_lock);
 						if (lock.owns_lock())
 						{
@@ -133,6 +136,7 @@ namespace cf
 				{
 					//Check if any other process still using the client socket.
 					//If so, then try again later.
+					//CF_SAY("listenThread remove dead clients try lock.");
 					std::unique_lock<std::mutex> lock(client->socketMutex, std::try_to_lock);
 					if (lock.owns_lock())
 					{
@@ -238,6 +242,7 @@ namespace cf
 		bool done = false;
 		while (!done)
 		{
+			//CF_SAY("sendTaskThread trying lock.");
 			std::unique_lock<std::mutex> lock(client->socketMutex, std::try_to_lock);
 			if (lock.owns_lock())
 			{
@@ -264,6 +269,7 @@ namespace cf
 
 	void Host::clientReceiveThread(ClientDetails * client, std::atomic<bool> *cFlag)
 	{
+		//CF_SAY("clientReceiveThread lock.");
 		//Obtain lock on the client socket.
 		std::unique_lock<std::mutex> lock(client->socketMutex);
 
