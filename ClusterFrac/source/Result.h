@@ -16,7 +16,8 @@ namespace cf
 
 	public:
 		Result();
-		~Result();
+		
+		virtual ~Result();
 
 		/**
 		* Get the type ID of this class.
@@ -37,9 +38,9 @@ namespace cf
 
 		inline int getTaskPartNumber() const { if (taskPartNumberStack.size() == 0) { throw "Task part number list is empty."; } return taskPartNumberStack.back(); };
 
-		inline int getInitialTaskID() const { return initialTaskID; };
-
 		inline int getCurrentTaskPartsTotal() const { if (taskPartsTotalStack.size() == 0) { throw "Task part total list is empty."; } return taskPartsTotalStack.back(); }
+
+		inline int getInitialTaskID() const { return initialTaskID; };
 
 		/**
 		* Merge other results in a std::vector into this result.

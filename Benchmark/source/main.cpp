@@ -29,6 +29,8 @@ int main(int argc, //Number of strings in array argv
 	BenchmarkTask *testTask = new BenchmarkTask();
 	for (int i = 0; i < 100; i++) testTask->numbers.push_back((float)rand() / 10.0f);
 
+	int taskID = testTask->getInitialTaskID();
+
 	////TEST
 	//cf::Result *r = testTask->run();
 	//cf::WorkPacket w;
@@ -61,6 +63,27 @@ int main(int argc, //Number of strings in array argv
 
 	if (host->sendTasks())
 	{
+		//Wait for results to be complete.
+		CF_SAY("Waiting for completed results.");
+		while (!host->checkAvailableResult(taskID))
+		{
+			//WAIT
+			std::this_thread::sleep_for(std::chrono::milliseconds(10));
+		}
+
+		cf::Result *finished = host->getAvailableResult(taskID);
+		BenchmarkResult *output = static_cast<BenchmarkResult *>(finished);
+
+		//List results.
+		CF_SAY("Results received (" + std::to_string(output->numbers.size()) + "):");
+		for (int i = 0; i < 5; i++)
+		{
+			CF_SAY(std::to_string(output->numbers[i]));
+		}
+		CF_SAY("...");
+
+		delete finished;
+
 		//Wait for user input to continue.
 		CF_SAY("Waiting for user to press E to end test.");
 		while (!sf::Keyboard::isKeyPressed(sf::Keyboard::E))

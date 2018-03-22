@@ -237,6 +237,34 @@ namespace cf
 		CF_SAY("Added result to queue.");
 	}
 
+	Result *Host::getAvailableResult(int taskID)
+	{
+		if (resultQueueComplete.size() > 0)
+		{
+			for (auto &r : resultQueueComplete)
+			{
+				if (r->getInitialTaskID() == taskID) return r;
+			}
+		}
+		
+		//No such task ID found.
+		return nullptr;
+	}
+
+	bool Host::checkAvailableResult(int taskID)
+	{
+		if (resultQueueComplete.size() > 0)
+		{
+			for (auto &r : resultQueueComplete)
+			{
+				if (r->getInitialTaskID() == taskID) return true;
+			}
+		}
+
+		//No such taks ID or no such results set available yet.
+		return false;
+	}
+
 	void Host::sendTaskThread(ClientDetails *client, Task *task)
 	{
 		bool done = false;

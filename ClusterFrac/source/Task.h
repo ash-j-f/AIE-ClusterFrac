@@ -16,7 +16,7 @@ namespace cf
 
 		Task();
 
-		~Task();
+		virtual ~Task();
 
 		/**
 		* Get the type ID of this class.
@@ -34,6 +34,12 @@ namespace cf
 		* @returns The subtype ID of this class as a string.
 		*/
 		virtual std::string getSubtype() const = 0;
+
+		inline int getTaskPartNumber() const { if (taskPartNumberStack.size() == 0) { throw "Task part number list is empty."; } return taskPartNumberStack.back(); };
+
+		inline int getCurrentTaskPartsTotal() const { if (taskPartsTotalStack.size() == 0) { throw "Task part total list is empty."; } return taskPartsTotalStack.back(); }
+
+		inline int getInitialTaskID() const { return initialTaskID; };
 
 		std::vector<Task *> split(int count);
 

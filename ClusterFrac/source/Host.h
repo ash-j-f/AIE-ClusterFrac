@@ -77,6 +77,10 @@ namespace cf
 		*/
 		inline int getClientsCount() const { return (int)clients.size(); };
 
+		bool checkAvailableResult(int taskID);
+
+		Result* getAvailableResult(int taskID);
+
 	private:
 		
 		////////////////////////////////////////////////////
