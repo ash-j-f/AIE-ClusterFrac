@@ -24,6 +24,9 @@ int main(int argc, //Number of strings in array argv
 	//Start the host.
 	host->start();
 
+	//Allow this host to process tasks as a client.
+	host->setHostAsClient(true);
+
 	CF_SAY("Generating test data - started.");
 
 	BenchmarkTask *testTask = new BenchmarkTask();

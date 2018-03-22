@@ -73,13 +73,18 @@ namespace cf
 
 		/**
 		* Get a count of all connected clients.
+		* Includes the host itself if hostAsClient is set true.
 		* @returns The number of connected clients.
 		*/
-		inline int getClientsCount() const { return (int)clients.size(); };
+		inline int getClientsCount() const;
 
 		bool checkAvailableResult(int taskID);
 
 		Result* getAvailableResult(int taskID);
+
+		bool getHostAsClient() { return hostAsClient; };
+
+		void setHostAsClient(bool state);
 
 	private:
 		
@@ -159,6 +164,12 @@ namespace cf
 		//Socket selector for managing multiple connections.
 		sf::SocketSelector selector;
 
+		//Thread that loops continuously while host is running.
+		std::thread loopingThread;
+
+		//Should the continous loop thread keep running?
+		std::atomic<bool> loopThreadrun;
+
 		//Listener for incoming connections
 		sf::TcpListener listener;
 
@@ -180,11 +191,26 @@ namespace cf
 		//Task queue.
 		std::list<cf::Task *> taskQueue;
 
+		//Mutex for task queue
+		std::mutex taskQueueMutex;
+
 		//Incomplete results queue.
 		std::list<cf::Result *> resultQueueIncomplete;
 
 		//Complete results queue.
 		std::list<cf::Result *> resultQueueComplete;
+
+		//Local task queue for host, that it should process as a client if hostAsClient is enabled.
+		std::list<cf::Task *> localHostAsClientTaskQueue;
+
+		//Mutex for local task queue.
+		std::mutex localHostAsClientTaskQueueMutex;
+
+		//Threads used to process task chunks locally on the host.
+		std::thread hostAsClientTaskProcessingThread;
+
+		//Should the host processing tasks as a client thread continue to run?
+		std::atomic<bool> hostAsClientTaskProcessThreadRun;
 
 		//Mutex for results queues
 		std::mutex resultsQueueMutex;
@@ -194,6 +220,15 @@ namespace cf
 
 		//Construction map for user defined Results.
 		std::map<std::string, std::function<Result *()>> resultConstructMap;
+
+		//Is this host acting as a client for task processing?
+		bool hostAsClient;
+
+		/**
+		* Continuous looping thread that runs as long as the host is alive.
+		* @returns void.
+		*/
+		void loopThread();
 
 		/**
 		* Listen for incoming connections.
@@ -212,6 +247,8 @@ namespace cf
 		void sendTaskThread(ClientDetails *client, Task *task);
 
 		void clientReceiveThread(ClientDetails *client, std::atomic<bool> *cFlag);
+
+		void hostAsClientProcessTaskThread();
 
 		/**
 		* Check the incomplete results queue for complete result sets.

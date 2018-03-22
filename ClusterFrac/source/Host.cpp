@@ -10,15 +10,39 @@ namespace cf
 		//Listening default status.
 		listen = false;
 		listening = false;
+
+		//Should the host process tasks like a client, by default?
+		hostAsClient = true;
 	}
 	
 	Host::~Host()
 	{
-		//Set listening status to signal listener thread to shut down.
-		listen = false;
+		if (listen)
+		{
+			//Set listening status to signal listener thread to shut down.
+			listen = false;
 
-		//Wait for the listening thread to shut down.
-		if (listenerThread.joinable()) listenerThread.join();
+			//Wait for the listening thread to shut down.
+			if (listenerThread.joinable()) listenerThread.join();
+		}
+
+		if (loopThreadrun)
+		{
+			//Shut down the continous loop thread.
+			loopThreadrun = false;
+
+			//Wait for loop thread to shut down.
+			if (loopingThread.joinable()) loopingThread.join();
+		}
+
+		if (hostAsClientTaskProcessThreadRun)
+		{
+			//Shut down host as client processing.
+			hostAsClientTaskProcessThreadRun = false;
+
+			//Wait forhost as client task processing thread to finish.
+			if (hostAsClientTaskProcessingThread.joinable()) hostAsClientTaskProcessingThread.join();
+		}
 
 		//Clean up any remaining registered clients.
 		for (auto &c : clients) delete c;
@@ -36,6 +60,23 @@ namespace cf
 		//Launch listener thread.
 		listen = true;
 		listenerThread = std::thread([this] { listenThread(); });
+
+		//Launch internal loop thread.
+		loopingThread = std::thread([this] { loopThread(); });
+
+		//Launch host as client task processing thread.
+		if (hostAsClient) std::thread([this] { hostAsClientProcessTaskThread(); });
+	}
+
+
+
+	void Host::loopThread()
+	{
+		while (loopThreadrun)
+		{
+			//Sleep before running loop again.
+			std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		}
 	}
 
 	void Host::listenThread()
@@ -164,15 +205,25 @@ namespace cf
 
 	void Host::addTaskToQueue(Task *task)
 	{
+		std::unique_lock<std::mutex> lock(taskQueueMutex);
 		taskQueue.push_back(task);
 		CF_SAY("Added task to queue.");
 	}
 
 	bool Host::sendTasks()
 	{
+
+		std::unique_lock<std::mutex> lock(taskQueueMutex);
+
 		if (getClientsCount() < 1)
 		{
 			CF_SAY("Cannot send tasks. No clients connected.");
+			return false;
+		}
+
+		if (taskQueue.size() == 0)
+		{
+			CF_SAY("Cannot send tasks. No tasks in queue.");
 			return false;
 		}
 
@@ -186,11 +237,23 @@ namespace cf
 			subTaskQueue.insert(subTaskQueue.end(), dividedTasks.begin(), dividedTasks.end());
 		}
 
-		CF_SAY("Sending tasks to clients.");
+		
 		//Spawn a sender thread for each task.
 		std::vector<std::thread> taskSendThreads;
 		//Distribute tasks among available clients.
-		std::vector<Task *>::iterator it = subTaskQueue.begin();
+
+		//Send one task chunk to the host itself if hostAsClient is enabled.
+		if (hostAsClient)
+		{
+			std::unique_lock<std::mutex> lock2(localHostAsClientTaskQueueMutex);
+			CF_SAY("Sending task to local client.");
+			localHostAsClientTaskQueue.push_back(subTaskQueue.front());
+			lock2.unlock();
+		}
+
+		CF_SAY("Sending tasks to remote clients.");
+		//Skip first task chunk if it was sent to the host as a client.
+		std::vector<Task *>::iterator it = subTaskQueue.begin() + (hostAsClient ? 1 : 0);
 		while (it != subTaskQueue.end())
 		{
 			//Search for the next available client.
@@ -233,6 +296,7 @@ namespace cf
 
 	void Host::addResultToQueue(Result *result)
 	{
+		std::unique_lock<std::mutex> lock(resultsQueueMutex);
 		resultQueueIncomplete.push_back(result);
 		CF_SAY("Added result to queue.");
 	}
@@ -249,6 +313,50 @@ namespace cf
 		
 		//No such task ID found.
 		return nullptr;
+	}
+
+	void Host::setHostAsClient(bool state)
+	{
+
+		//Do nothing if the state isn't changing.
+		if (hostAsClient == state) return;
+
+		//Start processing thread if it has not already been started, and the host is being set to process tasks locally.
+		if (hostAsClientTaskProcessThreadRun == false && state)
+		{
+			//Shut down host as client processing.
+			hostAsClientTaskProcessThreadRun = true;
+
+			//Launch host as client task processing thread.
+			if (hostAsClient) std::thread([this] { hostAsClientProcessTaskThread(); });
+		}
+
+		//Shut down processing thread if it has been started, and the host is being set to no longer process tasks locally.
+		if (hostAsClientTaskProcessThreadRun && !state)
+		{
+			//Shut down host as client processing.
+			hostAsClientTaskProcessThreadRun = false;
+
+			//Wait forhost as client task processing thread to finish.
+			if (hostAsClientTaskProcessingThread.joinable()) hostAsClientTaskProcessingThread.join();
+		}
+
+		hostAsClient = state;
+	}
+
+	inline int Host::getClientsCount() const
+	{
+		int count = 0;
+
+		//Count connected clients.
+		for (auto &c : clients)
+		{
+			if (!c->remove) count++;
+		}
+
+		if (hostAsClient) count++;
+
+		return count;
 	}
 
 	bool Host::checkAvailableResult(int taskID)
@@ -334,7 +442,9 @@ namespace cf
 				result->deserialize(*packet);
 
 				//Add result data to the host incomplete results queue.
+				std::unique_lock<std::mutex> lock(resultsQueueMutex);
 				resultQueueIncomplete.push_back(result);
+				lock.unlock();
 
 				//Scan the incomplete results queue for complete results sets and move them to the complete results queue.
 				checkForCompleteResults();
@@ -362,6 +472,35 @@ namespace cf
 		//Signal to our parent thread that this thread has finished.
 		*cFlag = true;
 		lock.unlock();
+	}
+
+	void Host::hostAsClientProcessTaskThread()
+	{
+		while (hostAsClientTaskProcessThreadRun)
+		{
+			//Copy the local task queue.
+			std::unique_lock<std::mutex> lock(localHostAsClientTaskQueueMutex);
+			std::list<Task *> localHostAsClientTaskQueueCOPY = localHostAsClientTaskQueue;
+			lock.unlock();
+
+			for (auto &t : localHostAsClientTaskQueueCOPY)
+			{
+				cf::Result *result = t->run();
+
+				//Place the result in the host result parts queue.
+				std::unique_lock<std::mutex> lock2(resultsQueueMutex);
+				resultQueueIncomplete.push_back(result);
+				lock2.unlock();
+
+				std::unique_lock<std::mutex> lock3(localHostAsClientTaskQueueMutex);
+				//Remove the task from memory.
+				delete t;
+				//Remove the task from the local task parts queue.
+				localHostAsClientTaskQueue.erase(std::remove(localHostAsClientTaskQueue.begin(), 
+					localHostAsClientTaskQueue.end(), t), localHostAsClientTaskQueue.end());
+				lock3.unlock();
+			}
+		}
 	}
 
 	void Host::checkForCompleteResults()
