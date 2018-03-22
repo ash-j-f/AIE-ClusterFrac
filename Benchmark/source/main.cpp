@@ -27,7 +27,17 @@ int main(int argc, //Number of strings in array argv
 	CF_SAY("Generating test data - started.");
 
 	BenchmarkTask *testTask = new BenchmarkTask();
-	for (int i = 0; i < 10000000; i++) testTask->numbers.push_back((float)rand() / 10.0f);
+	for (int i = 0; i < 100; i++) testTask->numbers.push_back((float)rand() / 10.0f);
+
+	////TEST
+	//cf::Result *r = testTask->run();
+	//cf::WorkPacket w;
+	//r->serialize(w);
+	//cf::Result *r2 = new BenchmarkResult();
+	//std::string crap;
+	//w >> crap;
+	//w >> crap;
+	//r2->deserialize(w);
 
 	CF_SAY("Generating test data - complete.");
 

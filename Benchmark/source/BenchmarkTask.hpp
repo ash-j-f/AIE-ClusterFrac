@@ -13,6 +13,8 @@ public:
 
 	inline std::string getSubtype() const { return "BenchmarkTask"; };
 
+private:
+
 	inline std::vector<cf::Task *> splitLocal(int count) const
 	{
 		//Limit number of tasks to at least number of target numbers.

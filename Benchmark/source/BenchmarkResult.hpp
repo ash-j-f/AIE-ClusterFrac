@@ -12,6 +12,8 @@ public:
 
 	inline std::string getSubtype() const { return "BenchmarkResult"; };
 
+private:
+
 	inline virtual void mergeLocal(const std::vector<cf::Result *> others)
 	{
 
