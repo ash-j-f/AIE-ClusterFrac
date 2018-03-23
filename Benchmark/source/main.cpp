@@ -12,7 +12,7 @@ int main(int argc, //Number of strings in array argv
 {
 
 	//Set log level for console messages.
-	CF_SETTINGS->setLogLevel(cf::Settings::LogLevels::Error);
+	CF_SETTINGS->setLogLevel(cf::Settings::LogLevels::Info);
 
 	//Create new host object.
 	cf::Host *host = new cf::Host();
