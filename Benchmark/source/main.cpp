@@ -22,7 +22,7 @@ int main(int argc, //Number of strings in array argv
 	host->registerResultType("BenchmarkResult", []() { BenchmarkResult *b = new BenchmarkResult(); return static_cast<cf::Result *>(b); });
 	
 	//Allow this host to process tasks as a client.
-	host->setHostAsClient(true);
+	host->setHostAsClient(false);
 	//Start the host.
 	host->start();
 	CF_SAY("Generating test data - started.", cf::Settings::LogLevels::Info);
@@ -33,7 +33,7 @@ int main(int argc, //Number of strings in array argv
 	{
 		//Split the task among available threads and run.
 		int maxThreads = std::thread::hardware_concurrency();
-		int dataSize = 2073600;
+		int dataSize = 207360000;
 		std::vector<std::future<std::vector<float>>> threads = std::vector<std::future<std::vector<float>>>();
 
 		for (int i = 0; i < maxThreads; i++)

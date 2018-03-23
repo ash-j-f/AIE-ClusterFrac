@@ -112,8 +112,8 @@ namespace cf
 			//CF_SAY("Listening.");
 
 			//Make the selector wait for data on any socket.
-			//A timeout of N seconds is set to avoid locking the thread indefinitely.
-			if (selector.wait(/*sf::Time(sf::seconds(1.0f))*/))
+			//A timeout is set to avoid locking the thread indefinitely.
+			if (selector.wait(sf::Time(sf::milliseconds(1))))
 			{
 				//Test the listener.
 				if (selector.isReady(listener))
@@ -247,7 +247,7 @@ namespace cf
 		//Divide tasks among clients.
 		std::vector<Task *> subTaskQueue;
 		std::vector<Task *> dividedTasks;
-		CF_SAY("Diving tasks among clients.", Settings::LogLevels::Info);
+		CF_SAY("Dividing tasks among clients.", Settings::LogLevels::Info);
 		for (auto &task : taskQueue)
 		{
 			dividedTasks = task->split(getClientsCount());
@@ -415,7 +415,10 @@ namespace cf
 				cf::WorkPacket packet(cf::WorkPacket::Flag::Task);
 				task->serialize(packet);
 
-				client->socket->send(packet);
+				while (client->socket->send(packet) != sf::Socket::Status::Done)
+				{
+					CF_SAY("Partial send to client " + std::to_string(client->getClientID()) + ".", Settings::LogLevels::Debug);
+				};
 
 				packet.clear();
 
@@ -444,11 +447,11 @@ namespace cf
 
 			if (packet->getFlag() == cf::WorkPacket::Flag::None)
 			{
-				CF_SAY("Received unknown packet from client.", Settings::LogLevels::Error);
+				CF_SAY("Received unknown packet from client " + std::to_string(client->getClientID()) + ".", Settings::LogLevels::Error);
 			}
 			else if (packet->getFlag() == cf::WorkPacket::Flag::Result)
 			{
-				CF_SAY("Received result packet from client.", Settings::LogLevels::Info);
+				CF_SAY("Received result packet from client " + std::to_string(client->getClientID()) + ".", Settings::LogLevels::Info);
 
 				std::string type;
 				std::string subType;
@@ -458,14 +461,14 @@ namespace cf
 
 				if (type != "Result")
 				{
-					std::string s = "Received unknown packet from client.";
+					std::string s = "Received unknown packet from client " + std::to_string(client->getClientID()) + ".";
 					CF_SAY(s, Settings::LogLevels::Error);
 					throw s;
 				}
 
 				//Check subtype exists in the constuction map.
 				if (resultConstructMap.size() == 0 || resultConstructMap.find(subType) == resultConstructMap.end()) {
-					std::string s = "Unknown subtype.";
+					std::string s = "Unknown subtype in packet from client " + std::to_string(client->getClientID()) + ".";
 					CF_SAY(s, Settings::LogLevels::Error);
 					throw s;
 				}
@@ -488,7 +491,7 @@ namespace cf
 			}
 			else
 			{
-				throw "Invalid flag data in packet.";
+				throw "Invalid flag data in packet from client " + std::to_string(client->getClientID()) + ".";
 			}
 
 		}
