@@ -33,7 +33,7 @@ namespace cf
 		* @param s The string to print to the console.
 		* @returns void.
 		*/
-		inline void say(std::string s) { console.lock(); if (CF_SETTINGS->getDebug() == true) std::cout << s << std::endl; console.unlock(); };
+		inline void say(std::string s) { std::unique_lock<std::mutex> lock(console); if (CF_SETTINGS->getDebug() == true) std::cout << s << std::endl; };
 
 	private:
 

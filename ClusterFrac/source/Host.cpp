@@ -4,6 +4,8 @@ namespace cf
 {
 	Host::Host()
 	{
+		started = false;
+
 		//Default port number.
 		port = 5000;
 
@@ -50,10 +52,20 @@ namespace cf
 
 	void Host::start()
 	{
+		//If host already started, do nothing.
+		if (started)
+		{
+			CF_SAY("Host already started.");
+			return;
+		}
+
+		started = true;
+
 		CF_SAY("Starting ClusterFrac HOST on port " + std::to_string(port) + ".");
 
 		//Initialise incoming connection listener.
 		listener.listen(port);
+		listener.setBlocking(false);
 		//Add the listener to the selector.
 		selector.add(listener);
 
@@ -69,7 +81,7 @@ namespace cf
 		if (hostAsClient)
 		{
 			hostAsClientTaskProcessThreadRun = true;
-			std::thread([this] { hostAsClientProcessTaskThread(); });
+			hostAsClientTaskProcessingThread = std::thread([this] { hostAsClientProcessTaskThread(); });
 		}
 	}
 
@@ -101,7 +113,7 @@ namespace cf
 
 			//Make the selector wait for data on any socket.
 			//A timeout of N seconds is set to avoid locking the thread indefinitely.
-			if (selector.wait(sf::Time(sf::seconds(1.0f))))
+			if (selector.wait(/*sf::Time(sf::seconds(1.0f))*/))
 			{
 				//Test the listener.
 				if (selector.isReady(listener))
@@ -252,13 +264,13 @@ namespace cf
 		{
 			std::unique_lock<std::mutex> lock2(localHostAsClientTaskQueueMutex);
 			CF_SAY("Sending task to local client.");
-			localHostAsClientTaskQueue.push_back(subTaskQueue.front());
+			localHostAsClientTaskQueue.push_back(subTaskQueue.back());
+			subTaskQueue.pop_back();
 			lock2.unlock();
 		}
 
 		CF_SAY("Sending tasks to remote clients.");
-		//Skip first task chunk if it was sent to the host as a client.
-		std::vector<Task *>::iterator it = subTaskQueue.begin() + (hostAsClient ? 1 : 0);
+		std::vector<Task *>::iterator it = subTaskQueue.begin();
 		while (it != subTaskQueue.end())
 		{
 			//Search for the next available client.
@@ -329,24 +341,28 @@ namespace cf
 		//Do nothing if the state isn't changing.
 		if (hostAsClient == state) return;
 
-		//Start processing thread if it has not already been started, and the host is being set to process tasks locally.
-		if (hostAsClientTaskProcessThreadRun == false && state)
+		//Check if the host has already been started, then start or stop host as client processing thread as required.
+		if (started)
 		{
-			//Shut down host as client processing.
-			hostAsClientTaskProcessThreadRun = true;
+			//Start processing thread if it has not already been started, and the host is being set to process tasks locally.
+			if (hostAsClientTaskProcessThreadRun == false && state)
+			{
+				//Shut down host as client processing.
+				hostAsClientTaskProcessThreadRun = true;
 
-			//Launch host as client task processing thread.
-			if (hostAsClient) std::thread([this] { hostAsClientProcessTaskThread(); });
-		}
+				//Launch host as client task processing thread.
+				if (hostAsClient) hostAsClientTaskProcessingThread = std::thread([this] { hostAsClientProcessTaskThread(); });
+			}
 
-		//Shut down processing thread if it has been started, and the host is being set to no longer process tasks locally.
-		if (hostAsClientTaskProcessThreadRun && !state)
-		{
-			//Shut down host as client processing.
-			hostAsClientTaskProcessThreadRun = false;
+			//Shut down processing thread if it has been started, and the host is being set to no longer process tasks locally.
+			if (hostAsClientTaskProcessThreadRun && !state)
+			{
+				//Shut down host as client processing.
+				hostAsClientTaskProcessThreadRun = false;
 
-			//Wait forhost as client task processing thread to finish.
-			if (hostAsClientTaskProcessingThread.joinable()) hostAsClientTaskProcessingThread.join();
+				//Wait forhost as client task processing thread to finish.
+				if (hostAsClientTaskProcessingThread.joinable()) hostAsClientTaskProcessingThread.join();
+			}
 		}
 
 		hostAsClient = state;
@@ -496,12 +512,51 @@ namespace cf
 
 			for (auto &t : localHostAsClientTaskQueueCOPY)
 			{
-				cf::Result *result = t->run();
+				CF_SAY("Processing task locally - started.");
+				
+				//Split the task among available threads and run.
+				std::vector<cf::Task *> tasks = t->split(std::thread::hardware_concurrency());
+
+				std::vector<std::future<cf::Result *>> threads = std::vector<std::future<cf::Result *>>();
+
+				//Start benchmark timer.
+				auto start = std::chrono::steady_clock::now();
+
+				for (auto &task : tasks)
+				{
+					threads.push_back(std::async(std::launch::async, [&task]() { return task->run(); }));
+				}
+
+				std::vector<cf::Result *> results;
+
+				for (auto &thread : threads)
+				{
+					CF_SAY("Processing task locally - waiting for results and merging.");
+					auto result = thread.get();
+					results.push_back(result);
+				}
+
+				//Stop benchmark test clock.
+				auto end = std::chrono::steady_clock::now();
+				auto diff = end - start;
+
+				CF_SAY("Local computation time: " + std::to_string(std::chrono::duration <double, std::milli>(diff).count()) + " ms.");
+
+				cf::Result *result = resultConstructMap[results.front()->getSubtype()]();
+				result->merge(results);
+
+				//Clean up temporary results objects.
+				for (auto &r : results) delete r;
+
+				CF_SAY("Processing task locally - completed.");
 
 				//Place the result in the host result parts queue.
 				std::unique_lock<std::mutex> lock2(resultsQueueMutex);
 				resultQueueIncomplete.push_back(result);
 				lock2.unlock();
+
+				//Scan the incomplete results queue for complete results sets and move them to the complete results queue.
+				checkForCompleteResults();
 
 				std::unique_lock<std::mutex> lock3(localHostAsClientTaskQueueMutex);
 				//Remove the task from memory.

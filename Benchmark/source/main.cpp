@@ -21,16 +21,39 @@ int main(int argc, //Number of strings in array argv
 	host->registerTaskType("BenchmarkTask", []() { BenchmarkTask *b = new BenchmarkTask(); return static_cast<cf::Task *>(b); });
 	host->registerResultType("BenchmarkResult", []() { BenchmarkResult *b = new BenchmarkResult(); return static_cast<cf::Result *>(b); });
 	
-	//Start the host.
-	host->start();
-
 	//Allow this host to process tasks as a client.
 	host->setHostAsClient(true);
-
+	//Start the host.
+	host->start();
 	CF_SAY("Generating test data - started.");
 
 	BenchmarkTask *testTask = new BenchmarkTask();
-	for (int i = 0; i < 1000000; i++) testTask->numbers.push_back((float)rand() / 10.0f);
+	
+	//Generate test data.
+	{
+		//Split the task among available threads and run.
+		int maxThreads = std::thread::hardware_concurrency();
+		int dataSize = 2073600;
+		std::vector<std::future<std::vector<float>>> threads = std::vector<std::future<std::vector<float>>>();
+
+		for (int i = 0; i < maxThreads; i++)
+		{
+			threads.push_back(std::async(std::launch::async, [maxThreads, dataSize]() {
+				std::vector<float> f;
+				for (int i = 0; i < (dataSize / maxThreads); i++)
+				{
+					f.push_back((float)rand() / 100.0f);
+				}
+				return f; 
+			}));
+		}
+
+		for (auto &thread : threads)
+		{
+			auto result = thread.get();
+			testTask->numbers.insert(testTask->numbers.end(), result.begin(), result.end());
+		}
+	}
 
 	int taskID = testTask->getInitialTaskID();
 
@@ -53,6 +76,9 @@ int main(int argc, //Number of strings in array argv
 		//WAIT.
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
+	
+	//Start benchmark timer.
+	auto start = std::chrono::steady_clock::now();
 
 	if (host->sendTasks())
 	{
@@ -61,11 +87,15 @@ int main(int argc, //Number of strings in array argv
 		while (!host->checkAvailableResult(taskID))
 		{
 			//WAIT
-			std::this_thread::sleep_for(std::chrono::milliseconds(10));
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
 		}
 
 		cf::Result *finished = host->getAvailableResult(taskID);
 		BenchmarkResult *output = static_cast<BenchmarkResult *>(finished);
+
+		//Stop benchmark test clock.
+		auto end = std::chrono::steady_clock::now();
+		auto diff = end - start;
 
 		//List results.
 		CF_SAY("Results received (" + std::to_string(output->numbers.size()) + "):");
@@ -76,6 +106,8 @@ int main(int argc, //Number of strings in array argv
 		CF_SAY("...");
 
 		delete finished;
+
+		CF_SAY("Computation and network time: " + std::to_string(std::chrono::duration <double, std::milli>(diff).count()) + " ms.");
 
 		//Wait for user input to continue.
 		CF_SAY("Waiting for user to press E to end test.");

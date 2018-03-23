@@ -124,6 +124,7 @@ namespace cf
 			void init()
 			{
 				socket = new sf::TcpSocket();
+				socket->setBlocking(false);
 				busy = false;
 				remove = false;
 			};
@@ -154,6 +155,9 @@ namespace cf
 		////////////////////////////////////////////////////
 		// End ClientDetails class.
 		////////////////////////////////////////////////////
+
+		//Has the host been started?
+		std::atomic<bool> started;
 
 		//Port number this server is using.
 		int port;

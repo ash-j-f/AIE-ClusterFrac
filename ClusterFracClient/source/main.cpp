@@ -44,6 +44,8 @@ int main(int argc, //Number of strings in array argv
 	else
 	{
 		std::cout << "Failed to connect to host." << std::endl;
+		exit(1);
+		system("pause");
 	}
 
 	cf::WorkPacket packet;
@@ -87,8 +89,8 @@ int main(int argc, //Number of strings in array argv
 
 	for (auto &thread : threads)
 	{
-		auto result = thread.get();
 		std::cout << "Waiting for results and merging..." << std::endl;
+		auto result = thread.get();
 		results.push_back(result);
 	}
 	
