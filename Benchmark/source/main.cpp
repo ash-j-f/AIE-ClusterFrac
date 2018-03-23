@@ -11,8 +11,8 @@ int main(int argc, //Number of strings in array argv
 	char *envp[]) // Array of environment variable strings  
 {
 
-	//Set debug mode on for verbose console debug message output.
-	CF_SETTINGS->setDebug(true);
+	//Set log level for console messages.
+	CF_SETTINGS->setLogLevel(cf::Settings::LogLevels::Error);
 
 	//Create new host object.
 	cf::Host *host = new cf::Host();
@@ -25,7 +25,7 @@ int main(int argc, //Number of strings in array argv
 	host->setHostAsClient(true);
 	//Start the host.
 	host->start();
-	CF_SAY("Generating test data - started.");
+	CF_SAY("Generating test data - started.", cf::Settings::LogLevels::Info);
 
 	BenchmarkTask *testTask = new BenchmarkTask();
 	
@@ -57,12 +57,12 @@ int main(int argc, //Number of strings in array argv
 
 	int taskID = testTask->getInitialTaskID();
 
-	CF_SAY("Generating test data - complete.");
+	CF_SAY("Generating test data - complete.", cf::Settings::LogLevels::Info);
 
 	host->addTaskToQueue(testTask);
 
 	//Wait for at least one client.
-	CF_SAY("Waiting for clients.");
+	CF_SAY("Waiting for clients.", cf::Settings::LogLevels::Info);
 	while (host->getClientsCount() < 1)
 	{
 		//WAIT.
@@ -70,7 +70,7 @@ int main(int argc, //Number of strings in array argv
 	}
 
 	//Wait for user input to continue.
-	CF_SAY("Waiting for user to press B to start test.");
+	CF_SAY("Waiting for user to press B to start test.", cf::Settings::LogLevels::Info);
 	while (!sf::Keyboard::isKeyPressed(sf::Keyboard::B))
 	{
 		//WAIT.
@@ -83,7 +83,7 @@ int main(int argc, //Number of strings in array argv
 	if (host->sendTasks())
 	{
 		//Wait for results to be complete.
-		CF_SAY("Waiting for completed results.");
+		CF_SAY("Waiting for completed results.", cf::Settings::LogLevels::Info);
 		while (!host->checkAvailableResult(taskID))
 		{
 			//WAIT
@@ -98,19 +98,19 @@ int main(int argc, //Number of strings in array argv
 		auto diff = end - start;
 
 		//List results.
-		CF_SAY("Results received (" + std::to_string(output->numbers.size()) + "):");
+		CF_SAY("Results received (" + std::to_string(output->numbers.size()) + "):", cf::Settings::LogLevels::Info);
 		for (int i = 0; i < 5; i++)
 		{
-			CF_SAY(std::to_string(output->numbers[i]));
+			CF_SAY(std::to_string(output->numbers[i]), cf::Settings::LogLevels::Info);
 		}
-		CF_SAY("...");
+		CF_SAY("...", cf::Settings::LogLevels::Info);
 
 		delete finished;
 
-		CF_SAY("Computation and network time: " + std::to_string(std::chrono::duration <double, std::milli>(diff).count()) + " ms.");
+		CF_SAY("Computation and network time: " + std::to_string(std::chrono::duration <double, std::milli>(diff).count()) + " ms.", cf::Settings::LogLevels::Info);
 
 		//Wait for user input to continue.
-		CF_SAY("Waiting for user to press E to end test.");
+		CF_SAY("Waiting for user to press E to end test.", cf::Settings::LogLevels::Info);
 		while (!sf::Keyboard::isKeyPressed(sf::Keyboard::E))
 		{
 			//WAIT
@@ -119,7 +119,7 @@ int main(int argc, //Number of strings in array argv
 	}
 	else
 	{
-		CF_SAY("Aborting.");
+		CF_SAY("Unable to send task. Aborting.", cf::Settings::LogLevels::Error);
 	}
 
 	delete testTask;

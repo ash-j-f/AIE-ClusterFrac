@@ -7,7 +7,7 @@
 
 #define CF_CONSOLE cf::ConsoleMessager::getInstance()
 
-#define CF_SAY(x) CF_CONSOLE->say(x)
+#define CF_SAY(s, l) CF_CONSOLE->say(s, l)
 
 namespace cf
 {
@@ -31,9 +31,14 @@ namespace cf
 		/**
 		* Print a message to the console.
 		* @param s The string to print to the console.
+		* @param level The log level of the message.
 		* @returns void.
 		*/
-		inline void say(std::string s) { std::unique_lock<std::mutex> lock(console); if (CF_SETTINGS->getDebug() == true) std::cout << s << std::endl; };
+		inline void say(std::string s, int level)
+		{ 
+			std::unique_lock<std::mutex> lock(console); 
+			if (level <= CF_SETTINGS->getLogLevel()) std::cout << s << std::endl;
+		};
 
 	private:
 

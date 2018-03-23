@@ -55,13 +55,13 @@ namespace cf
 		//If host already started, do nothing.
 		if (started)
 		{
-			CF_SAY("Host already started.");
+			CF_SAY("Host already started.", Settings::LogLevels::Error);
 			return;
 		}
 
 		started = true;
 
-		CF_SAY("Starting ClusterFrac HOST on port " + std::to_string(port) + ".");
+		CF_SAY("Starting ClusterFrac HOST on port " + std::to_string(port) + ".", Settings::LogLevels::Info);
 
 		//Initialise incoming connection listener.
 		listener.listen(port);
@@ -104,7 +104,7 @@ namespace cf
 		//Register listening active.
 		listening = true;
 
-		CF_SAY("Listener thread started. Waiting for clients to connect.");
+		CF_SAY("Listener thread started. Waiting for clients to connect.", Settings::LogLevels::Info);
 		//Endless loop that waits for new connections.
 		//Aborts if listening flag is set false.
 		while (listen)
@@ -131,7 +131,7 @@ namespace cf
 						selector.add(*newClient->socket);
 						
 						CF_SAY("Client ID " + std::to_string(newClient->getClientID()) + " from IP " 
-							+ (*newClient->socket).getRemoteAddress().toString() + " connected.");
+							+ (*newClient->socket).getRemoteAddress().toString() + " connected.", Settings::LogLevels::Info);
 					}
 					else
 					{
@@ -157,7 +157,7 @@ namespace cf
 						{
 							if (selector.isReady(*client->socket))
 							{
-								CF_SAY("Incoming client data. Launching receiver thread.");
+								CF_SAY("Incoming client data. Launching receiver thread.", Settings::LogLevels::Debug);
 								//Launch a thread to deal with this client data.
 								lock.unlock();
 								std::atomic<bool> *cFlag = new std::atomic<bool>();
@@ -217,14 +217,14 @@ namespace cf
 		}
 
 		listening = false;
-		CF_SAY("Listener thread ended.");
+		CF_SAY("Listener thread ended.", Settings::LogLevels::Info);
 	}
 
 	void Host::addTaskToQueue(Task *task)
 	{
 		std::unique_lock<std::mutex> lock(taskQueueMutex);
 		taskQueue.push_back(task);
-		CF_SAY("Added task to queue.");
+		CF_SAY("Added task to queue.", Settings::LogLevels::Info);
 	}
 
 	bool Host::sendTasks()
@@ -234,20 +234,20 @@ namespace cf
 
 		if (getClientsCount() < 1)
 		{
-			CF_SAY("Cannot send tasks. No clients connected.");
+			CF_SAY("Cannot send tasks. No clients connected.", Settings::LogLevels::Error);
 			return false;
 		}
 
 		if (taskQueue.size() == 0)
 		{
-			CF_SAY("Cannot send tasks. No tasks in queue.");
+			CF_SAY("Cannot send tasks. No tasks in queue.", Settings::LogLevels::Error);
 			return false;
 		}
 
 		//Divide tasks among clients.
 		std::vector<Task *> subTaskQueue;
 		std::vector<Task *> dividedTasks;
-		CF_SAY("Diving tasks among clients.");
+		CF_SAY("Diving tasks among clients.", Settings::LogLevels::Info);
 		for (auto &task : taskQueue)
 		{
 			dividedTasks = task->split(getClientsCount());
@@ -263,13 +263,13 @@ namespace cf
 		if (hostAsClient)
 		{
 			std::unique_lock<std::mutex> lock2(localHostAsClientTaskQueueMutex);
-			CF_SAY("Sending task to local client.");
+			CF_SAY("Sending task to local client.", Settings::LogLevels::Info);
 			localHostAsClientTaskQueue.push_back(subTaskQueue.back());
 			subTaskQueue.pop_back();
 			lock2.unlock();
 		}
 
-		CF_SAY("Sending tasks to remote clients.");
+		CF_SAY("Sending tasks to remote clients.", Settings::LogLevels::Info);
 		std::vector<Task *>::iterator it = subTaskQueue.begin();
 		while (it != subTaskQueue.end())
 		{
@@ -288,7 +288,7 @@ namespace cf
 				Task *task = *it;
 				it++;
 				taskSendThreads.push_back(std::thread([this, freeClient, task]() { sendTaskThread(freeClient, task); }));
-				CF_SAY("Task send thread started for client " + std::to_string(freeClient->getClientID()) + ".");
+				CF_SAY("Task send thread started for client " + std::to_string(freeClient->getClientID()) + ".", Settings::LogLevels::Debug);
 			}
 			
 		}
@@ -306,7 +306,7 @@ namespace cf
 		for (auto &task : subTaskQueue) delete task;
 		subTaskQueue.clear();
 
-		CF_SAY("Task sending finished.");
+		CF_SAY("Task sending finished.", Settings::LogLevels::Info);
 
 		return true;
 	}
@@ -315,7 +315,7 @@ namespace cf
 	{
 		std::unique_lock<std::mutex> lock(resultsQueueMutex);
 		resultQueueIncomplete.push_back(result);
-		CF_SAY("Added result to queue.");
+		CF_SAY("Added result to queue.", Settings::LogLevels::Info);
 	}
 
 	Result *Host::getAvailableResult(int taskID)
@@ -409,7 +409,7 @@ namespace cf
 			std::unique_lock<std::mutex> lock(client->socketMutex, std::try_to_lock);
 			if (lock.owns_lock())
 			{
-				CF_SAY("Sending task to client " + std::to_string(client->getClientID()) + ".");
+				CF_SAY("Sending task to client " + std::to_string(client->getClientID()) + ".", Settings::LogLevels::Info);
 
 				//Send task to client.
 				cf::WorkPacket packet(cf::WorkPacket::Flag::Task);
@@ -419,7 +419,7 @@ namespace cf
 
 				packet.clear();
 
-				CF_SAY("Sending task finished for client " + std::to_string(client->getClientID()) + ".");
+				CF_SAY("Sending task finished for client " + std::to_string(client->getClientID()) + ".", Settings::LogLevels::Info);
 
 				done = true;
 				lock.unlock();
@@ -444,11 +444,11 @@ namespace cf
 
 			if (packet->getFlag() == cf::WorkPacket::Flag::None)
 			{
-				CF_SAY("Received unknown packet from client.");
+				CF_SAY("Received unknown packet from client.", Settings::LogLevels::Error);
 			}
 			else if (packet->getFlag() == cf::WorkPacket::Flag::Result)
 			{
-				CF_SAY("Received result packet from client.");
+				CF_SAY("Received result packet from client.", Settings::LogLevels::Info);
 
 				std::string type;
 				std::string subType;
@@ -456,11 +456,18 @@ namespace cf
 				*packet >> type;
 				*packet >> subType;
 
-				if (type != "Result") throw "Incoming packet not a valid result type.";
+				if (type != "Result")
+				{
+					std::string s = "Received unknown packet from client.";
+					CF_SAY(s, Settings::LogLevels::Error);
+					throw s;
+				}
 
 				//Check subtype exists in the constuction map.
 				if (resultConstructMap.size() == 0 || resultConstructMap.find(subType) == resultConstructMap.end()) {
-					throw "Unknown subtype.";
+					std::string s = "Unknown subtype.";
+					CF_SAY(s, Settings::LogLevels::Error);
+					throw s;
 				}
 
 				//Instantiate the resulting derived class.
@@ -488,7 +495,7 @@ namespace cf
 		else if ((*client->socket).receive(*packet) == sf::Socket::Disconnected)
 		{
 			CF_SAY("Client ID " + std::to_string(client->getClientID()) + " from IP "
-				+ (*client->socket).getRemoteAddress().toString() + " disconnected.");
+				+ (*client->socket).getRemoteAddress().toString() + " disconnected.", Settings::LogLevels::Info);
 			selector.remove(*client->socket);
 			(*client->socket).disconnect();
 			//Mark client data for erasure.
@@ -512,7 +519,7 @@ namespace cf
 
 			for (auto &t : localHostAsClientTaskQueueCOPY)
 			{
-				CF_SAY("Processing task locally - started.");
+				CF_SAY("Processing task locally - started.", Settings::LogLevels::Info);
 				
 				//Split the task among available threads and run.
 				std::vector<cf::Task *> tasks = t->split(std::thread::hardware_concurrency());
@@ -531,7 +538,7 @@ namespace cf
 
 				for (auto &thread : threads)
 				{
-					CF_SAY("Processing task locally - waiting for results and merging.");
+					CF_SAY("Processing task locally - waiting for results and merging.", Settings::LogLevels::Info);
 					auto result = thread.get();
 					results.push_back(result);
 				}
@@ -540,7 +547,7 @@ namespace cf
 				auto end = std::chrono::steady_clock::now();
 				auto diff = end - start;
 
-				CF_SAY("Local computation time: " + std::to_string(std::chrono::duration <double, std::milli>(diff).count()) + " ms.");
+				CF_SAY("Local computation time: " + std::to_string(std::chrono::duration <double, std::milli>(diff).count()) + " ms.", Settings::LogLevels::Info);
 
 				cf::Result *result = resultConstructMap[results.front()->getSubtype()]();
 				result->merge(results);
@@ -548,7 +555,7 @@ namespace cf
 				//Clean up temporary results objects.
 				for (auto &r : results) delete r;
 
-				CF_SAY("Processing task locally - completed.");
+				CF_SAY("Processing task locally - completed.", Settings::LogLevels::Info);
 
 				//Place the result in the host result parts queue.
 				std::unique_lock<std::mutex> lock2(resultsQueueMutex);

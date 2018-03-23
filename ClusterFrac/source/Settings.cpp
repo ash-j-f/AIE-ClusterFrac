@@ -5,7 +5,7 @@ namespace cf
 	Settings::Settings()
 	{
 		//Defaults
-		debug = false;
+		logLevel = LogLevels::Info;
 	}
 
 	Settings::~Settings()

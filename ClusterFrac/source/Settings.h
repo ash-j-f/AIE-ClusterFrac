@@ -16,6 +16,12 @@ namespace cf
 
 	public:
 
+		//Available debug levels.
+		//3 - Debug
+		//2 - Info
+		//1 - Error
+		enum LogLevels { Error = 1, Info = 2, Debug = 3 };
+
 		/**
 		* Create or get static instance.
 		* @returns A pointer to the single Settings object.
@@ -23,17 +29,17 @@ namespace cf
 		static class Settings *getInstance();
 
 		/**
-		* Get the debug mode status.
-		* @returns True if debug mode is on, false if not.
+		* Get the log level.
+		* @returns The current log level.
 		*/
-		bool getDebug() { return debug; }
+		int getLogLevel() { return logLevel; }
 
 		/**
-		* Set the debug mode status.
-		* @params state The debug mode state to set. True is on, false is off.
+		* Set the log level.
+		* @params level The log level.
 		* @returns void.
 		*/
-		void setDebug(bool state) { debug = state; };
+		void setLogLevel(LogLevels level) { logLevel = level; };
 
 	private:
 
@@ -46,9 +52,9 @@ namespace cf
 		* Default destructor.
 		*/
 		~Settings();
-
-		//The current debug mode status.
-		bool debug;
+		
+		//The current log level.
+		LogLevels logLevel;
 
 	};
 }
