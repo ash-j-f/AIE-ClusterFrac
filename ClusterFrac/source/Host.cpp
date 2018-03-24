@@ -9,24 +9,12 @@ namespace cf
 		//Default port number.
 		port = 5000;
 
-		//Listening default status.
-		listen = false;
-		listening = false;
-
 		//Should the host process tasks like a client, by default?
 		hostAsClient = true;
 	}
 	
 	Host::~Host()
 	{
-		if (listen)
-		{
-			//Set listening status to signal listener thread to shut down.
-			listen = false;
-
-			//Wait for the listening thread to shut down.
-			if (listenerThread.joinable()) listenerThread.join();
-		}
 
 		if (loopThreadRun)
 		{
@@ -63,15 +51,7 @@ namespace cf
 
 		CF_SAY("Starting ClusterFrac HOST on port " + std::to_string(port) + ".", Settings::LogLevels::Info);
 
-		//Initialise incoming connection listener.
-		listener.listen(port);
-		listener.setBlocking(false);
-		//Add the listener to the selector.
-		selector.add(listener);
-
-		//Launch listener thread.
-		listen = true;
-		listenerThread = std::thread([this] { listenThread(); });
+		listener.start();
 
 		//Launch internal loop thread.
 		loopThreadRun = true;
@@ -94,130 +74,6 @@ namespace cf
 			//Sleep before running loop again.
 			std::this_thread::sleep_for(std::chrono::milliseconds(100));
 		}
-	}
-
-	void Host::listenThread()
-	{
-		//If there is already a thread listening, abort.
-		if (listening) return;
-
-		//Register listening active.
-		listening = true;
-
-		CF_SAY("Listener thread started. Waiting for clients to connect.", Settings::LogLevels::Info);
-		//Endless loop that waits for new connections.
-		//Aborts if listening flag is set false.
-		while (listen)
-		{
-			//CF_SAY("Listening.");
-
-			//Make the selector wait for data on any socket.
-			//A timeout is set to avoid locking the thread indefinitely.
-			if (selector.wait(sf::Time(sf::milliseconds(1))))
-			{
-				//Test the listener.
-				if (selector.isReady(listener))
-				{
-					//The listener is ready: there is a pending connection.
-					ClientDetails *newClient = new ClientDetails(CF_ID->getNextClientID());
-					//CF_SAY("listenThread incoming connection lock.");
-					std::unique_lock<std::mutex> lock(newClient->socketMutex);
-					if (listener.accept(*newClient->socket) == sf::Socket::Done)
-					{
-						//Add the new client to the clients list.
-						clients.push_back(newClient);
-						//Add the new client to the selector so that we will
-						//be notified when it sends something.
-						selector.add(*newClient->socket);
-						
-						CF_SAY("Client ID " + std::to_string(newClient->getClientID()) + " from IP " 
-							+ (*newClient->socket).getRemoteAddress().toString() + " connected.", Settings::LogLevels::Info);
-					}
-					else
-					{
-						// Error, we won't get a new connection, delete the socket.
-						delete newClient;
-					}
-				}
-				else
-				{
-					//The listener socket is not ready, test all other sockets (the clients)
-					std::vector<ClientDetails *>::iterator it;
-					for (it = clients.begin(); it != clients.end(); it++)
-					{
-						ClientDetails *client = *it;
-
-						//Skip deleted clients.
-						if (client->remove) continue;
-
-						//Attempt to get socket lock. Try again later if another process already has a lock on this socket.
-						//CF_SAY("listenThread incoming client data try lock.");
-						std::unique_lock<std::mutex> lock(client->socketMutex, std::try_to_lock);
-						if (lock.owns_lock())
-						{
-							if (selector.isReady(*client->socket))
-							{
-								CF_SAY("Incoming client data. Launching receiver thread.", Settings::LogLevels::Debug);
-								//Launch a thread to deal with this client data.
-								lock.unlock();
-								std::atomic<bool> *cFlag = new std::atomic<bool>();
-								//Set completion flag to false by default.
-								*cFlag = false;
-								clientReceiveThreads.push_back(std::thread([this, client, cFlag] { clientReceiveThread(client, cFlag); }));
-								clientReceiveThreadsFinishedFlags.push_back(cFlag);
-							}
-						}
-					}
-				}
-			}
-
-			//Remove completed client receive threads.
-			//Loop backwards as we are removing elements.
-			for (int i = (int)clientReceiveThreads.size() - 1; i >= 0; i--)
-			{
-				if (clientReceiveThreadsFinishedFlags[i])
-				{
-					clientReceiveThreads[i].join();
-					clientReceiveThreads.erase(clientReceiveThreads.begin() + i);
-					delete clientReceiveThreadsFinishedFlags[i];
-					clientReceiveThreadsFinishedFlags.erase(clientReceiveThreadsFinishedFlags.begin() + i);
-				}
-			}
-
-			//Erase dead clients from client list.
-			std::vector<ClientDetails *>::iterator deadIt;
-			for (deadIt = clients.begin(); deadIt != clients.end();)
-			{
-				ClientDetails *client = *deadIt;
-
-				bool removedOne = false;
-				if (client->remove)
-				{
-					//Check if any other process still using the client socket.
-					//If so, then try again later.
-					//CF_SAY("listenThread remove dead clients try lock.");
-					std::unique_lock<std::mutex> lock(client->socketMutex, std::try_to_lock);
-					if (lock.owns_lock())
-					{
-						//Remove the socket from the selector.
-						selector.remove(*client->socket);
-
-						//Immediately unlock as we are about to delete the object that contains the mutex.
-						lock.unlock();
-
-						delete client;
-						deadIt = clients.erase(deadIt);
-						removedOne = true;
-					}
-				}
-
-				if (!removedOne) deadIt++;
-
-			}
-		}
-
-		listening = false;
-		CF_SAY("Listener thread ended.", Settings::LogLevels::Info);
 	}
 
 	void Host::addTaskToQueue(Task *task)
@@ -415,14 +271,31 @@ namespace cf
 				cf::WorkPacket packet(cf::WorkPacket::Flag::Task);
 				task->serialize(packet);
 
-				while (client->socket->send(packet) != sf::Socket::Status::Done)
+				//Socket is in non blocking mode, so more than one call to send may be needed to send all the data.
+				sf::Socket::Status status;
+				while (true)
 				{
-					CF_SAY("Partial send to client " + std::to_string(client->getClientID()) + ".", Settings::LogLevels::Debug);
+					status = client->socket->send(packet);
+					if (status == sf::Socket::Status::Done)
+					{
+						CF_SAY("Sending task finished for client " + std::to_string(client->getClientID()) + ".", Settings::LogLevels::Info);
+						break;
+					}
+					else if (status == sf::Socket::Status::Partial)
+					{
+						//Partial send, so keep looping to continue sending.
+						CF_SAY("Partial send to client " + std::to_string(client->getClientID()) + ".", Settings::LogLevels::Debug);
+					}
+					else
+					{
+						std::string s = "Error while sending to client " + std::to_string(client->getClientID()) + ".";
+						CF_SAY(s, Settings::LogLevels::Error);
+						throw s;
+						break;
+					}
 				};
 
 				packet.clear();
-
-				CF_SAY("Sending task finished for client " + std::to_string(client->getClientID()) + ".", Settings::LogLevels::Info);
 
 				done = true;
 				lock.unlock();
@@ -431,84 +304,6 @@ namespace cf
 			//TODO
 			//done = true;
 		}
-	}
-
-	void Host::clientReceiveThread(ClientDetails *client, std::atomic<bool> *cFlag)
-	{
-		//CF_SAY("clientReceiveThread lock.");
-
-		//Obtain lock on the client socket.
-		std::unique_lock<std::mutex> lock(client->socketMutex);
-
-		// The client has sent some data, we can receive it
-		cf::WorkPacket *packet = new cf::WorkPacket();
-		if ((*client->socket).receive(*packet) == sf::Socket::Done)
-		{
-
-			if (packet->getFlag() == cf::WorkPacket::Flag::None)
-			{
-				CF_SAY("Received unknown packet from client " + std::to_string(client->getClientID()) + ".", Settings::LogLevels::Error);
-			}
-			else if (packet->getFlag() == cf::WorkPacket::Flag::Result)
-			{
-				CF_SAY("Received result packet from client " + std::to_string(client->getClientID()) + ".", Settings::LogLevels::Info);
-
-				std::string type;
-				std::string subType;
-
-				*packet >> type;
-				*packet >> subType;
-
-				if (type != "Result")
-				{
-					std::string s = "Received unknown packet from client " + std::to_string(client->getClientID()) + ".";
-					CF_SAY(s, Settings::LogLevels::Error);
-					throw s;
-				}
-
-				//Check subtype exists in the constuction map.
-				if (resultConstructMap.size() == 0 || resultConstructMap.find(subType) == resultConstructMap.end()) {
-					std::string s = "Unknown subtype in packet from client " + std::to_string(client->getClientID()) + ".";
-					CF_SAY(s, Settings::LogLevels::Error);
-					throw s;
-				}
-
-				//Instantiate the resulting derived class.
-				cf::Result *result = resultConstructMap[subType]();
-
-				result->deserialize(*packet);
-
-				//Add result data to the host incomplete results queue.
-				std::unique_lock<std::mutex> lock(resultsQueueMutex);
-				resultQueueIncomplete.push_back(result);
-				lock.unlock();
-
-				//Scan the incomplete results queue for complete results sets and move them to the complete results queue.
-				checkForCompleteResults();
-
-				client->busy = false;
-
-			}
-			else
-			{
-				throw "Invalid flag data in packet from client " + std::to_string(client->getClientID()) + ".";
-			}
-
-		}
-		else if ((*client->socket).receive(*packet) == sf::Socket::Disconnected)
-		{
-			CF_SAY("Client ID " + std::to_string(client->getClientID()) + " from IP "
-				+ (*client->socket).getRemoteAddress().toString() + " disconnected.", Settings::LogLevels::Info);
-			selector.remove(*client->socket);
-			(*client->socket).disconnect();
-			//Mark client data for erasure.
-			client->remove = true;
-		}
-		delete packet;
-
-		//Signal to our parent thread that this thread has finished.
-		*cFlag = true;
-		lock.unlock();
 	}
 
 	void Host::hostAsClientProcessTaskThread()

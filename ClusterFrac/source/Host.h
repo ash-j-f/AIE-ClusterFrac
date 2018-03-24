@@ -12,6 +12,8 @@
 #include "ConsoleMessager.hpp"
 #include "Task.h"
 #include "IDManager.h"
+#include "Listener.h"
+#include "ClientDetails.hpp"
 
 namespace cf
 {
@@ -22,6 +24,10 @@ namespace cf
 	*/
 	class DLL Host
 	{
+
+		//Listener requires full access to its host.
+		friend class Listener;
+
 	public:
 
 		/**
@@ -87,74 +93,6 @@ namespace cf
 		void setHostAsClient(bool state);
 
 	private:
-		
-		////////////////////////////////////////////////////
-		// ClientDetails class.
-		////////////////////////////////////////////////////
-		/**
-		* Client details class.
-		* @author Ashley Flynn - Academy of Interactive Entertainment - 2018.
-		*/
-		class ClientDetails
-		{
-		public:
-
-			/**
-			* Constructor with client ID.
-			* @param newID The client ID to use for this new client.
-			*/
-			ClientDetails(unsigned int newID)
-			{
-				ID = newID;
-				init();
-			};
-
-			/**
-			* Default destructor.
-			*/
-			~ClientDetails()
-			{
-				delete socket;
-			};
-
-			/**
-			* Standard class initialisation.
-			* @returns void.
-			*/
-			void init()
-			{
-				socket = new sf::TcpSocket();
-				socket->setBlocking(false);
-				busy = false;
-				remove = false;
-			};
-
-			//Socket used to communicate with this client.
-			sf::TcpSocket *socket;
-		
-			//Socket mutex for this client, for locking the socket during use.
-			std::mutex socketMutex;
-
-			//Is this client busy with a task?
-			std::atomic<bool> busy;
-
-			//Should this client be removed?
-			std::atomic<bool> remove;
-
-			/**
-			* Get client ID.
-			* @returns The client's ID.
-			*/
-			unsigned int getClientID() { return ID; }
-
-		private:
-
-			//Unique client ID on this host.
-			unsigned int ID;
-		};
-		////////////////////////////////////////////////////
-		// End ClientDetails class.
-		////////////////////////////////////////////////////
 
 		//Has the host been started?
 		std::atomic<bool> started;
@@ -162,35 +100,17 @@ namespace cf
 		//Port number this server is using.
 		int port;
 
+		//Listener object responsible for managing the TCP listener thread.
+		Listener listener{this};
+
 		//Connected client details.
 		std::vector<ClientDetails *> clients;
-
-		//Socket selector for managing multiple connections.
-		sf::SocketSelector selector;
 
 		//Thread that loops continuously while host is running.
 		std::thread loopingThread;
 
 		//Should the continous loop thread keep running?
 		std::atomic<bool> loopThreadRun;
-
-		//Listener for incoming connections
-		sf::TcpListener listener;
-
-		//Should the listener thread be listening for connections?
-		std::atomic<bool> listen;
-
-		//Is the server listening for connections?
-		std::atomic<bool> listening;
-
-		//Connection listening thread.
-		std::thread listenerThread;
-		
-		//Client data receive threads.
-		std::vector<std::thread> clientReceiveThreads;
-
-		//Indicators for when client data recieve threads have finished.
-		std::vector<std::atomic<bool> *> clientReceiveThreadsFinishedFlags;
 
 		//Task queue.
 		std::list<cf::Task *> taskQueue;
@@ -235,13 +155,6 @@ namespace cf
 		void loopThread();
 
 		/**
-		* Listen for incoming connections.
-		* To be used by a dedicated thread.
-		* @returns void.
-		*/
-		void listenThread();
-
-		/**
 		* Send task to a client.
 		* To be used by a dedicated thread.
 		* @param client The client to send the task to.
@@ -249,8 +162,6 @@ namespace cf
 		* @returns void.
 		*/
 		void sendTaskThread(ClientDetails *client, Task *task);
-
-		void clientReceiveThread(ClientDetails *client, std::atomic<bool> *cFlag);
 
 		void hostAsClientProcessTaskThread();
 

@@ -87,17 +87,20 @@
   <ItemGroup>
     <ClCompile Include="source\Host.cpp" />
     <ClCompile Include="source\IDManager.cpp" />
+    <ClCompile Include="source\Listener.cpp" />
     <ClCompile Include="source\Result.cpp" />
     <ClCompile Include="source\Settings.cpp" />
     <ClCompile Include="source\Task.cpp" />
     <ClCompile Include="source\WorkPacket.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="source\ClientDetails.hpp" />
     <ClInclude Include="source\ClusterFrac.h" />
     <ClInclude Include="source\ConsoleMessager.hpp" />
     <ClInclude Include="source\DllExport.h" />
     <ClInclude Include="source\Host.h" />
     <ClInclude Include="source\IDManager.h" />
+    <ClInclude Include="source\Listener.h" />
     <ClInclude Include="source\Result.h" />
     <ClInclude Include="source\Settings.h" />
     <ClInclude Include="source\Task.h" />

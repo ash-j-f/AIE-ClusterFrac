@@ -47,6 +47,8 @@ int main(int argc, //Number of strings in array argv
 	{
 		if (!connected)
 		{
+			//Use socket blocking during connect attempt.
+			socket.setBlocking(true);
 			if (socket.connect(HOST_IPADDRESS, PORT) == sf::Socket::Done)
 			{
 				std::cout << "Connected to host at " << HOST_IPADDRESS.toString() << "." << std::endl;
@@ -59,6 +61,7 @@ int main(int argc, //Number of strings in array argv
 				std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 				connected = false;
 			}
+			socket.setBlocking(false);
 		}
 
 		while (connected)
@@ -66,9 +69,17 @@ int main(int argc, //Number of strings in array argv
 
 			std::cout << "Waiting for work packet." << std::endl;
 
-			while (packet.getDataSize() == 0)
+			socket.setBlocking(false);
+			sf::Socket::Status status;
+			while (true)
 			{
-				if (socket.receive(packet) == sf::Socket::Disconnected)
+				status = socket.receive(packet);
+				if (status == sf::Socket::Status::Done)
+				{
+					std::cout << "Received work packet." << std::endl;
+					break;
+				}
+				else if (status == sf::Socket::Status::Disconnected)
 				{
 					std::cout << "Disconnected by host." << std::endl;
 					socket.disconnect();
@@ -78,8 +89,6 @@ int main(int argc, //Number of strings in array argv
 			}
 
 			if (!connected) break;
-
-			std::cout << "Received work packet." << std::endl;
 
 			std::string type;
 			packet >> type;
@@ -139,8 +148,36 @@ int main(int argc, //Number of strings in array argv
 			delete bmr1;
 
 			std::cout << "Sending results packet." << std::endl;
-
-			socket.send(packet);
+			
+			socket.setBlocking(false);
+			while (true)
+			{
+				status = socket.send(packet);
+				if (status == sf::Socket::Status::Done)
+				{
+					break;
+				}
+				else if (status == sf::Socket::Status::Partial)
+				{
+					//Loop.
+				}
+				else if (status == sf::Socket::Status::Disconnected)
+				{
+					//Disconnected while sending.
+					std::cout << "Disconnected by host during send." << std::endl;
+					socket.disconnect();
+					connected = false;
+					break;
+				}
+				else
+				{
+					//Error while sending.
+					std::cout << "Error during send. Forcing reconnect." << std::endl;
+					socket.disconnect();
+					connected = false;
+					break;
+				}
+			}
 
 			packet.clear();
 
