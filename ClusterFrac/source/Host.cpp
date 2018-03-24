@@ -34,6 +34,9 @@ namespace cf
 			if (hostAsClientTaskProcessingThread.joinable()) hostAsClientTaskProcessingThread.join();
 		}
 
+		//Stop the listener.
+		listener.stop();
+
 		//Clean up any remaining registered clients.
 		for (auto &c : clients) delete c;
 	}
