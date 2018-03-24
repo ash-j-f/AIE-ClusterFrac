@@ -89,6 +89,7 @@
     <ClCompile Include="source\IDManager.cpp" />
     <ClCompile Include="source\Listener.cpp" />
     <ClCompile Include="source\Result.cpp" />
+    <ClCompile Include="source\Sender.cpp" />
     <ClCompile Include="source\Settings.cpp" />
     <ClCompile Include="source\Task.cpp" />
     <ClCompile Include="source\WorkPacket.cpp" />
@@ -102,6 +103,7 @@
     <ClInclude Include="source\IDManager.h" />
     <ClInclude Include="source\Listener.h" />
     <ClInclude Include="source\Result.h" />
+    <ClInclude Include="source\Sender.h" />
     <ClInclude Include="source\Settings.h" />
     <ClInclude Include="source\Task.h" />
     <ClInclude Include="source\WorkPacket.h" />

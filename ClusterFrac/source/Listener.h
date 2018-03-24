@@ -3,6 +3,7 @@
 #include "DllExport.h"
 #include <SFML\Network.hpp>
 #include "ClientDetails.hpp"
+#include "ConsoleMessager.hpp"
 
 namespace cf
 {

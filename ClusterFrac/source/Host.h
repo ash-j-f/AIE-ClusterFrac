@@ -13,6 +13,7 @@
 #include "Task.h"
 #include "IDManager.h"
 #include "Listener.h"
+#include "Sender.h"
 #include "ClientDetails.hpp"
 
 namespace cf
@@ -25,8 +26,9 @@ namespace cf
 	class DLL Host
 	{
 
-		//Listener requires full access to its host.
+		//These classes require full access to host.
 		friend class Listener;
+		friend class Sender;
 
 	public:
 
@@ -101,7 +103,10 @@ namespace cf
 		int port;
 
 		//Listener object responsible for managing the TCP listener thread.
-		Listener listener{this};
+		Listener listener{ this };
+
+		//Sender object responsible for managing sender threads.
+		Sender sender{ this };
 
 		//Connected client details.
 		std::vector<ClientDetails *> clients;
@@ -153,15 +158,6 @@ namespace cf
 		* @returns void.
 		*/
 		void loopThread();
-
-		/**
-		* Send task to a client.
-		* To be used by a dedicated thread.
-		* @param client The client to send the task to.
-		* @param Task the task to send.
-		* @returns void.
-		*/
-		void sendTaskThread(ClientDetails *client, Task *task);
 
 		void hostAsClientProcessTaskThread();
 

@@ -188,7 +188,7 @@ namespace cf
 			//Get socket status
 			status = (*client->socket).receive(*packet);
 
-			if (status == sf::Socket::Done)
+			if (status == sf::Socket::Status::Done)
 			{
 
 				if (packet->getFlag() == cf::WorkPacket::Flag::None)
@@ -243,7 +243,7 @@ namespace cf
 				break;
 
 			}
-			else if (status == sf::Socket::Disconnected)
+			else if (status == sf::Socket::Status::Disconnected)
 			{
 				CF_SAY("Client ID " + std::to_string(client->getClientID()) + " from IP "
 					+ (*client->socket).getRemoteAddress().toString() + " disconnected.", Settings::LogLevels::Info);
@@ -254,7 +254,16 @@ namespace cf
 
 				break;
 			}
-
+			else if (status == sf::Socket::Status::Partial)
+			{
+				//Partial packet, so continue looping.
+			}
+			else
+			{
+				//Invalid data from client.
+				CF_SAY("Invalid data from client. Ignoring.", Settings::LogLevels::Error);
+				break;
+			}
 		}
 
 		delete packet;
