@@ -20,7 +20,7 @@ int main(int argc, //Number of strings in array argv
 	//Check if a non default port was specified.
 	if (argc > 1)
 	{
-		host->setPort(atoi(argv[2]));
+		host->setPort(atoi(argv[1]));
 	}
 
 	//Set user defined Task and Result types.
