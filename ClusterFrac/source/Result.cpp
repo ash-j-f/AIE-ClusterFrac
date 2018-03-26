@@ -56,7 +56,7 @@ namespace cf
 		mergeLocal(others);
 	}
 
-	void Result::serialize(cf::WorkPacket & p)
+	void Result::serialize(cf::WorkPacket &p) const
 	{
 		p << getType(); 
 		p << getSubtype(); 

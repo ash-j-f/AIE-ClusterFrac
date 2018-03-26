@@ -17,6 +17,12 @@ int main(int argc, //Number of strings in array argv
 	//Create new host object.
 	cf::Host *host = new cf::Host();
 
+	//Check if a non default port was specified.
+	if (argc > 1)
+	{
+		host->setPort(atoi(argv[2]));
+	}
+
 	//Set user defined Task and Result types.
 	host->registerTaskType("BenchmarkTask", []() { BenchmarkTask *b = new BenchmarkTask(); return static_cast<cf::Task *>(b); });
 	host->registerResultType("BenchmarkResult", []() { BenchmarkResult *b = new BenchmarkResult(); return static_cast<cf::Result *>(b); });

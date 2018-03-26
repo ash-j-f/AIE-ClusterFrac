@@ -50,7 +50,7 @@ private:
 		return tasksConv;
 	};
 
-	inline void serializeLocal(cf::WorkPacket &p)
+	inline void serializeLocal(cf::WorkPacket &p) const
 	{
 		sf::Int64 size = numbers.size();
 		p << size;
@@ -65,7 +65,7 @@ private:
 		for (sf::Int64 i = 0; i < size; i++) p >> numbers[i];
 	};
 
-	inline cf::Result *runLocal()
+	inline cf::Result *runLocal() const
 	{
 		BenchmarkResult *result = new BenchmarkResult();
 

@@ -52,7 +52,7 @@ namespace cf
 
 		started = true;
 
-		CF_SAY("Starting ClusterFrac HOST on port " + std::to_string(port) + ".", Settings::LogLevels::Info);
+		CF_SAY("Starting ClusterFrac HOST at " + sf::IpAddress::getLocalAddress().toString() + " on port " + std::to_string(port) + ".", Settings::LogLevels::Info);
 
 		listener.start();
 
@@ -68,7 +68,19 @@ namespace cf
 		}
 	}
 
-
+	void Host::setPort(int portNum)
+	{
+		if (portNum > 0 && portNum <= 65535) 
+		{ 
+			port = portNum; 
+		}
+		else 
+		{ 
+			std::string s = "Invalid port number."; 
+			CF_SAY(s, Settings::LogLevels::Error); 
+			throw s;
+		};
+	}
 
 	void Host::loopThread()
 	{

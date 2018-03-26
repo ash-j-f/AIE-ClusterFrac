@@ -58,7 +58,7 @@ namespace cf
 		* @param portNum The port number to use. Must be in the range [1 .. 65535].
 		* @returns void.
 		*/
-		inline void setPort(int portNum) { if (portNum > 0 && portNum <= 65535) { port = portNum; } else { throw "Invalid port number.";  }; };
+		void setPort(int portNum);
 
 		/**
 		* Add a task to the task queue for sending to clients.
@@ -91,7 +91,7 @@ namespace cf
 
 		Result* getAvailableResult(int taskID);
 
-		bool getHostAsClient() { return hostAsClient; };
+		inline bool getHostAsClient() const { return hostAsClient; };
 
 		void setHostAsClient(bool state);
 

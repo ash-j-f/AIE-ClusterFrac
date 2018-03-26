@@ -16,7 +16,7 @@ namespace cf
 	{
 	}
 
-	std::vector<Task*> Task::split(int count)
+	std::vector<Task*> Task::split(int count) const
 	{
 		std::vector<Task *> tmp = splitLocal(count); 
 		sf::Uint32 i = 0;
@@ -31,7 +31,7 @@ namespace cf
 		return tmp;
 	}
 
-	void Task::serialize(WorkPacket & p)
+	void Task::serialize(WorkPacket & p) const
 	{
 		p << getType();
 		p << getSubtype();
@@ -65,7 +65,7 @@ namespace cf
 		deserializeLocal(p);
 	}
 
-	Result *Task::run()
+	Result *Task::run() const
 	{
 		Result *result = runLocal();
 

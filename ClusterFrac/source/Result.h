@@ -50,7 +50,7 @@ namespace cf
 		*/
 		virtual void merge(const std::vector<Result *> others);
 	
-		void serialize(cf::WorkPacket &p);
+		void serialize(cf::WorkPacket &p) const;
 
 		void deserialize(cf::WorkPacket &p);
 
@@ -58,7 +58,7 @@ namespace cf
 
 		virtual void mergeLocal(const std::vector<Result *> others) = 0;
 
-		virtual void serializeLocal(cf::WorkPacket &p) = 0;
+		virtual void serializeLocal(cf::WorkPacket &p) const = 0;
 
 		virtual void deserializeLocal(cf::WorkPacket &p) = 0;
 

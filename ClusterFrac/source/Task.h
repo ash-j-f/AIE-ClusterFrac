@@ -41,13 +41,13 @@ namespace cf
 
 		inline int getInitialTaskID() const { return initialTaskID; };
 
-		std::vector<Task *> split(int count);
+		std::vector<Task *> split(int count) const;
 
-		void serialize(WorkPacket &p);
+		void serialize(WorkPacket &p) const;
 
 		void deserialize(WorkPacket &p);
 
-		Result *run();
+		Result *run() const;
 
 	private:
 
@@ -59,11 +59,11 @@ namespace cf
 		*/
 		virtual std::vector<Task *> splitLocal(int count) const = 0;
 
-		virtual void serializeLocal(WorkPacket &p) = 0;
+		virtual void serializeLocal(WorkPacket &p) const = 0;
 
 		virtual void deserializeLocal(WorkPacket &p) = 0;
 		
-		virtual Result *runLocal() = 0;
+		virtual Result *runLocal() const = 0;
 
 		//The ID of the initial task before it was split.
 		sf::Uint32 initialTaskID;

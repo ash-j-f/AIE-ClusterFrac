@@ -25,7 +25,7 @@ private:
 
 	};
 
-	inline void serializeLocal(cf::WorkPacket &p)
+	inline void serializeLocal(cf::WorkPacket &p) const
 	{
 		sf::Int64 size = numbers.size();
 		p << size;

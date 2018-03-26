@@ -18,7 +18,8 @@ int main(int argc, //Number of strings in array argv
 
 	std::cout << "Starting ClusterFrac CLIENT." << std::endl;
 
-	const unsigned short PORT = 5000;
+	//Set the default port.
+	unsigned short PORT = 5000;
 
 	//Set host address to connect to from command line.
 	std::string ip;
@@ -37,6 +38,19 @@ int main(int argc, //Number of strings in array argv
 
 	std::cout << "My IP address: " << MY_IPADDRESS.toString() << std::endl;
 	
+	//Check if a non default port was specified.
+	if (argc > 2)
+	{
+		PORT = atoi(argv[2]);
+	}
+
+	if (PORT == 0)
+	{
+		std::string s = "Invalid port number.";
+		std::cout << s << std::endl;
+		throw s;
+	}
+
 	sf::TcpSocket socket;
 
 	cf::WorkPacket packet;
@@ -49,14 +63,15 @@ int main(int argc, //Number of strings in array argv
 		{
 			//Use socket blocking during connect attempt.
 			socket.setBlocking(true);
+			std::cout << "Trying to connect to host at " << HOST_IPADDRESS.toString() << " on port " << std::to_string(PORT) << "." << std::endl;
 			if (socket.connect(HOST_IPADDRESS, PORT) == sf::Socket::Done)
 			{
-				std::cout << "Connected to host at " << HOST_IPADDRESS.toString() << "." << std::endl;
+				std::cout << "Connected to host." << std::endl;
 				connected = true;
 			}
 			else
 			{
-				std::cout << "Failed to connect to host at " << HOST_IPADDRESS.toString() << ". Trying again." << std::endl;
+				std::cout << "Failed to connect to host. Trying again." << std::endl;
 				socket.disconnect();
 				std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 				connected = false;
