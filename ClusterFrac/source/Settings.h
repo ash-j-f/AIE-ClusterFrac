@@ -35,8 +35,11 @@ namespace cf
 		int getLogLevel() { return logLevel; }
 
 		/**
-		* Set the log level.
-		* @params level The log level.
+		* Set the log level chosen from the LogLevels enum.
+		* Error = Show only errors. 
+		* Info = show errors and info messages.
+		* Debug = Show all messages including detailed debug messages.
+		* @params level The chosen log level from the LogLevels enum.
 		* @returns void.
 		*/
 		void setLogLevel(LogLevels level) { logLevel = level; };

@@ -37,7 +37,19 @@ namespace cf
 		inline void say(std::string s, int level)
 		{ 
 			std::unique_lock<std::mutex> lock(console); 
-			if (level <= CF_SETTINGS->getLogLevel()) std::cout << s << std::endl;
+			//Ignore the message if it is not covered by the current log level setting.
+			if (level <= CF_SETTINGS->getLogLevel())
+			{
+				//Send errors to error output, and all other message types to standard output.
+				if (level == Settings::LogLevels::Error)
+				{
+					std::cerr << s << std::endl;
+				}
+				else
+				{
+					std::cout << s << std::endl;
+				}
+			}
 		};
 
 	private:

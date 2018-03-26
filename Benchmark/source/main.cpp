@@ -33,7 +33,7 @@ int main(int argc, //Number of strings in array argv
 	{
 		//Split the task among available threads and run.
 		int maxThreads = std::thread::hardware_concurrency();
-		int dataSize = 207360;
+		int dataSize = 100000000;
 		std::vector<std::future<std::vector<float>>> threads = std::vector<std::future<std::vector<float>>>();
 
 		for (int i = 0; i < maxThreads; i++)

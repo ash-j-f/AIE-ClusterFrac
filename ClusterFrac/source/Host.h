@@ -11,6 +11,7 @@
 #include "DllExport.h"
 #include "ConsoleMessager.hpp"
 #include "Task.h"
+#include "Result.h"
 #include "IDManager.h"
 #include "Listener.h"
 #include "Sender.h"

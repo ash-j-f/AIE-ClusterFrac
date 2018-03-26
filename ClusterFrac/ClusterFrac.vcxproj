@@ -64,6 +64,12 @@
       <AdditionalDependencies>sfml-network-s-d.lib;sfml-system-s-d.lib;ws2_32.lib;zlibstat_DEBUG.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)\SFML-2.4.2\lib\;$(SolutionDir)\ZLIB-1.2.11\lib\</AdditionalLibraryDirectories>
     </Lib>
+    <PreBuildEvent>
+      <Command>xcopy /y $(SolutionDir)\ZLIB-1.2.11\lib\zlibstat.pdb $(SolutionDir)\ClusterFrac\lib\</Command>
+    </PreBuildEvent>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -83,6 +89,12 @@
       <AdditionalDependencies>sfml-network-s.lib;sfml-system-s.lib;ws2_32.lib;zlibstat.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)\SFML-2.4.2\lib\;$(SolutionDir)\ZLIB-1.2.11\lib\</AdditionalLibraryDirectories>
     </Lib>
+    <PreBuildEvent>
+      <Command>xcopy /y $(SolutionDir)\ZLIB-1.2.11\lib\zlibstat.pdb $(SolutionDir)\ClusterFrac\lib\</Command>
+    </PreBuildEvent>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="source\Host.cpp" />

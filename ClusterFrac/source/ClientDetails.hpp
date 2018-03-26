@@ -7,7 +7,8 @@ namespace cf
 {
 
 	/**
-	* Client details class.
+	* Client details class. Tracks client ID, socket pointer and other essential 
+	* information about the connected remote client.
 	* @author Ashley Flynn - Academy of Interactive Entertainment - 2018.
 	*/
 	class ClientDetails

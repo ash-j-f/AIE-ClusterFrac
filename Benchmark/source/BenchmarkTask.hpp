@@ -69,7 +69,7 @@ private:
 	{
 		BenchmarkResult *result = new BenchmarkResult();
 
-		for (auto &n : numbers) result->numbers.push_back(/*sqrtf(n)*/n*n*n);
+		for (auto &n : numbers) result->numbers.push_back(sqrtf(n));
 
 		return result;
 	};
