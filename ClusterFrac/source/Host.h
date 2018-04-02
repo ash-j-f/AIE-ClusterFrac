@@ -14,7 +14,7 @@
 #include "Result.h"
 #include "IDManager.h"
 #include "HostListener.h"
-#include "Sender.h"
+#include "HostSender.h"
 #include "ClientDetails.hpp"
 
 namespace cf
@@ -29,7 +29,7 @@ namespace cf
 
 		//These classes require full access to host.
 		friend class HostListener;
-		friend class Sender;
+		friend class HostSender;
 
 	public:
 
@@ -107,7 +107,7 @@ namespace cf
 		HostListener listener{ this };
 
 		//Sender object responsible for managing sender threads.
-		Sender sender{ this };
+		HostSender sender{ this };
 
 		//Connected client details.
 		std::vector<ClientDetails *> clients;

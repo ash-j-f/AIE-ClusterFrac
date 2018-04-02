@@ -13,12 +13,12 @@ namespace cf
 	//Forward declatarions.
 	class Host;
 
-	class DLL Sender
+	class DLL HostSender
 	{
 
 	public:
-		Sender(Host *newHost);
-		~Sender();
+		HostSender(Host *newHost);
+		~HostSender();
 
 		void sendTask(ClientDetails *client, Task *task);
 

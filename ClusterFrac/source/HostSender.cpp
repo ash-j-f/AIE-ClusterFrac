@@ -1,28 +1,28 @@
-#include "Sender.h"
+#include "HostSender.h"
 #include "Host.h"
 
 namespace cf
 {
-	Sender::Sender(Host *newHost)
+	HostSender::HostSender(Host *newHost)
 	{
 		host = newHost;
 
 		
 	}
 
-	Sender::~Sender()
+	HostSender::~HostSender()
 	{
 		
 	}
 
-	void Sender::sendTask(ClientDetails *client, Task *task)
+	void HostSender::sendTask(ClientDetails *client, Task *task)
 	{
 		std::unique_lock<std::mutex> lock(senderMutex);
 		taskSendThreads.push_back(std::thread([this, client, task]() { sendTaskThread(client, task); }));
 		CF_SAY("Task send thread started for client " + std::to_string(client->getClientID()) + ".", Settings::LogLevels::Debug);
 	}
 
-	void Sender::waitForComplete()
+	void HostSender::waitForComplete()
 	{
 		std::unique_lock<std::mutex> lock(senderMutex);
 		//Wait for threads to finish.
@@ -33,7 +33,7 @@ namespace cf
 		taskSendThreads.clear();
 	}
 
-	void Sender::sendTaskThread(ClientDetails *client, Task *task)
+	void HostSender::sendTaskThread(ClientDetails *client, Task *task)
 	{
 		bool done = false;
 		while (!done)
