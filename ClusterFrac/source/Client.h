@@ -2,6 +2,8 @@
 #include <string>
 #include <atomic>
 #include <list>
+#include <thread>
+#include <future>
 #include <SFML\Network.hpp>
 #include "DllExport.h"
 #include "ConsoleMessager.hpp"
@@ -29,6 +31,10 @@ namespace cf
 		*/
 		~Client();
 
+		inline void registerTaskType(std::string name, std::function<Task *()> f) { taskConstuctMap[name] = f; };
+
+		inline void registerResultType(std::string name, std::function<Result *()> f) { resultConstructMap[name] = f; };
+
 		/**
 		* Start the client.
 		* @returns void.
@@ -53,11 +59,42 @@ namespace cf
 		//Task queue.
 		std::list<cf::Task *> taskQueue;
 
-		//Results queue.
-		std::list<cf::Result *> resultQueue;
+		//Mutex for task queue
+		std::mutex taskQueueMutex;
+
+		//Incomplete results queue.
+		std::list<cf::Result *> resultQueueIncomplete;
+
+		//Complete results queue.
+		std::list<cf::Result *> resultQueueComplete;
 
 		//Mutex for results queues
 		std::mutex resultsQueueMutex;
 
+		//Construction map for user defined Tasks.
+		std::map<std::string, std::function<Task *()>> taskConstuctMap;
+
+		//Construction map for user defined Results.
+		std::map<std::string, std::function<Result *()>> resultConstructMap;
+
+		//Thread that loops continuously while client is running.
+		std::thread loopingThread;
+
+		//Should the continous loop thread keep running?
+		std::atomic<bool> loopThreadRun;
+
+		//Should the client tasks processing thread continue to run?
+		std::atomic<bool> ProcessTaskThreadRun;
+
+		void loopThread();
+
+		void ProcessTaskThread();
+
+		/**
+		* Check the incomplete results queue for complete result sets.
+		* Completed results set that are found are moved to the complete results queue.
+		* @returns void.
+		*/
+		void checkForCompleteResults();
 	};
 }
