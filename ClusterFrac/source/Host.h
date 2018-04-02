@@ -13,7 +13,7 @@
 #include "Task.h"
 #include "Result.h"
 #include "IDManager.h"
-#include "Listener.h"
+#include "HostListener.h"
 #include "Sender.h"
 #include "ClientDetails.hpp"
 
@@ -28,7 +28,7 @@ namespace cf
 	{
 
 		//These classes require full access to host.
-		friend class Listener;
+		friend class HostListener;
 		friend class Sender;
 
 	public:
@@ -104,7 +104,7 @@ namespace cf
 		int port;
 
 		//Listener object responsible for managing the TCP listener thread.
-		Listener listener{ this };
+		HostListener listener{ this };
 
 		//Sender object responsible for managing sender threads.
 		Sender sender{ this };

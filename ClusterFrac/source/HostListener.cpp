@@ -1,9 +1,9 @@
-#include "Listener.h"
+#include "HostListener.h"
 #include "Host.h"
 
 namespace cf
 {
-	Listener::Listener(Host *newHost)
+	HostListener::HostListener(Host *newHost)
 	{
 		host = newHost;
 
@@ -14,7 +14,7 @@ namespace cf
 		started = false;
 	}
 
-	Listener::~Listener()
+	HostListener::~HostListener()
 	{
 		if (listen)
 		{
@@ -26,7 +26,7 @@ namespace cf
 		}
 	}
 
-	void Listener::start()
+	void HostListener::start()
 	{
 		//If listener is already started, do nothing.
 		if (started) return;
@@ -44,7 +44,7 @@ namespace cf
 		listenerThread = std::thread([this] { listenThread(); });
 	}
 
-	void Listener::stop()
+	void HostListener::stop()
 	{
 		//If already stopped, do nothing.
 		if (!started) return;
@@ -58,7 +58,7 @@ namespace cf
 		started = false;
 	}
 
-	void Listener::listenThread()
+	void HostListener::listenThread()
 	{
 		//If there is already a thread listening, abort.
 		if (listening) return;
@@ -182,7 +182,7 @@ namespace cf
 		CF_SAY("Listener thread ended.", Settings::LogLevels::Info);
 	}
 
-	void Listener::clientReceiveThread(ClientDetails *client, std::atomic<bool> *cFlag)
+	void HostListener::clientReceiveThread(ClientDetails *client, std::atomic<bool> *cFlag)
 	{
 		//CF_SAY("clientReceiveThread lock.");
 

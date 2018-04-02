@@ -10,12 +10,12 @@ namespace cf
 	//Forward declatarions.
 	class Host;
 
-	class DLL Listener
+	class DLL HostListener
 	{
 
 	public:
-		Listener(Host *newHost);
-		~Listener();
+		HostListener(Host *newHost);
+		~HostListener();
 
 		void start();
 

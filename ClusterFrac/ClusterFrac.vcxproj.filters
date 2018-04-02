@@ -33,10 +33,10 @@
     <ClCompile Include="source\IDManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\Listener.cpp">
+    <ClCompile Include="source\Sender.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\Sender.cpp">
+    <ClCompile Include="source\HostListener.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -68,13 +68,13 @@
     <ClInclude Include="source\IDManager.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="source\Listener.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="source\ClientDetails.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="source\Sender.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\HostListener.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

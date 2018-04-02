@@ -99,7 +99,7 @@
   <ItemGroup>
     <ClCompile Include="source\Host.cpp" />
     <ClCompile Include="source\IDManager.cpp" />
-    <ClCompile Include="source\Listener.cpp" />
+    <ClCompile Include="source\HostListener.cpp" />
     <ClCompile Include="source\Result.cpp" />
     <ClCompile Include="source\Sender.cpp" />
     <ClCompile Include="source\Settings.cpp" />
@@ -113,7 +113,7 @@
     <ClInclude Include="source\DllExport.h" />
     <ClInclude Include="source\Host.h" />
     <ClInclude Include="source\IDManager.h" />
-    <ClInclude Include="source\Listener.h" />
+    <ClInclude Include="source\HostListener.h" />
     <ClInclude Include="source\Result.h" />
     <ClInclude Include="source\Sender.h" />
     <ClInclude Include="source\Settings.h" />
