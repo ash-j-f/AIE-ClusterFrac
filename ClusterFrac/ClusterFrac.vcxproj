@@ -97,6 +97,7 @@
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="source\Client.cpp" />
     <ClCompile Include="source\Host.cpp" />
     <ClCompile Include="source\IDManager.cpp" />
     <ClCompile Include="source\HostListener.cpp" />
@@ -107,6 +108,7 @@
     <ClCompile Include="source\WorkPacket.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="source\Client.h" />
     <ClInclude Include="source\ClientDetails.hpp" />
     <ClInclude Include="source\ClusterFrac.h" />
     <ClInclude Include="source\ConsoleMessager.hpp" />
