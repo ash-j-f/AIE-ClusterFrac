@@ -45,6 +45,9 @@
     <ClCompile Include="source\ClientListener.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="source\ClientSender.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\DllExport.h">
@@ -84,6 +87,9 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="source\ClientListener.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\ClientSender.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

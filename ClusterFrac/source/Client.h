@@ -23,6 +23,7 @@ namespace cf
 
 		//These classes require full access to client.
 		friend class ClientListener;
+		friend class ClientSender;
 
 	public:
 
