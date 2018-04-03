@@ -365,7 +365,8 @@ namespace cf
 
 		for (auto &r : remove)
 		{
-			//If the result is part of a set, delete the result set part from memory as we will have merged it previously.
+			//If the result is part of a set, delete the result set part from memory 
+			//as we will have merged it into a new results set previously.
 			if (r->getCurrentTaskPartsTotal() > 1) delete r;
 
 			//Remove completed results from incomplete results set.

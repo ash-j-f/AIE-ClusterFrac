@@ -232,9 +232,20 @@ namespace cf
 			//combined result on the completed results queue.
 			if (set.size() == r1->getCurrentTaskPartsTotal())
 			{
-				Result *rNew = resultConstructMap[r1->getSubtype()]();
+				Result *rNew;
+				
+				//Merge if the results set is in multiple parts. 
+				//Otherwise just copy the results set pointer.
+				if (set.size() > 1)
+				{
+					rNew = resultConstructMap[r1->getSubtype()]();
 
-				rNew->merge(set);
+					rNew->merge(set);
+				}
+				else
+				{
+					rNew = set.front();
+				}
 
 				resultQueueComplete.push_back(rNew);
 
@@ -247,8 +258,9 @@ namespace cf
 
 		for (auto &r : remove)
 		{
-			//Delete the result part from memory.
-			delete r;
+			//If the result is part of a set, delete the result set part from memory 
+			//as we will have merged it into a new results set previously.
+			if (r->getCurrentTaskPartsTotal() > 1) delete r;
 
 			//Remove completed results from incomplete results set.
 			resultQueueIncomplete.erase(std::remove(resultQueueIncomplete.begin(), resultQueueIncomplete.end(), r), resultQueueIncomplete.end());
