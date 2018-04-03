@@ -133,19 +133,11 @@ namespace cf
 		//Construction map for user defined Results.
 		std::map<std::string, std::function<Result *()>> resultConstructMap;
 
-		//Thread that loops continuously while client is running.
-		std::thread loopingThread;
-
 		//Thread used to process task chunks locally on the host.
 		std::thread TaskProcessingThread;
 
-		//Should the continous loop thread keep running?
-		std::atomic<bool> loopThreadRun;
-
 		//Should the client tasks processing thread continue to run?
 		std::atomic<bool> ProcessTaskThreadRun;
-
-		void loopThread();
 
 		void ProcessTaskThread();
 

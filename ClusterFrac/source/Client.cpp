@@ -21,15 +21,6 @@ namespace cf
 	Client::~Client()
 	{
 
-		if (loopThreadRun)
-		{
-			//Shut down the continous loop thread.
-			loopThreadRun = false;
-
-			//Wait for loop thread to shut down.
-			if (loopingThread.joinable()) loopingThread.join();
-		}
-
 		if (ProcessTaskThreadRun)
 		{
 			//Shut down task processing.
@@ -61,10 +52,6 @@ namespace cf
 		CF_SAY("Starting ClusterFrac CLIENT.", Settings::LogLevels::Info);
 
 		listener.start();
-
-		//Launch internal loop thread.
-		loopThreadRun = true;
-		loopingThread = std::thread([this] { loopThread(); }); 
 
 		ProcessTaskThreadRun = true;
 		TaskProcessingThread = std::thread([this] { ProcessTaskThread(); });
@@ -141,17 +128,6 @@ namespace cf
 		std::unique_lock<std::mutex> lock(taskQueueMutex);
 		taskQueue.push_back(task);
 		CF_SAY("Added task " + std::to_string(task->getInitialTaskID()) + " to queue.", Settings::LogLevels::Info);
-	}
-
-	void Client::loopThread()
-	{
-		while (loopThreadRun)
-		{
-			//Perform repeated tasks here...
-
-			//Sleep before running loop again.
-			std::this_thread::sleep_for(std::chrono::milliseconds(1));
-		}
 	}
 
 	void Client::ProcessTaskThread()

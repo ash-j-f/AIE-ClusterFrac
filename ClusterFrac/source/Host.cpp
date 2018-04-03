@@ -16,15 +16,6 @@ namespace cf
 	Host::~Host()
 	{
 
-		if (loopThreadRun)
-		{
-			//Shut down the continous loop thread.
-			loopThreadRun = false;
-
-			//Wait for loop thread to shut down.
-			if (loopingThread.joinable()) loopingThread.join();
-		}
-
 		if (hostAsClientTaskProcessThreadRun)
 		{
 			//Shut down host as client processing.
@@ -56,10 +47,6 @@ namespace cf
 
 		listener.start();
 
-		//Launch internal loop thread.
-		loopThreadRun = true;
-		loopingThread = std::thread([this] { loopThread(); });
-
 		//Launch host as client task processing thread.
 		if (hostAsClient)
 		{
@@ -80,17 +67,6 @@ namespace cf
 			CF_SAY(s, Settings::LogLevels::Error); 
 			throw s;
 		};
-	}
-
-	void Host::loopThread()
-	{
-		while (loopThreadRun)
-		{
-			//Perform repeated tasks here...
-
-			//Sleep before running loop again.
-			std::this_thread::sleep_for(std::chrono::milliseconds(1));
-		}
 	}
 
 	void Host::addTaskToQueue(Task *task)

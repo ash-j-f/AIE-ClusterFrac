@@ -112,12 +112,6 @@ namespace cf
 		//Connected client details.
 		std::vector<ClientDetails *> clients;
 
-		//Thread that loops continuously while host is running.
-		std::thread loopingThread;
-
-		//Should the continous loop thread keep running?
-		std::atomic<bool> loopThreadRun;
-
 		//Task queue.
 		std::list<cf::Task *> taskQueue;
 
