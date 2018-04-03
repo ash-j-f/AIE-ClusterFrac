@@ -110,7 +110,6 @@
   <ItemGroup>
     <ClInclude Include="source\Client.h" />
     <ClInclude Include="source\ClientDetails.hpp" />
-    <ClInclude Include="source\ClusterFrac.h" />
     <ClInclude Include="source\ConsoleMessager.hpp" />
     <ClInclude Include="source\DllExport.h" />
     <ClInclude Include="source\Host.h" />

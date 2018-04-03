@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-#include <ClusterFrac.h>
+#include <Task.h>
 #include "BenchmarkResult.hpp"
 
 class BenchmarkTask : public cf::Task

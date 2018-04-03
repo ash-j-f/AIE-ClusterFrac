@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-#include <ClusterFrac.h>
+#include <Result.h>
 
 class BenchmarkResult : public cf::Result
 {

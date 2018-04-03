@@ -53,9 +53,6 @@
     <ClInclude Include="source\Result.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="source\ClusterFrac.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="source\WorkPacket.h">
       <Filter>Source Files</Filter>
     </ClInclude>

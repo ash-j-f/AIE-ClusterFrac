@@ -1,7 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <chrono>
-#include <ClusterFrac.h>
+#include <Host.h>
 #include <SFML\Window\Keyboard.hpp>
 #include "BenchmarkTask.hpp" 
 #include "BenchmarkResult.hpp" 
