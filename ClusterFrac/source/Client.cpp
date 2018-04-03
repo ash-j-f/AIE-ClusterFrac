@@ -7,6 +7,15 @@ namespace cf
 	{
 		//Default port number
 		port = 5000;
+
+		//Default start state.
+		started = false;
+
+		//Default connection state.
+		connected = false;
+
+		//Set network socket to non blocking mode by default.
+		socket.setBlocking(false);
 	}
 
 	Client::~Client()
@@ -55,6 +64,51 @@ namespace cf
 			CF_SAY(s, Settings::LogLevels::Error);
 			throw s;
 		};
+	}
+
+	bool Client::connect()
+	{
+		if (connected)
+		{
+			CF_SAY("Cannot connect. Already connected to a host.", Settings::LogLevels::Error);
+			return false;
+		}
+
+		if (!started)
+		{
+			CF_SAY("Cannot connect. Client not started.", Settings::LogLevels::Error);
+			return false;
+		}
+
+		if (port <= 0 || port > 65535)
+		{
+			CF_SAY("Cannot connect. Invalid port number.", Settings::LogLevels::Error);
+			return false;
+		}
+
+		if (ipAddress.toString() == "")
+		{
+			CF_SAY("Cannot connect. Invalid IP address.", Settings::LogLevels::Error);
+			return false;
+		}
+
+		//Use socket blocking during a connection attempt.
+		socket.setBlocking(true);
+		CF_SAY("Trying to connect to host at " + ipAddress.toString() + " on port " + std::to_string(port) + ".", Settings::LogLevels::Info);
+		if (socket.connect(ipAddress, port) == sf::Socket::Done)
+		{
+			CF_SAY("Connected to host.", Settings::LogLevels::Info);
+			connected = true;
+		}
+		else
+		{
+			CF_SAY("Failed to connect to host.", Settings::LogLevels::Error);
+			socket.disconnect();
+			connected = false;
+		}
+		socket.setBlocking(false);
+
+		return connected;
 	}
 
 	void Client::addTaskToQueue(Task *task)
