@@ -90,7 +90,7 @@
       <AdditionalLibraryDirectories>$(SolutionDir)\SFML-2.4.2\lib\;$(SolutionDir)\ZLIB-1.2.11\lib\</AdditionalLibraryDirectories>
     </Lib>
     <PreBuildEvent>
-      <Command>For %%a in ($(SolutionDir)\ZLIB-1.2.11\lib\zlibstat.pdb, $(SolutionDir)\SFML-2.4.2\lib\sfml-system-s.pdb, $(SolutionDir)\SFML-2.4.2\lib\sfml-network-s.pdb) do xcopy /y %%a $(SolutionDir)\ClusterFrac\lib\</Command>
+      <Command>For %%a in ($(SolutionDir)\ZLIB-1.2.11\lib\zlibstat.pdb) do xcopy /y %%a $(SolutionDir)\ClusterFrac\lib\</Command>
     </PreBuildEvent>
     <ProjectReference>
       <LinkLibraryDependencies>false</LinkLibraryDependencies>
