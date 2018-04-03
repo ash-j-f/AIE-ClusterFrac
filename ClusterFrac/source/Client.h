@@ -48,6 +48,13 @@ namespace cf
 		*/
 		void setPort(int portNum);
 
+		/**
+		* Add a task to the task queue for processing.
+		* @param task The task to add.
+		* @returns void.
+		*/
+		void addTaskToQueue(Task *task);
+
 	private:
 
 		//Has the host been started?
@@ -79,6 +86,9 @@ namespace cf
 
 		//Thread that loops continuously while client is running.
 		std::thread loopingThread;
+
+		//Thread used to process task chunks locally on the host.
+		std::thread TaskProcessingThread;
 
 		//Should the continous loop thread keep running?
 		std::atomic<bool> loopThreadRun;

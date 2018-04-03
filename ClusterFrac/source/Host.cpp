@@ -97,7 +97,7 @@ namespace cf
 	{
 		std::unique_lock<std::mutex> lock(taskQueueMutex);
 		taskQueue.push_back(task);
-		CF_SAY("Added task to queue.", Settings::LogLevels::Info);
+		CF_SAY("Added task " + std::to_string(task->getInitialTaskID()) + " to queue.", Settings::LogLevels::Info);
 	}
 
 	bool Host::sendTasks()

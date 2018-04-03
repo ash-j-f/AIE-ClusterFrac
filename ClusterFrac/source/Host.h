@@ -136,7 +136,7 @@ namespace cf
 		//Mutex for local task queue.
 		std::mutex localHostAsClientTaskQueueMutex;
 
-		//Threads used to process task chunks locally on the host.
+		//Thread used to process task chunks locally on the host.
 		std::thread hostAsClientTaskProcessingThread;
 
 		//Should the host processing tasks as a client thread continue to run?
