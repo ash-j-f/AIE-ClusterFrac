@@ -44,9 +44,24 @@ int main(int argc, //Number of strings in array argv
 
 	c->start();
 
-	c->connect();
+	//Loop infinitely, trying to connect to host, and processing tasks once connected.
+	while (true)
+	{
+		//Try to connect to host.
+		while (true)
+		{
+			if (c->connect()) break;
+			CF_SAY("Unable to connect. Retrying.", cf::Settings::LogLevels::Error);
+			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+		}
 
-	std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+		//Process tasks while connected.
+		while (c->isConnected())
+		{
+			//Sleep while threads wait for tasks and process them.
+			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+		}
+	}
 
 	delete c;
 

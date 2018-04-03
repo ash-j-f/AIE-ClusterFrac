@@ -78,6 +78,12 @@ namespace cf
 		*/
 		void addTaskToQueue(Task *task);
 
+		/**
+		* Check if the client is currently connected to a host.
+		* @returns True if this client is connected to as host, false if not.
+		*/
+		inline bool isConnected() { return connected; };
+
 	private:
 
 		//Socket for the network connection.
