@@ -20,6 +20,16 @@ namespace cf
 
 	Client::~Client()
 	{
+
+		if (loopThreadRun)
+		{
+			//Shut down the continous loop thread.
+			loopThreadRun = false;
+
+			//Wait for loop thread to shut down.
+			if (loopingThread.joinable()) loopingThread.join();
+		}
+
 		if (ProcessTaskThreadRun)
 		{
 			//Shut down task processing.
@@ -50,6 +60,7 @@ namespace cf
 
 		ProcessTaskThreadRun = true;
 		TaskProcessingThread = std::thread([this] { ProcessTaskThread(); });
+		
 	}
 
 	void Client::setPort(int portNum)

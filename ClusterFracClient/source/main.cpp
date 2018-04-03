@@ -12,7 +12,41 @@ int main(int argc, //Number of strings in array argv
 	char *envp[]) // Array of environment variable strings  
 {
 
+	//Set host address to connect to from command line.
+	std::string ip;
+	if (argc > 1)
+	{
+		ip = ip.assign(argv[1]);
+	}
+	else
+	{
+		//Use local address if none given.
+		ip = sf::IpAddress::getLocalAddress().toString();
+	}
+	
+	int port;
+	//Check if a non default port was specified.
+	if (argc > 2)
+	{
+		port = atoi(argv[2]);
+	}
+	else
+	{
+		//Use default port if none given.
+		port = 5000;
+	}
+
 	cf::Client *c = new cf::Client();
+
+	c->setPort(port);
+
+	c->setIPAddress(ip);
+
+	c->start();
+
+	c->connect();
+
+	std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
 	delete c;
 
