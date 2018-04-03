@@ -46,7 +46,7 @@ namespace cf
 			size_t tmpSize = getDataSize();
 
 			//Zlib by default only supports 32 bits max for the size integer.
-			if (tmpSize > ULONG_MAX) throw "Data too large to compress using Zlib.";
+			if (tmpSize > ULONG_MAX) CF_THROW("Data too large to compress using Zlib.");
 
 			uLong srcSize = (uLong)tmpSize;
 
@@ -107,7 +107,7 @@ namespace cf
 
 			//Assert that the uncompressed size is the same as the
 			//size we were sent for the buffer
-			if (dstSize != uncompressedSize) throw "Size mismatch during data decompression.";
+			if (dstSize != uncompressedSize) CF_THROW("Size mismatch during data decompression.");
 
 			//Retrieve the packet flag data.
 			std::size_t soFlag = sizeof flag;

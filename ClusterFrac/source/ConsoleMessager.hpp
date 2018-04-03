@@ -9,6 +9,8 @@
 
 #define CF_SAY(s, l) CF_CONSOLE->say(s, l)
 
+#define CF_THROW(s) throw (std::string)s;
+
 namespace cf
 {
 	/**

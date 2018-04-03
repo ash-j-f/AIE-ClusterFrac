@@ -2,6 +2,7 @@
 #include "DllExport.h"
 #include <SFML\Network.hpp>
 #include <zlib.h>
+#include "ConsoleMessager.hpp"
 
 namespace cf
 {

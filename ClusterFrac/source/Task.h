@@ -35,9 +35,9 @@ namespace cf
 		*/
 		virtual std::string getSubtype() const = 0;
 
-		inline int getTaskPartNumber() const { if (taskPartNumberStack.size() == 0) { throw "Task part number list is empty."; } return taskPartNumberStack.back(); };
+		inline int getTaskPartNumber() const { if (taskPartNumberStack.size() == 0) { CF_THROW("Task part number list is empty."); } return taskPartNumberStack.back(); };
 
-		inline int getCurrentTaskPartsTotal() const { if (taskPartsTotalStack.size() == 0) { throw "Task part total list is empty."; } return taskPartsTotalStack.back(); }
+		inline int getCurrentTaskPartsTotal() const { if (taskPartsTotalStack.size() == 0) { CF_THROW("Task part total list is empty."); } return taskPartsTotalStack.back(); }
 
 		inline int getInitialTaskID() const { return initialTaskID; };
 

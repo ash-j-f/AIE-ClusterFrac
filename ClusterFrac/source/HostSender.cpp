@@ -67,7 +67,7 @@ namespace cf
 					{
 						std::string s = "Error while sending to client " + std::to_string(client->getClientID()) + ".";
 						CF_SAY(s, Settings::LogLevels::Error);
-						throw s;
+						CF_THROW(s);
 						break;
 					}
 				};

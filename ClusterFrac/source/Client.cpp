@@ -73,7 +73,7 @@ namespace cf
 		{
 			std::string s = "Invalid port number.";
 			CF_SAY(s, Settings::LogLevels::Error);
-			throw s;
+			CF_THROW(s);
 		};
 	}
 

@@ -107,7 +107,7 @@ namespace cf
 							{
 								std::string s = "Received unknown packet from host.";
 								CF_SAY(s, Settings::LogLevels::Error);
-								throw s;
+								CF_THROW(s);
 							}
 
 							//Check subtype exists in the constuction map.
@@ -115,7 +115,7 @@ namespace cf
 								client->taskConstructMap.find(subType) == client->taskConstructMap.end()) {
 								std::string s = "Unknown subtype in packet from host.";
 								CF_SAY(s, Settings::LogLevels::Error);
-								throw s;
+								CF_THROW(s);
 							}
 
 							//Instantiate the resulting derived class.
@@ -132,7 +132,7 @@ namespace cf
 						}
 						else
 						{
-							throw "Invalid flag data in packet from host.";
+							CF_THROW("Invalid flag data in packet from host.");
 						}
 
 						packet.clear();
