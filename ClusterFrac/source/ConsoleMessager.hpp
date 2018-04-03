@@ -9,7 +9,7 @@
 
 #define CF_SAY(s, l) CF_CONSOLE->say(s, l)
 
-#define CF_THROW(s) throw (std::string)s;
+#define CF_THROW(s) throw static_cast<std::string>(s);
 
 namespace cf
 {

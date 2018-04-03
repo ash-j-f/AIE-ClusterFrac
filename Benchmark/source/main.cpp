@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <chrono>
+#include <string>
 #include <Host.h>
 #include <SFML\Window\Keyboard.hpp>
 #include "BenchmarkTask.hpp" 

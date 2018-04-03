@@ -15,6 +15,7 @@ namespace cf
 		friend class Task;
 
 	public:
+
 		Result();
 		
 		virtual ~Result();
@@ -56,12 +57,6 @@ namespace cf
 
 	private:
 
-		virtual void mergeLocal(const std::vector<Result *> others) = 0;
-
-		virtual void serializeLocal(cf::WorkPacket &p) const = 0;
-
-		virtual void deserializeLocal(cf::WorkPacket &p) = 0;
-
 		//The ID of the initial task before it was split.
 		sf::Uint32 initialTaskID;
 
@@ -76,6 +71,12 @@ namespace cf
 		//to allow growing and unrolling of the stack as tasks are split and 
 		//results are merged.
 		std::vector<sf::Uint32> taskPartsTotalStack;
+
+		virtual void mergeLocal(const std::vector<Result *> others) = 0;
+
+		virtual void serializeLocal(cf::WorkPacket &p) const = 0;
+
+		virtual void deserializeLocal(cf::WorkPacket &p) = 0;
 
 	};
 }

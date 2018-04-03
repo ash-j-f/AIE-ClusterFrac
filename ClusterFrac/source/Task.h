@@ -51,20 +51,6 @@ namespace cf
 
 	private:
 
-		/**
-		* Split this task up as equally as possible in to N chunks, and return
-		* a std::vector of pointers to those split tasks.
-		* @param count Split the task into this many subtasks.
-		* @returns A std::vector of pointers to the new split tasks.
-		*/
-		virtual std::vector<Task *> splitLocal(int count) const = 0;
-
-		virtual void serializeLocal(WorkPacket &p) const = 0;
-
-		virtual void deserializeLocal(WorkPacket &p) = 0;
-		
-		virtual Result *runLocal() const = 0;
-
 		//The ID of the initial task before it was split.
 		sf::Uint32 initialTaskID;
 
@@ -79,6 +65,20 @@ namespace cf
 		//to allow growing and unrolling of the stack as tasks are split and 
 		//results are merged.
 		std::vector<sf::Uint32> taskPartsTotalStack;
+
+		/**
+		* Split this task up as equally as possible in to N chunks, and return
+		* a std::vector of pointers to those split tasks.
+		* @param count Split the task into this many subtasks.
+		* @returns A std::vector of pointers to the new split tasks.
+		*/
+		virtual std::vector<Task *> splitLocal(int count) const = 0;
+
+		virtual void serializeLocal(WorkPacket &p) const = 0;
+
+		virtual void deserializeLocal(WorkPacket &p) = 0;
+
+		virtual Result *runLocal() const = 0;
 
 	};
 }
