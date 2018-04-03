@@ -62,6 +62,8 @@ namespace cf
 
 		sf::Socket::Status status;
 
+		cf::WorkPacket packet;
+
 		CF_SAY("Listener thread started. Waiting for data from host.", Settings::LogLevels::Info);
 		//Endless loop that waits for new connections.
 		//Aborts if listening flag is set false.
@@ -78,14 +80,20 @@ namespace cf
 				std::unique_lock<std::mutex> lock(client->socketMutex, std::try_to_lock);
 				if (lock.owns_lock())
 				{
-					cf::WorkPacket packet;
 				
 					//Get socket status
 					status = (client->socket).receive(packet);
 					lock.unlock();
 
-					if (status == sf::Socket::Status::Done && packet.getDataSize() > 0)
+					if (status == sf::Socket::Status::Done && packet.getDataSize() == 0)
 					{
+						//Empty packet, so do nothing.
+						packet.clear();
+					}
+					else if (status == sf::Socket::Status::Done && packet.getDataSize() > 0)
+					{
+						//Incoming data from host.
+
 						CF_SAY("Incoming data from host.", Settings::LogLevels::Debug);
 					
 						if (packet.getFlag() == cf::WorkPacket::Flag::None)
@@ -133,11 +141,14 @@ namespace cf
 						{
 							throw "Invalid flag data in packet from host.";
 						}
+
+						packet.clear();
 					}
 					else if (status == sf::Socket::Status::Disconnected)
 					{
 						CF_SAY("Disconnected by host.", Settings::LogLevels::Info);
 						client->disconnect();
+						packet.clear();
 					}
 					else if (status == sf::Socket::Status::Partial)
 					{
@@ -151,6 +162,7 @@ namespace cf
 					{
 						//Invalid data from client.
 						CF_SAY("Invalid data from host. Ignoring.", Settings::LogLevels::Error);
+						packet.clear();
 					}
 				}
 			}

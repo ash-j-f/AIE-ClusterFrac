@@ -39,6 +39,9 @@ namespace cf
 			if (TaskProcessingThread.joinable()) TaskProcessingThread.join();
 		}
 
+		//Stop the listener.
+		listener.stop();
+
 		//Shut down network connection if it is still connected.
 		if (connected) disconnect();
 
@@ -56,6 +59,8 @@ namespace cf
 		started = true;
 
 		CF_SAY("Starting ClusterFrac CLIENT.", Settings::LogLevels::Info);
+
+		listener.start();
 
 		//Launch internal loop thread.
 		loopThreadRun = true;

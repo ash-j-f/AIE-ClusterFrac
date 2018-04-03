@@ -43,6 +43,10 @@ int main(int argc, //Number of strings in array argv
 
 	cf::Client *c = new cf::Client();
 
+	//Set user defined Task and Result types.
+	c->registerTaskType("BenchmarkTask", []() { BenchmarkTask *b = new BenchmarkTask(); return static_cast<cf::Task *>(b); });
+	c->registerResultType("BenchmarkResult", []() { BenchmarkResult *b = new BenchmarkResult(); return static_cast<cf::Result *>(b); });
+
 	c->setPort(port);
 
 	c->setIPAddress(ip);
