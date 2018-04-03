@@ -59,7 +59,7 @@ namespace cf
 
 		//Launch internal loop thread.
 		loopThreadRun = true;
-		loopingThread = std::thread([this] { loopThread(); });
+		loopingThread = std::thread([this] { loopThread(); }); 
 
 		ProcessTaskThreadRun = true;
 		TaskProcessingThread = std::thread([this] { ProcessTaskThread(); });
