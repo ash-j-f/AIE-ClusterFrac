@@ -32,7 +32,7 @@ namespace cf
 			{
 				CF_THROW("Cannot merge results. Results are not from same set or some are missing from the set.");
 			}
-
+			CF_THROW("Test");
 			if (r->taskPartsTotalStack.size() < 2) CF_THROW("Cannot merge results. One or more tasks are already fully merged.");
 
 			if (taskPartNumberStackSize != taskPartsTotalStackSize) CF_THROW("Cannot merge results. One or more tasks have mismatched task part number and task part total counts.");

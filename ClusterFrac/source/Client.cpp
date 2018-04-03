@@ -176,11 +176,24 @@ namespace cf
 
 				CF_SAY("Task " + std::to_string(t->getInitialTaskID()) + " time: " + std::to_string(std::chrono::duration <double, std::milli>(diff).count()) + " ms.", Settings::LogLevels::Info);
 
-				Result *result = resultConstructMap[results.front()->getSubtype()]();
-				result->merge(results);
+				Result *result; 
+				
+				//Merge result objects if there was more than one in the resulting set.
+				if (results.size() > 1)
+				{
+					result = resultConstructMap[results.front()->getSubtype()]();
 
-				//Clean up temporary results objects.
-				for (auto &r : results) delete r;
+					result->merge(results);
+				}
+				else
+				{
+					result = results.front();
+				}
+
+				//Clean up temporary results objects, but only if they were a set of more than one.
+				//If there was just one result than we need to keep the single result object in memory
+				//and just pass it to the completed results list.
+				if (results.size() > 1) for (auto &r : results) delete r;
 
 				CF_SAY("Task " + std::to_string(t->getInitialTaskID()) + " - completed.", Settings::LogLevels::Info);
 
