@@ -10,6 +10,7 @@
 #include "Task.h"
 #include "Result.h"
 #include "ClientListener.h"
+#include "ClientSender.h"
 
 namespace cf
 {
@@ -107,8 +108,11 @@ namespace cf
 		//Port number to connect to.
 		int port;
 
-		//Listener object responsible for managing the TCP listener thread.
+		//Listener object responsible for receiving incoming work packets.
 		ClientListener listener{ this };
+
+		//Sender object responsible for sending completed results to host.
+		ClientSender sender{ this };
 
 		//IP address to connect to.
 		sf::IpAddress ipAddress;

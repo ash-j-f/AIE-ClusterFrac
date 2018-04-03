@@ -16,14 +16,7 @@ namespace cf
 
 	HostListener::~HostListener()
 	{
-		if (listen)
-		{
-			//Set listening status to signal listener thread to shut down.
-			listen = false;
-
-			//Wait for the listening thread to shut down.
-			if (listenerThread.joinable()) listenerThread.join();
-		}
+		stop();
 	}
 
 	void HostListener::start()

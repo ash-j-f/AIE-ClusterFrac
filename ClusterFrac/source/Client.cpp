@@ -33,6 +33,9 @@ namespace cf
 		//Stop the listener.
 		listener.stop();
 
+		//Stop the sender.
+		sender.stop();
+
 		//Shut down network connection if it is still connected.
 		if (connected) disconnect();
 
@@ -52,6 +55,8 @@ namespace cf
 		CF_SAY("Starting ClusterFrac CLIENT.", Settings::LogLevels::Info);
 
 		listener.start();
+
+		sender.start();
 
 		ProcessTaskThreadRun = true;
 		TaskProcessingThread = std::thread([this] { ProcessTaskThread(); });
