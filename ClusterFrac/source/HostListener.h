@@ -7,7 +7,7 @@
 
 namespace cf
 {
-	//Forward declatarions.
+	//Forward declarations.
 	class Host;
 
 	class DLL HostListener

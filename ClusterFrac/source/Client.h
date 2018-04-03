@@ -9,6 +9,7 @@
 #include "ConsoleMessager.hpp"
 #include "Task.h"
 #include "Result.h"
+#include "ClientListener.h"
 
 namespace cf
 {
@@ -19,6 +20,10 @@ namespace cf
 	*/
 	class DLL Client
 	{
+
+		//These classes require full access to client.
+		friend class ClientListener;
+
 	public:
 
 		/**
@@ -31,7 +36,7 @@ namespace cf
 		*/
 		~Client();
 
-		inline void registerTaskType(std::string name, std::function<Task *()> f) { taskConstuctMap[name] = f; };
+		inline void registerTaskType(std::string name, std::function<Task *()> f) { taskConstructMap[name] = f; };
 
 		inline void registerResultType(std::string name, std::function<Result *()> f) { resultConstructMap[name] = f; };
 
@@ -89,6 +94,9 @@ namespace cf
 		//Socket for the network connection.
 		sf::TcpSocket socket;
 
+		//Socket mutex for this client, for locking the socket during use.
+		std::mutex socketMutex;
+
 		//Has the host been started?
 		std::atomic<bool> started;
 
@@ -97,6 +105,9 @@ namespace cf
 
 		//Port number to connect to.
 		int port;
+
+		//Listener object responsible for managing the TCP listener thread.
+		ClientListener listener{ this };
 
 		//IP address to connect to.
 		sf::IpAddress ipAddress;
@@ -117,7 +128,7 @@ namespace cf
 		std::mutex resultsQueueMutex;
 
 		//Construction map for user defined Tasks.
-		std::map<std::string, std::function<Task *()>> taskConstuctMap;
+		std::map<std::string, std::function<Task *()>> taskConstructMap;
 
 		//Construction map for user defined Results.
 		std::map<std::string, std::function<Result *()>> resultConstructMap;

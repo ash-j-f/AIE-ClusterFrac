@@ -15,7 +15,7 @@ int main(int argc, //Number of strings in array argv
 
 	bool quit = false;
 
-	CF_SAY("Press Q to quit.", cf::Settings::LogLevels::Info);
+	CF_SAY("Hold Q to quit.", cf::Settings::LogLevels::Info);
 
 	//Set host address to connect to from command line.
 	std::string ip;
