@@ -39,6 +39,9 @@ namespace cf
 			if (TaskProcessingThread.joinable()) TaskProcessingThread.join();
 		}
 
+		//Shut down network connection if it is still connected.
+		if (connected) disconnect();
+
 	}
 
 	void Client::start()
@@ -120,6 +123,12 @@ namespace cf
 		socket.setBlocking(false);
 
 		return connected;
+	}
+
+	void Client::disconnect()
+	{
+		socket.disconnect();
+		connected = false;
 	}
 
 	void Client::addTaskToQueue(Task *task)

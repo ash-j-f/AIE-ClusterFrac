@@ -56,13 +56,20 @@ namespace cf
 		inline void setIPAddress(std::string ip) { ipAddress = sf::IpAddress(ip); };
 
 		/**
-		* Connect to the server.
+		* Connect to the host.
 		* The client must be started via start() and a port number and IP address must be 
 		* set via setPort() and setIPAddress() before calling this function, and the client
 		* must not already be connected to a server or the new connection attempt will fail.
 		* @returns True if connection attempt succeeded, false if not.
 		*/
 		bool connect();
+
+		/**
+		* Disconnect from the host.
+		* If the client is not connected, this has no effect.
+		* @returns void.
+		*/
+		void disconnect();
 
 		/**
 		* Add a task to the task queue for processing.
