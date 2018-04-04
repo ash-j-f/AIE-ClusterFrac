@@ -32,6 +32,7 @@ namespace cf
 		~ClientDetails()
 		{
 			delete socket;
+			socket = nullptr;
 		};
 
 		/**

@@ -5,6 +5,8 @@ namespace cf
 	Result::Result()
 	{
 		initialTaskID = 0;
+		taskPartNumberStack.push_back(0);
+		taskPartsTotalStack.push_back(1);
 	}
 
 	Result::~Result()

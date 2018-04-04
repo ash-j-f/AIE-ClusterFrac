@@ -7,7 +7,7 @@ namespace cf
 {
 	Task::Task()
 	{
-		initialTaskID = CF_ID->getNextTaskID();;
+		initialTaskID = CF_ID->getNextTaskID();
 		taskPartNumberStack.push_back(0);
 		taskPartsTotalStack.push_back(1);
 	}

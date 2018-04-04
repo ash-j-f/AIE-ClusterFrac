@@ -88,10 +88,11 @@ namespace cf
 					{
 						//Send was successful. Delete result object from memory and from the completed results list.
 						std::unique_lock<std::mutex> lock3(client->resultsQueueMutex);
-						delete result;
 						client->resultQueueComplete.erase(std::remove(client->resultQueueComplete.begin(),
 							client->resultQueueComplete.end(), result), client->resultQueueComplete.end());
 						lock3.unlock();
+						delete result;
+						result = nullptr;
 						break;
 					}
 					else if (status == sf::Socket::Status::Partial)

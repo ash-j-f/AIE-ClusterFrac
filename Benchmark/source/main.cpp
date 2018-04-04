@@ -36,9 +36,8 @@ int main(int argc, //Number of strings in array argv
 		host->start();
 		CF_SAY("Generating test data - started.", cf::Settings::LogLevels::Info);
 
-		BenchmarkTask *testTask = new BenchmarkTask();
-
 		//Generate test data.
+		std::vector<float> numbers;
 		{
 			//Split the task among available threads and run.
 			int maxThreads = std::thread::hardware_concurrency();
@@ -60,80 +59,86 @@ int main(int argc, //Number of strings in array argv
 			for (auto &thread : threads)
 			{
 				auto result = thread.get();
-				testTask->numbers.insert(testTask->numbers.end(), result.begin(), result.end());
+				numbers.insert(numbers.end(), result.begin(), result.end());
 			}
 		}
 
-		int taskID = testTask->getInitialTaskID();
-
-		CF_SAY("Generating test data - complete.", cf::Settings::LogLevels::Info);
-
-		host->addTaskToQueue(testTask);
-
-		//Wait for at least one client.
-		CF_SAY("Waiting for clients.", cf::Settings::LogLevels::Info);
-		while (host->getClientsCount() < 1)
+		while (true)
 		{
-			//WAIT.
-			std::this_thread::sleep_for(std::chrono::milliseconds(10));
-		}
+			BenchmarkTask *testTask = new BenchmarkTask();
 
-		//Wait for user input to continue.
-		CF_SAY("Waiting for user to press B to start test.", cf::Settings::LogLevels::Info);
-		while (!sf::Keyboard::isKeyPressed(sf::Keyboard::B))
-		{
-			//WAIT.
-			std::this_thread::sleep_for(std::chrono::milliseconds(10));
-		}
+			//Insert test data into test task.
+			testTask->numbers = numbers;
 
-		//Start benchmark timer.
-		auto start = std::chrono::steady_clock::now();
+			int taskID = testTask->getInitialTaskID();
 
-		if (host->sendTasks())
-		{
-			//Wait for results to be complete.
-			CF_SAY("Waiting for completed results.", cf::Settings::LogLevels::Info);
-			while (!host->checkAvailableResult(taskID))
+			CF_SAY("Generating test data - complete.", cf::Settings::LogLevels::Info);
+
+			host->addTaskToQueue(testTask);
+
+			//Wait for at least one client.
+			CF_SAY("Waiting for clients. Press Q to quit.", cf::Settings::LogLevels::Info);
+			while (host->getClientsCount() < 1 && !sf::Keyboard::isKeyPressed(sf::Keyboard::Q))
 			{
-				//WAIT
-				std::this_thread::sleep_for(std::chrono::milliseconds(1));
-			}
-
-			cf::Result *finished = host->getAvailableResult(taskID);
-			BenchmarkResult *output = static_cast<BenchmarkResult *>(finished);
-
-			//Stop benchmark test clock.
-			auto end = std::chrono::steady_clock::now();
-			auto diff = end - start;
-
-			//List results.
-			CF_SAY("Results received (" + std::to_string(output->numbers.size()) + "):", cf::Settings::LogLevels::Info);
-			for (int i = 0; i < 5; i++)
-			{
-				CF_SAY(std::to_string(output->numbers[i]), cf::Settings::LogLevels::Info);
-			}
-			CF_SAY("...", cf::Settings::LogLevels::Info);
-
-			delete finished;
-
-			CF_SAY("Computation and network time: " + std::to_string(std::chrono::duration <double, std::milli>(diff).count()) + " ms.", cf::Settings::LogLevels::Info);
-
-			//Wait for user input to continue.
-			CF_SAY("Waiting for user to press E to end test.", cf::Settings::LogLevels::Info);
-			while (!sf::Keyboard::isKeyPressed(sf::Keyboard::E))
-			{
-				//WAIT
+				//WAIT.
 				std::this_thread::sleep_for(std::chrono::milliseconds(10));
 			}
-		}
-		else
-		{
-			CF_SAY("Unable to send task. Aborting.", cf::Settings::LogLevels::Error);
-		}
 
-		delete testTask;
+			//Wait for user input to continue.
+			CF_SAY("Press B to start test. Press Q to quit.", cf::Settings::LogLevels::Info);
+			while (!sf::Keyboard::isKeyPressed(sf::Keyboard::B) && !sf::Keyboard::isKeyPressed(sf::Keyboard::Q))
+			{
+				//WAIT.
+				std::this_thread::sleep_for(std::chrono::milliseconds(10));
+			}
+
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q)) break;
+
+			//Start benchmark timer.
+			auto start = std::chrono::steady_clock::now();
+
+			if (host->sendTasks())
+			{
+				//Wait for results to be complete.
+				CF_SAY("Waiting for completed results.", cf::Settings::LogLevels::Info);
+				while (!host->checkAvailableResult(taskID))
+				{
+					//WAIT
+					std::this_thread::sleep_for(std::chrono::milliseconds(1));
+				}
+
+				cf::Result *finished = host->getAvailableResult(taskID);
+				BenchmarkResult *output = static_cast<BenchmarkResult *>(finished);
+
+				//Stop benchmark test clock.
+				auto end = std::chrono::steady_clock::now();
+				auto diff = end - start;
+
+				//List results.
+				CF_SAY("Results received (" + std::to_string(output->numbers.size()) + "):", cf::Settings::LogLevels::Info);
+				for (int i = 0; i < 5; i++)
+				{
+					CF_SAY(std::to_string(output->numbers[i]), cf::Settings::LogLevels::Info);
+				}
+				CF_SAY("...", cf::Settings::LogLevels::Info);
+
+				delete finished;
+				finished = nullptr;
+
+				CF_SAY("Computation and network time: " + std::to_string(std::chrono::duration <double, std::milli>(diff).count()) + " ms.", cf::Settings::LogLevels::Info);
+
+			}
+			else
+			{
+				CF_SAY("Unable to send task. Trying again.", cf::Settings::LogLevels::Error);
+				//WAIT
+				std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+			}
+
+		}
 
 		delete host;
+		host = nullptr;
 	}
 	catch (std::string e)
 	{

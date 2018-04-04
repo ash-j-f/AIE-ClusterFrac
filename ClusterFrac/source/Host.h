@@ -7,6 +7,7 @@
 #include <mutex>
 #include <string>
 #include <map>
+#include <unordered_set>
 #include <SFML\Network.hpp>
 #include "DllExport.h"
 #include "ConsoleMessager.hpp"

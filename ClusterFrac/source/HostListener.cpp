@@ -94,6 +94,7 @@ namespace cf
 						CF_SAY("Incoming connection failed.", Settings::LogLevels::Debug);
 						// Error, we won't get a new connection, delete the socket.
 						delete newClient;
+						newClient = nullptr;
 					}
 				}
 				else
@@ -135,6 +136,7 @@ namespace cf
 					clientReceiveThreads[i].join();
 					clientReceiveThreads.erase(clientReceiveThreads.begin() + i);
 					delete clientReceiveThreadsFinishedFlags[i];
+					clientReceiveThreadsFinishedFlags[i] = nullptr;
 					clientReceiveThreadsFinishedFlags.erase(clientReceiveThreadsFinishedFlags.begin() + i);
 				}
 			}
@@ -161,6 +163,7 @@ namespace cf
 						lock.unlock();
 
 						delete client;
+						client = nullptr;
 						deadIt = host->clients.erase(deadIt);
 						removedOne = true;
 					}
@@ -278,6 +281,7 @@ namespace cf
 		}
 
 		delete packet;
+		packet = nullptr;
 
 		//Signal to our parent thread that this thread has finished.
 		*cFlag = true;

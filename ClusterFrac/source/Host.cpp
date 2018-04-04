@@ -4,6 +4,8 @@ namespace cf
 {
 	Host::Host()
 	{
+		//TEST HACK
+		//xxxx
 		MAX_THREADS = std::thread::hardware_concurrency();
 
 		started = false;
@@ -31,7 +33,27 @@ namespace cf
 		listener.stop();
 
 		//Clean up any remaining registered clients.
-		for (auto &c : clients) delete c;
+		for (auto &c : clients)
+		{
+			delete c;
+			c = nullptr;
+		}
+
+		//Clean up any tasks and results in queues.
+		//Build an unordered set of task/result pointers in case the same
+		//pointer is recorded in two places due to an unusual shutdown.
+		//Unordered set will ignore duplicate entries.
+
+		std::unordered_set<Task *> removeTasks;
+		for (auto &t : localHostAsClientTaskQueue) removeTasks.insert(t);
+		for (auto &t : taskQueue) removeTasks.insert(t);
+		for (auto &t : removeTasks) delete t;
+
+		std::unordered_set<Result *> removeResults;
+		for (auto &r : resultQueueComplete) removeResults.insert(r);
+		for (auto &r : resultQueueIncomplete) removeResults.insert(r);
+		for (auto &r : removeResults) delete r;
+
 	}
 
 	void Host::start()
@@ -108,6 +130,7 @@ namespace cf
 				dividedTasks = task->split(getClientsCount());
 				//Remove original task from memory.
 				delete task;
+				task = nullptr;
 			}
 			else
 			{
@@ -160,7 +183,11 @@ namespace cf
 		sender.waitForComplete();
 
 		//Destroy the subtask copies and empty the subtask list.
-		for (auto &task : subTaskQueue) delete task;
+		for (auto &task : subTaskQueue)
+		{
+			delete task;
+			task = nullptr;
+		}
 		subTaskQueue.clear();
 
 		CF_SAY("Task sending finished.", Settings::LogLevels::Info);
@@ -274,11 +301,14 @@ namespace cf
 				//If there is only one thread, don't split the task and just use the original
 				//task object pointer.
 				std::vector<cf::Task *> tasks;
+				Task *removeTask = t;
 				if (MAX_THREADS > 1)
 				{
 					tasks = t->split(MAX_THREADS);
+
 					//Remove the original task from memory.
 					delete t;
+					t = nullptr;
 				}
 				else
 				{
@@ -286,6 +316,12 @@ namespace cf
 					//Don't remove original task from memory here we are just passing it along as a subtask. 
 					//It'll get cleaned up later as a subtask.
 				}
+
+				//Remove the task from the local task parts queue.
+				std::unique_lock<std::mutex> lock3(localHostAsClientTaskQueueMutex);
+				localHostAsClientTaskQueue.erase(std::remove(localHostAsClientTaskQueue.begin(),
+					localHostAsClientTaskQueue.end(), removeTask), localHostAsClientTaskQueue.end());
+				lock3.unlock();
 
 				std::vector<std::future<cf::Result *>> threads = std::vector<std::future<cf::Result *>>();
 
@@ -309,6 +345,7 @@ namespace cf
 				for (auto &task : tasks)
 				{
 					delete task;
+					task = nullptr;
 				}
 
 				//Stop benchmark test clock.
@@ -335,7 +372,14 @@ namespace cf
 				//Clean up temporary results objects, but only if they were a set of more than one.
 				//If there was just one result than we need to keep the single result object in memory
 				//and just pass it to the completed results list.
-				if (results.size() > 1) for (auto &r : results) delete r;
+				if (results.size() > 1)
+				{
+					for (auto &r : results)
+					{
+						delete r;
+						r = nullptr;
+					}
+				}
 
 				CF_SAY("Processing task locally - completed.", Settings::LogLevels::Info);
 
@@ -347,12 +391,6 @@ namespace cf
 				//Scan the incomplete results queue for complete results sets and move them to the complete results queue.
 				checkForCompleteResults();
 
-				std::unique_lock<std::mutex> lock3(localHostAsClientTaskQueueMutex);
-
-				//Remove the task from the local task parts queue.
-				localHostAsClientTaskQueue.erase(std::remove(localHostAsClientTaskQueue.begin(), 
-					localHostAsClientTaskQueue.end(), t), localHostAsClientTaskQueue.end());
-				lock3.unlock();
 			}
 		}
 	}
@@ -415,7 +453,11 @@ namespace cf
 		{
 			//If the result is part of a set, delete the result set part from memory 
 			//as we will have merged it into a new results set previously.
-			if (r->getCurrentTaskPartsTotal() > 1) delete r;
+			if (r->getCurrentTaskPartsTotal() > 1)
+			{
+				delete r;
+				r = nullptr;
+			}
 
 			//Remove completed results from incomplete results set.
 			resultQueueIncomplete.erase(std::remove(resultQueueIncomplete.begin(), resultQueueIncomplete.end(), r), resultQueueIncomplete.end());
