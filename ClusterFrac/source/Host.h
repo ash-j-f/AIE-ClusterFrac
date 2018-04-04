@@ -148,12 +148,6 @@ namespace cf
 		//Is this host acting as a client for task processing?
 		bool hostAsClient;
 
-		/**
-		* Continuous looping thread that runs as long as the host is alive.
-		* @returns void.
-		*/
-		void loopThread();
-
 		void hostAsClientProcessTaskThread();
 
 		/**

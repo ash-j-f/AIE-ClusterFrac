@@ -8,7 +8,7 @@ public:
 	MandelbrotResult() {};
 	~MandelbrotResult() {};
 
-	std::vector<sf::Uint32> numbers;
+	std::vector<sf::Uint8> numbers;
 
 	inline std::string getSubtype() const { return "MandelbrotResult"; };
 

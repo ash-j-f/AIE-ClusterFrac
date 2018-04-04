@@ -14,12 +14,11 @@ public:
 	Mandelbrot(cf::Host *newHost);
 	void updateImage(double zoom, double offsetX, double offsetY, sf::Image& image) const;
 private:
-	static const int MAX = 256; // maximum number of iterations for mandelbrot()
+	static const sf::Uint8 MAX = 255; // maximum number of iterations for mandelbrot()
 	std::array<sf::Color, MAX + 1> colors;
 	cf::Host *host;
-	int mandelbrot(double startReal, double startImag) const;
 	sf::Color getColor(int iterations) const;
-	void updateImageSlice(double zoom, double offsetX, double offsetY, sf::Image& image, int minY, int maxY) const;
+	/*void updateImageSlice(double zoom, double offsetX, double offsetY, sf::Image& image, int minY, int maxY) const;*/
 };
 
 Mandelbrot::Mandelbrot(cf::Host *newHost) {
@@ -27,22 +26,6 @@ Mandelbrot::Mandelbrot(cf::Host *newHost) {
 	for (int i = 0; i <= MAX; ++i) {
 		colors[i] = getColor(i);
 	}
-}
-
-int Mandelbrot::mandelbrot(double startReal, double startImag) const {
-	double zReal = startReal;
-	double zImag = startImag;
-
-	for (int counter = 0; counter < MAX; ++counter) {
-		double r2 = zReal * zReal;
-		double i2 = zImag * zImag;
-		if (r2 + i2 > 4.0) {
-			return counter;
-		}
-		zImag = 2.0 * zReal * zImag + startImag;
-		zReal = r2 - i2 + startReal;
-	}
-	return MAX;
 }
 
 sf::Color Mandelbrot::getColor(int iterations) const {
@@ -59,29 +42,53 @@ sf::Color Mandelbrot::getColor(int iterations) const {
 	return sf::Color(r, g, b);
 }
 
-void Mandelbrot::updateImageSlice(double zoom, double offsetX, double offsetY, sf::Image& image, int minY, int maxY) const
-{
-	double real = 0 * zoom - IMAGE_WIDTH / 2.0 * zoom + offsetX;
-	double imagstart = minY * zoom - IMAGE_HEIGHT / 2.0 * zoom + offsetY;
-	for (int x = 0; x < IMAGE_WIDTH; x++, real += zoom) {
-		double imag = imagstart;
-		for (int y = minY; y < maxY; y++, imag += zoom) {
-			int value = mandelbrot(real, imag);
-			image.setPixel(x, y, colors[value]);
-		}
-	}
-}
+//void Mandelbrot::updateImageSlice(double zoom, double offsetX, double offsetY, sf::Image& image, int minY, int maxY) const
+//{
+//	double real = 0 * zoom - IMAGE_WIDTH / 2.0 * zoom + offsetX;
+//	double imagstart = minY * zoom - IMAGE_HEIGHT / 2.0 * zoom + offsetY;
+//	for (int x = 0; x < IMAGE_WIDTH; x++, real += zoom) {
+//		double imag = imagstart;
+//		for (int y = minY; y < maxY; y++, imag += zoom) {
+//			int value = mandelbrot(real, imag);
+//			image.setPixel(x, y, colors[value]);
+//		}
+//	}
+//}
 
 void Mandelbrot::updateImage(double zoom, double offsetX, double offsetY, sf::Image& image) const
 {
-	const int STEP = IMAGE_HEIGHT / std::thread::hardware_concurrency();
+	cf::Task *task = new MandelbrotTask();
+	((MandelbrotTask *)task)->zoom = zoom;
+	((MandelbrotTask *)task)->offsetX = offsetX;
+	((MandelbrotTask *)task)->offsetY = offsetY;
+	((MandelbrotTask *)task)->spaceWidth = IMAGE_WIDTH;
+	((MandelbrotTask *)task)->spaceHeight = IMAGE_HEIGHT;
+	((MandelbrotTask *)task)->minY = 0;
+	((MandelbrotTask *)task)->maxY = IMAGE_HEIGHT;
+
+	int taskID = task->getInitialTaskID();
+
+	host->addTaskToQueue(task);
+
+	//Wait until task is sent. Will wait for at least 1 client to be connected.
+	while (!host->sendTasks());
+
+	//Wait for results to be complete.
+	while (!host->checkAvailableResult(taskID));
+
+	cf::Result *finished = host->getAvailableResult(taskID);
+	MandelbrotResult *output = static_cast<MandelbrotResult *>(finished);
+
+
+
+	/*const int STEP = IMAGE_HEIGHT / std::thread::hardware_concurrency();
 	std::vector<std::thread> threads;
 	for (int i = 0; i < IMAGE_HEIGHT; i += STEP) {
 		threads.push_back(std::thread(&Mandelbrot::updateImageSlice, *this, zoom, offsetX, offsetY, std::ref(image), i, std::min(i + STEP, IMAGE_HEIGHT)));
 	}
 	for (auto &t : threads) {
 		t.join();
-	}
+	}*/
 }
 
 int main(int argc, //Number of strings in array argv  
@@ -93,8 +100,8 @@ int main(int argc, //Number of strings in array argv
 	cf::Host *host = new cf::Host();
 	
 	//Set user defined Task and Result types.
-	host->registerTaskType("MendelbrotTask", []() { MandelbrotTask *m = new MandelbrotTask(); return static_cast<cf::Task *>(m); });
-	host->registerResultType("MendelbrotResult", []() { MandelbrotResult *m = new MandelbrotResult(); return static_cast<cf::Result *>(m); });
+	host->registerTaskType("MandelbrotTask", []() { MandelbrotTask *m = new MandelbrotTask(); return static_cast<cf::Task *>(m); });
+	host->registerResultType("MandelbrotResult", []() { MandelbrotResult *m = new MandelbrotResult(); return static_cast<cf::Result *>(m); });
 
 	host->setHostAsClient(true);
 	host->start();

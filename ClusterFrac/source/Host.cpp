@@ -100,11 +100,26 @@ namespace cf
 		CF_SAY("Dividing tasks among clients.", Settings::LogLevels::Info);
 		for (auto &task : taskQueue)
 		{
-			dividedTasks = task->split(getClientsCount());
+			//Only divide task if there's more than one client. Otherwise just use pointer to the original task.
+			if (getClientsCount() > 1)
+			{
+				dividedTasks = task->split(getClientsCount());
+				//Remove original task from memory.
+				delete task;
+			}
+			else
+			{
+				//Just use the task pointer and don't split the task.
+				//We DON'T remove the original task queue pointer object from memory here as we'll keep using it.
+				dividedTasks = std::vector<Task *>{task};
+			}
 			subTaskQueue.insert(subTaskQueue.end(), dividedTasks.begin(), dividedTasks.end());
 		}
 
-		//Distribute tasks among available clients.
+		//Empty the main task queue.
+		taskQueue.clear();
+
+		//Distribute sub tasks among available clients.
 
 		//Send one task chunk to the host itself if hostAsClient is enabled.
 		if (hostAsClient)
@@ -138,9 +153,6 @@ namespace cf
 			}
 			
 		}
-
-		//Empty the task queue.
-		taskQueue.clear();
 
 		//Wait for threads to finish.
 		sender.waitForComplete();
@@ -257,7 +269,21 @@ namespace cf
 				CF_SAY("Processing task locally - started.", Settings::LogLevels::Info);
 				
 				//Split the task among available threads and run.
-				std::vector<cf::Task *> tasks = t->split(std::thread::hardware_concurrency());
+				//If there is only one thread, don't split the task and just use the original
+				//task object pointer.
+				std::vector<cf::Task *> tasks;
+				if (std::thread::hardware_concurrency() > 1)
+				{
+					tasks = t->split(std::thread::hardware_concurrency());
+					//Remove the original task from memory.
+					delete t;
+				}
+				else
+				{
+					tasks = std::vector<cf::Task *>{ t };
+					//Don't remove original task from memory here we are just passing it along as a subtask. 
+					//It'll get cleaned up later as a subtask.
+				}
 
 				std::vector<std::future<cf::Result *>> threads = std::vector<std::future<cf::Result *>>();
 
@@ -278,6 +304,11 @@ namespace cf
 					results.push_back(result);
 				}
 
+				for (auto &task : tasks)
+				{
+					delete task;
+				}
+
 				//Stop benchmark test clock.
 				auto end = std::chrono::steady_clock::now();
 				auto diff = end - start;
@@ -289,6 +320,7 @@ namespace cf
 				//Merge result objects if there was more than one in the resulting set.
 				if (results.size() > 1)
 				{
+					if (resultConstructMap.size() == 0 || resultConstructMap.find(results.front()->getSubtype()) == resultConstructMap.end()) CF_THROW("Invalid results type.");
 					result = resultConstructMap[results.front()->getSubtype()]();
 
 					result->merge(results);
@@ -314,8 +346,7 @@ namespace cf
 				checkForCompleteResults();
 
 				std::unique_lock<std::mutex> lock3(localHostAsClientTaskQueueMutex);
-				//Remove the task from memory.
-				delete t;
+
 				//Remove the task from the local task parts queue.
 				localHostAsClientTaskQueue.erase(std::remove(localHostAsClientTaskQueue.begin(), 
 					localHostAsClientTaskQueue.end(), t), localHostAsClientTaskQueue.end());
@@ -360,6 +391,7 @@ namespace cf
 				//Otherwise just copy the results set pointer.
 				if (set.size() > 1)
 				{
+					if (resultConstructMap.size() == 0 || resultConstructMap.find(r1->getSubtype()) == resultConstructMap.end()) CF_THROW("Invalid results type.");
 					rNew = resultConstructMap[r1->getSubtype()]();
 					rNew->merge(set);
 				}

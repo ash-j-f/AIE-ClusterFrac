@@ -22,12 +22,12 @@ public:
 
 private:
 
-	static const int MAX = 256; // maximum number of iterations for mandelbrot()
+	static const sf::Uint8 MAX = 255; // maximum number of iterations for mandelbrot()
 
 	inline std::vector<cf::Task *> splitLocal(int count) const
 	{
 		//Get number of pixels being computed.
-		int pixelCount = (minY - maxY) + 1;
+		int pixelCount = (maxY - minY) + 1;
 
 		//Limit number of tasks to at least number of target numbers.
 		if (pixelCount < count) count = pixelCount;
@@ -84,11 +84,11 @@ private:
 		p >> maxY;
 	};
 
-	inline int mandelbrot(double startReal, double startImag) const {
+	inline sf::Uint8 mandelbrot(double startReal, double startImag) const {
 		double zReal = startReal;
 		double zImag = startImag;
 
-		for (int counter = 0; counter < MAX; ++counter) {
+		for (sf::Uint8 counter = 0; counter < MAX; ++counter) {
 			double r2 = zReal * zReal;
 			double i2 = zImag * zImag;
 			if (r2 + i2 > 4.0) {
@@ -109,8 +109,7 @@ private:
 		for (unsigned int x = 0; x < spaceWidth; x++, real += zoom) {
 			double imag = imagstart;
 			for (unsigned int y = minY; y < maxY; y++, imag += zoom) {
-				int value = mandelbrot(real, imag);
-				result->numbers.push_back(value);
+				result->numbers.push_back(mandelbrot(real, imag));
 			}
 		}
 		return result;

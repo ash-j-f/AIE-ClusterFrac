@@ -149,7 +149,20 @@ namespace cf
 				CF_SAY("Task " + std::to_string(t->getInitialTaskID()) + " - started.", Settings::LogLevels::Info);
 
 				//Split the task among available threads and run.
-				std::vector<Task *> tasks = t->split(std::thread::hardware_concurrency());
+				std::vector<Task *> tasks;
+				
+				if (std::thread::hardware_concurrency() > 1)
+				{
+					tasks = t->split(std::thread::hardware_concurrency());
+					//Remove the original task from memory.
+					delete t;
+				}
+				else
+				{
+					tasks = std::vector<Task *>{t};
+					//Don't remove original task from memory here. We'll be using it passed on as a subtask.
+					//IT will get cleaned up later as a subtask.
+				}
 
 				std::vector<std::future<Result *>> threads = std::vector<std::future<Result *>>();
 
@@ -170,6 +183,11 @@ namespace cf
 					results.push_back(result);
 				}
 
+				for (auto &task : tasks)
+				{
+					delete task;
+				}
+
 				//Stop benchmark test clock.
 				auto end = std::chrono::steady_clock::now();
 				auto diff = end - start;
@@ -181,6 +199,7 @@ namespace cf
 				//Merge result objects if there was more than one in the resulting set.
 				if (results.size() > 1)
 				{
+					if (resultConstructMap.size() == 0 || resultConstructMap.find(results.front()->getSubtype()) == resultConstructMap.end()) CF_THROW("Invalid results type.");
 					result = resultConstructMap[results.front()->getSubtype()]();
 
 					result->merge(results);
@@ -206,8 +225,7 @@ namespace cf
 				checkForCompleteResults();
 
 				std::unique_lock<std::mutex> lock3(taskQueueMutex);
-				//Remove the task from memory.
-				delete t;
+
 				//Remove the task from the local task parts queue.
 				taskQueue.erase(std::remove(taskQueue.begin(), taskQueue.end(), t), taskQueue.end());
 				lock3.unlock();
@@ -251,6 +269,8 @@ namespace cf
 				//Otherwise just copy the results set pointer.
 				if (set.size() > 1)
 				{
+					if (resultConstructMap.size() == 0 || resultConstructMap.find(r1->getSubtype()) == resultConstructMap.end()) CF_THROW("Invalid results type.");
+
 					rNew = resultConstructMap[r1->getSubtype()]();
 
 					rNew->merge(set);
