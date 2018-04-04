@@ -4,6 +4,8 @@ namespace cf
 {
 	Host::Host()
 	{
+		MAX_THREADS = std::thread::hardware_concurrency();
+
 		started = false;
 
 		//Default port number.
@@ -272,9 +274,9 @@ namespace cf
 				//If there is only one thread, don't split the task and just use the original
 				//task object pointer.
 				std::vector<cf::Task *> tasks;
-				if (std::thread::hardware_concurrency() > 1)
+				if (MAX_THREADS > 1)
 				{
-					tasks = t->split(std::thread::hardware_concurrency());
+					tasks = t->split(MAX_THREADS);
 					//Remove the original task from memory.
 					delete t;
 				}

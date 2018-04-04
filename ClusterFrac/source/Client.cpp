@@ -5,6 +5,8 @@ namespace cf
 
 	Client::Client()
 	{
+		MAX_THREADS = std::thread::hardware_concurrency();
+
 		//Default port number
 		port = 5000;
 
@@ -151,9 +153,9 @@ namespace cf
 				//Split the task among available threads and run.
 				std::vector<Task *> tasks;
 				
-				if (std::thread::hardware_concurrency() > 1)
+				if (MAX_THREADS > 1)
 				{
-					tasks = t->split(std::thread::hardware_concurrency());
+					tasks = t->split(MAX_THREADS);
 					//Remove the original task from memory.
 					delete t;
 				}

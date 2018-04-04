@@ -97,6 +97,9 @@ namespace cf
 
 	private:
 
+		//Maximum threads for multithread process forking.
+		int MAX_THREADS;
+
 		//Has the host been started?
 		std::atomic<bool> started;
 

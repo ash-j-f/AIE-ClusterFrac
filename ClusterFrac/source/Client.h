@@ -93,6 +93,9 @@ namespace cf
 
 	private:
 
+		//Maximum threads for multi process forking.
+		int MAX_THREADS;
+
 		//Socket for the network connection.
 		sf::TcpSocket socket;
 
