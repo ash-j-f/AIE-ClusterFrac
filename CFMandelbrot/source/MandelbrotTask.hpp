@@ -27,7 +27,7 @@ private:
 	inline std::vector<cf::Task *> splitLocal(int count) const
 	{
 		//Get number of pixels being computed.
-		int pixelCount = (maxY - minY) + 1;
+		int pixelCount = (maxY - minY);
 
 		//Limit number of tasks to at least number of target numbers.
 		if (pixelCount < count) count = pixelCount;
@@ -43,17 +43,19 @@ private:
 		//Distribute numbers among the new tasks.
 		const int step = (int)floor(pixelCount / (float)count);
 		int start = 0;
-		int end = step;
+		int end = step - 1;
 		for (int i = 0; i < count; i++)
 		{
 			//If this is the final split, then get the remainder of items.
 			if (i == count - 1) end = pixelCount;
 
 			tasks[i]->minY = start;
-			tasks[i]->maxY = std::min(end, pixelCount);
+			tasks[i]->maxY = std::min(end, pixelCount - 1);
 			tasks[i]->zoom = zoom;
 			tasks[i]->offsetX = offsetX;
 			tasks[i]->offsetY = offsetY;
+			tasks[i]->spaceHeight = spaceHeight;
+			tasks[i]->spaceWidth = spaceWidth;
 
 			start = start + step;
 			end = end + step;
@@ -73,6 +75,8 @@ private:
 		p << offsetY;
 		p << minY;
 		p << maxY;
+		p << spaceWidth;
+		p << spaceHeight;
 	};
 
 	inline void deserializeLocal(cf::WorkPacket &p)
@@ -82,6 +86,8 @@ private:
 		p >> offsetY;
 		p >> minY;
 		p >> maxY;
+		p >> spaceWidth;
+		p >> spaceHeight;
 	};
 
 	inline sf::Uint8 mandelbrot(double startReal, double startImag) const {
@@ -108,7 +114,7 @@ private:
 		double imagstart = minY * zoom - spaceHeight / 2.0 * zoom + offsetY;
 		for (unsigned int x = 0; x < spaceWidth; x++, real += zoom) {
 			double imag = imagstart;
-			for (unsigned int y = minY; y < maxY; y++, imag += zoom) {
+			for (unsigned int y = minY; y <= maxY; y++, imag += zoom) {
 				result->numbers.push_back(mandelbrot(real, imag));
 			}
 		}

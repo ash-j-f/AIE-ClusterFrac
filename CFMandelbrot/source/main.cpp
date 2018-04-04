@@ -79,7 +79,15 @@ void Mandelbrot::updateImage(double zoom, double offsetX, double offsetY, sf::Im
 	cf::Result *finished = host->getAvailableResult(taskID);
 	MandelbrotResult *output = static_cast<MandelbrotResult *>(finished);
 
-
+	int pixel = 0;
+	for (int x = 0; x < IMAGE_WIDTH; x++)
+	{
+		for (int y = 0; y < IMAGE_HEIGHT; y++)
+		{
+			image.setPixel(x, y, colors[output->numbers[pixel]]);
+			pixel++;
+		}
+	}
 
 	/*const int STEP = IMAGE_HEIGHT / std::thread::hardware_concurrency();
 	std::vector<std::thread> threads;
