@@ -42,7 +42,7 @@ int main(int argc, //Number of strings in array argv
 		{
 			//Split the task among available threads and run.
 			int maxThreads = std::thread::hardware_concurrency();
-			int dataSize = 10000;
+			int dataSize = 2073600;
 			std::vector<std::future<std::vector<float>>> threads = std::vector<std::future<std::vector<float>>>();
 
 			for (int i = 0; i < maxThreads; i++)
@@ -138,6 +138,10 @@ int main(int argc, //Number of strings in array argv
 	catch (std::string e)
 	{
 		std::cerr << e << std::endl;
+	}
+	catch (...)
+	{
+		std::cerr << "Unknown exception." << std::endl;
 	}
 	system("pause");
 
