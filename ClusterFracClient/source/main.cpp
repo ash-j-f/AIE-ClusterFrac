@@ -7,6 +7,8 @@
 #include <Client.h>
 #include "BenchmarkTask.hpp" 
 #include "BenchmarkResult.hpp"
+#include "MandelbrotTask.hpp"
+#include "MandelbrotResult.hpp"
 
 int main(int argc, //Number of strings in array argv  
 	char *argv[], //Array of command-line argument strings  
@@ -47,6 +49,8 @@ int main(int argc, //Number of strings in array argv
 		//Set user defined Task and Result types.
 		c->registerTaskType("BenchmarkTask", []() { BenchmarkTask *b = new BenchmarkTask(); return static_cast<cf::Task *>(b); });
 		c->registerResultType("BenchmarkResult", []() { BenchmarkResult *b = new BenchmarkResult(); return static_cast<cf::Result *>(b); });
+		c->registerTaskType("MendelbrotTask", []() { MandelbrotTask *m = new MandelbrotTask(); return static_cast<cf::Task *>(m); });
+		c->registerResultType("MendelbrotResult", []() { MandelbrotResult *m = new MandelbrotResult(); return static_cast<cf::Result *>(m); });
 
 		c->setPort(port);
 

@@ -59,6 +59,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)\ClusterFrac\source\;$(SolutionDir)\SFML-2.4.2\include\;$(SolutionDir)\ZLIB-1.2.11\include\</AdditionalIncludeDirectories>
       <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion)_DEBUG.pdb</ProgramDataBaseFileName>
       <PreprocessorDefinitions>SFML_STATIC;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)\ClusterFrac\lib\;$(SolutionDir)\SFML-2.4.2\lib\</AdditionalLibraryDirectories>
@@ -74,6 +75,7 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(SolutionDir)\ClusterFrac\source\;$(SolutionDir)\SFML-2.4.2\include\;$(SolutionDir)\ZLIB-1.2.11\include\</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>SFML_STATIC;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>

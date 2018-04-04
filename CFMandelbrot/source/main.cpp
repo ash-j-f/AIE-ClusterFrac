@@ -1,25 +1,29 @@
-#include <SFML\Graphics.hpp>
 #include <array>
 #include <vector>
 #include <thread>
+#include <SFML\Graphics.hpp>
+#include "Host.h"
+#include "MandelbrotTask.hpp"
+#include "MandelbrotResult.hpp"
 
 static constexpr int IMAGE_WIDTH = 1920;
 static constexpr int IMAGE_HEIGHT = 1080;
 
 class Mandelbrot {
 public:
-	Mandelbrot();
+	Mandelbrot(cf::Host *newHost);
 	void updateImage(double zoom, double offsetX, double offsetY, sf::Image& image) const;
 private:
 	static const int MAX = 256; // maximum number of iterations for mandelbrot()
 	std::array<sf::Color, MAX + 1> colors;
-
+	cf::Host *host;
 	int mandelbrot(double startReal, double startImag) const;
 	sf::Color getColor(int iterations) const;
 	void updateImageSlice(double zoom, double offsetX, double offsetY, sf::Image& image, int minY, int maxY) const;
 };
 
-Mandelbrot::Mandelbrot() {
+Mandelbrot::Mandelbrot(cf::Host *newHost) {
+	host = newHost;
 	for (int i = 0; i <= MAX; ++i) {
 		colors[i] = getColor(i);
 	}
@@ -85,12 +89,22 @@ int main(int argc, //Number of strings in array argv
 	char *envp[]) // Array of environment variable strings  
 {
 
+	//Create new host object.
+	cf::Host *host = new cf::Host();
+	
+	//Set user defined Task and Result types.
+	host->registerTaskType("MendelbrotTask", []() { MandelbrotTask *m = new MandelbrotTask(); return static_cast<cf::Task *>(m); });
+	host->registerResultType("MendelbrotResult", []() { MandelbrotResult *m = new MandelbrotResult(); return static_cast<cf::Result *>(m); });
+
+	host->setHostAsClient(true);
+	host->start();
+
 	sf::Clock clock;
 
 	double offsetX = -0.7; // and move around
 	double offsetY = 0.0;
 	double zoom = 0.004; // allow the user to zoom in and out...
-	Mandelbrot mb;
+	Mandelbrot mb{host};
 
 	sf::RenderWindow window(sf::VideoMode(IMAGE_WIDTH, IMAGE_HEIGHT), "Mandelbrot");
 	window.setFramerateLimit(0);
