@@ -38,6 +38,7 @@ int main(int argc, //Number of strings in array argv
 
 		//Generate test data.
 		std::vector<float> numbers;
+		std::vector<float> expectedResults;
 		{
 			//Split the task among available threads and run.
 			int maxThreads = std::thread::hardware_concurrency();
@@ -62,6 +63,7 @@ int main(int argc, //Number of strings in array argv
 				numbers.insert(numbers.end(), result.begin(), result.end());
 			}
 		}
+		for (auto &n : numbers) expectedResults.push_back(sqrtf(n));
 
 		CF_SAY("Generating test data - complete.", cf::Settings::LogLevels::Info);
 
@@ -121,6 +123,13 @@ int main(int argc, //Number of strings in array argv
 					CF_SAY(std::to_string(output->numbers[i]), cf::Settings::LogLevels::Info);
 				}
 				CF_SAY("...", cf::Settings::LogLevels::Info);
+
+				CF_SAY("Verifying results.", cf::Settings::LogLevels::Info);
+				for (int i = 0; i < (int)numbers.size(); i++)
+				{
+					if (expectedResults[i] != output->numbers[i]) CF_THROW("Results verification failed. Results did not match!");
+				}
+				CF_SAY("Results verified OK.", cf::Settings::LogLevels::Info);
 
 				//Remove the result from the completed results queue.
 				host->removeResultFromQueue(finished);
