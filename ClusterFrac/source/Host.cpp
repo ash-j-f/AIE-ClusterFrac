@@ -153,8 +153,13 @@ namespace cf
 		{
 			std::unique_lock<std::mutex> lock2(localHostAsClientTaskQueueMutex);
 			CF_SAY("Sending task to local client.", Settings::LogLevels::Info);
-			localHostAsClientTaskQueue.push_back(subTaskQueue.back());
+			Task *task = subTaskQueue.back();
 			subTaskQueue.pop_back();
+			//Set a host-relative timestamp on the task so we can track how long it is taking.
+			task->setHostTimeSent(getTime());
+			//Assign the task to the host-as-client so we can track its progress.
+			trackTask(task);
+			localHostAsClientTaskQueue.push_back(task);
 			lock2.unlock();
 		}
 
@@ -277,6 +282,53 @@ namespace cf
 			CF_SAY("Host as client is set OFF", Settings::LogLevels::Info);
 		}
 		
+	}
+
+	bool Host::markTaskFinished(Result * result)
+	{
+		bool resultValid = false;
+
+		//Check the HOST as a pseudo-client in case it processed the task directly rather than sending to a network client.
+		std::unique_lock<std::mutex> lock(tasksAssignedAsClientMutex);
+		for (auto &t : tasksAssignedAsClient)
+		{
+			if (t->getInitialTaskID() == result->getInitialTaskID() &&
+				t->getTaskPartNumber() == result->getTaskPartNumber())
+			{
+				//Remove this task from the host-as-client.
+				delete t;
+				tasksAssignedAsClient.erase(std::remove(tasksAssignedAsClient.begin(),
+					tasksAssignedAsClient.end(), t), tasksAssignedAsClient.end());
+				resultValid = true;
+				break;
+			}
+		}
+		lock.unlock();
+
+		//Check CLIENTS to see if one of them processed this task.
+		if (!resultValid)
+		{
+			for (auto &c : clients)
+			{
+				std::unique_lock<std::mutex> lock(c->taskMutex);
+				for (auto &t : c->tasks)
+				{
+					if (t->getInitialTaskID() == result->getInitialTaskID() &&
+						t->getTaskPartNumber() == result->getTaskPartNumber())
+					{
+						//Remove this task from the host-as-client.
+						delete t;
+						c->tasks.erase(std::remove(c->tasks.begin(), c->tasks.end(), t), c->tasks.end());
+						resultValid = true;
+						break;
+					}
+				}
+				lock.unlock();
+				if (resultValid) break;
+			}
+		}
+
+		return resultValid;
 	}
 
 	inline int Host::getClientsCount() const
@@ -412,6 +464,9 @@ namespace cf
 
 				//Place the result in the host result parts queue.
 				std::unique_lock<std::mutex> lock2(resultsQueueMutex);
+
+				//xxxx
+
 				resultQueueIncomplete.push_back(result);
 				lock2.unlock();
 

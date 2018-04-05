@@ -31,7 +31,7 @@ int main(int argc, //Number of strings in array argv
 		host->registerResultType("BenchmarkResult", []{ BenchmarkResult *b = new BenchmarkResult(); return static_cast<cf::Result *>(b); });
 
 		//Allow this host to process tasks as a client.
-		host->setHostAsClient(false);
+		host->setHostAsClient(true);
 		//Start the host.
 		host->start();
 		CF_SAY("Generating test data - started.", cf::Settings::LogLevels::Info);

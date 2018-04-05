@@ -135,6 +135,14 @@ namespace cf
 		*/
 		inline void trackTask(Task* t) { std::unique_lock<std::mutex> lock(tasksAssignedAsClientMutex); tasksAssignedAsClient.push_back(t); };
 
+		/**
+		* Check which client (or host-as-client) was processing the task associated with a final result object.
+		* Removes the task from that client and deletes the original task object from memory.
+		* @param result A pointer to the result to check.
+		* @returns True if a task matching the given result was found, and the task removal was successful, false if not.
+		*/
+		bool markTaskFinished(Result *result);
+
 	private:
 
 		//clock used to track time since startup.
