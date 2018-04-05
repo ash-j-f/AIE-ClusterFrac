@@ -63,6 +63,8 @@ int main(int argc, //Number of strings in array argv
 			}
 		}
 
+		CF_SAY("Generating test data - complete.", cf::Settings::LogLevels::Info);
+
 		while (true)
 		{
 			BenchmarkTask *testTask = new BenchmarkTask();
@@ -71,8 +73,6 @@ int main(int argc, //Number of strings in array argv
 			testTask->numbers = numbers;
 
 			int taskID = testTask->getInitialTaskID();
-
-			CF_SAY("Generating test data - complete.", cf::Settings::LogLevels::Info);
 
 			host->addTaskToQueue(testTask);
 
@@ -122,8 +122,10 @@ int main(int argc, //Number of strings in array argv
 				}
 				CF_SAY("...", cf::Settings::LogLevels::Info);
 
-				delete finished;
+				//Remove the result from the completed results queue.
+				host->removeResultFromQueue(finished);
 				finished = nullptr;
+				output = nullptr;
 
 				CF_SAY("Computation and network time: " + std::to_string(std::chrono::duration <double, std::milli>(diff).count()) + " ms.", cf::Settings::LogLevels::Info);
 

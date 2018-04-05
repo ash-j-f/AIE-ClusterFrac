@@ -201,6 +201,19 @@ namespace cf
 		CF_SAY("Added result to queue.", Settings::LogLevels::Info);
 	}
 
+	void Host::removeResultFromQueue(Result *result)
+	{
+		//Aquire lock on result queues.
+		std::unique_lock<std::mutex> lock(resultsQueueMutex);
+		if (std::find(resultQueueComplete.begin(), resultQueueComplete.end(), result) == resultQueueComplete.end())
+		{
+			CF_THROW("Remove failed. Cannot find that result in the completed results queue.");
+		}
+		resultQueueComplete.erase(std::remove(resultQueueComplete.begin(), resultQueueComplete.end(), result), 
+			resultQueueComplete.end());
+		delete result;
+	}
+
 	Result *Host::getAvailableResult(int taskID)
 	{
 		//Aquire lock on result queues.

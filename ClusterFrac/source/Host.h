@@ -90,6 +90,13 @@ namespace cf
 		void addResultToQueue(Result *result);
 
 		/**
+		* Remove a result from the result queue.
+		* @param result The result to remove.
+		* @returns void.
+		*/
+		void removeResultFromQueue(Result *result);
+
+		/**
 		* Get a count of all connected clients.
 		* Includes the host itself if hostAsClient is set true.
 		* @returns The number of connected clients.

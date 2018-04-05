@@ -55,8 +55,6 @@ namespace cf
 
 		sf::Socket::Status status;
 
-		cf::WorkPacket packet;
-
 		CF_SAY("Sender thread started. Automatically sending completed results to host.", Settings::LogLevels::Info);
 		//Endless loop that waits for completed results and sends them to the host.
 		//Aborts if send flag is set false.
@@ -69,6 +67,8 @@ namespace cf
 			lock.unlock();
 			if (client->connected && result != nullptr)
 			{
+
+				cf::WorkPacket packet;
 
 				packet.setFlag(cf::WorkPacket::Flag::Result);
 
