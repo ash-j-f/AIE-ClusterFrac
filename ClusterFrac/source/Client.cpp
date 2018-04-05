@@ -250,9 +250,11 @@ namespace cf
 
 				CF_SAY("Task " + std::to_string(taskID) + " - completed.", Settings::LogLevels::Info);
 
-				//Place the result in the host result parts queue.
+				//Place the result in the client COMPLETED result queue.
+				//Even if this is a result part, we know it must be sent back to the host
+				//for merging with other result parts. So we treat it like a complete result.
 				std::unique_lock<std::mutex> lock2(resultsQueueMutex);
-				resultQueueIncomplete.push_back(result);
+				resultQueueComplete.push_back(result);
 				lock2.unlock();
 
 				//Scan the incomplete results queue for complete results sets and move them to the complete results queue.
@@ -319,6 +321,9 @@ namespace cf
 
 		for (auto &r : remove)
 		{
+			//Remove completed results from incomplete results set.
+			resultQueueIncomplete.erase(std::remove(resultQueueIncomplete.begin(), resultQueueIncomplete.end(), r), resultQueueIncomplete.end());
+
 			//If the result is part of a set, delete the result set part from memory 
 			//as we will have merged it into a new results set previously.
 			if (r->getCurrentTaskPartsTotal() > 1)
@@ -326,9 +331,8 @@ namespace cf
 				delete r;
 				r = nullptr;
 			}
-
-			//Remove completed results from incomplete results set.
-			resultQueueIncomplete.erase(std::remove(resultQueueIncomplete.begin(), resultQueueIncomplete.end(), r), resultQueueIncomplete.end());
 		}
+
+
 	}
 }

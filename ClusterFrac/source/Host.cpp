@@ -473,6 +473,10 @@ namespace cf
 
 		for (auto &r : remove)
 		{
+
+			//Remove completed results from incomplete results set.
+			resultQueueIncomplete.erase(std::remove(resultQueueIncomplete.begin(), resultQueueIncomplete.end(), r), resultQueueIncomplete.end());
+
 			//If the result is part of a set, delete the result set part from memory 
 			//as we will have merged it into a new results set previously.
 			if (r->getCurrentTaskPartsTotal() > 1)
@@ -481,8 +485,6 @@ namespace cf
 				r = nullptr;
 			}
 
-			//Remove completed results from incomplete results set.
-			resultQueueIncomplete.erase(std::remove(resultQueueIncomplete.begin(), resultQueueIncomplete.end(), r), resultQueueIncomplete.end());
 		}
 
 	}
