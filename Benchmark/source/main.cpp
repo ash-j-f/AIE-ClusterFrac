@@ -84,13 +84,13 @@ int main(int argc, //Number of strings in array argv
 				std::this_thread::sleep_for(std::chrono::milliseconds(10));
 			}
 
-			//Wait for user input to continue.
-			CF_SAY("Press B to start test. Press Q to quit.", cf::Settings::LogLevels::Info);
-			while (!sf::Keyboard::isKeyPressed(sf::Keyboard::B) && !sf::Keyboard::isKeyPressed(sf::Keyboard::Q))
-			{
-				//WAIT.
-				std::this_thread::sleep_for(std::chrono::milliseconds(10));
-			}
+			////Wait for user input to continue.
+			//CF_SAY("Press B to start test. Press Q to quit.", cf::Settings::LogLevels::Info);
+			//while (!sf::Keyboard::isKeyPressed(sf::Keyboard::B) && !sf::Keyboard::isKeyPressed(sf::Keyboard::Q))
+			//{
+			//	//WAIT.
+			//	std::this_thread::sleep_for(std::chrono::milliseconds(10));
+			//}
 
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q)) break;
 
