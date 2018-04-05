@@ -63,6 +63,9 @@ namespace cf
 		//Tasks assigned to this client.
 		std::vector<Task *> tasks;
 
+		//Task tracking list mutex.
+		std::mutex taskMutex;
+
 		/**
 		* Assign a task to this client so that its progress can be tracked.
 		* @returns void.
@@ -79,8 +82,5 @@ namespace cf
 
 		//Unique client ID on this host.
 		unsigned int ID;
-
-		//Task tracking list mutex.
-		std::mutex taskMutex;
 	};
 }

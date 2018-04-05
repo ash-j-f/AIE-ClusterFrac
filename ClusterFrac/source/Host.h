@@ -129,6 +129,12 @@ namespace cf
 			if (MAX_THREADS > std::thread::hardware_concurrency()) CF_SAY("WARNING: Concurrency is HIGHER than CPU max concurrent threads.", Settings::LogLevels::Info);
 		};
 
+		/**
+		* Assign a task to this host as a client so that its progress can be tracked.
+		* @returns void.
+		*/
+		inline void trackTask(Task* t) { std::unique_lock<std::mutex> lock(tasksAssignedAsClientMutex); tasksAssignedAsClient.push_back(t); };
+
 	private:
 
 		//clock used to track time since startup.
@@ -178,6 +184,12 @@ namespace cf
 
 		//Mutex for results queues
 		std::mutex resultsQueueMutex;
+
+		//Tasks assigned to this client.
+		std::vector<Task *> tasksAssignedAsClient;
+
+		//Task tracking list mutex.
+		std::mutex tasksAssignedAsClientMutex;
 
 		//Construction map for user defined Tasks.
 		std::map<std::string, std::function<Task *()>> taskConstuctMap;

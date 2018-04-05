@@ -234,10 +234,60 @@ namespace cf
 
 					result->deserialize(*packet);
 
-					//Add result data to the host incomplete results queue.
-					std::unique_lock<std::mutex> lock(host->resultsQueueMutex);
-					host->resultQueueIncomplete.push_back(result);
+					//Work out which client, if any, owns the task this result came from.
+					//If a client is found to own the task, remove the task from the client and delete it from memory.
+					//If no clients own this task, ignore it.
+					//The host is also checked in case it was running as a pseudo-client for this task.
+					bool resultValid = false;
+
+					//XXXX 
+					//TODO - this part checking host and client for valid task owner is a WIP!
+
+					//Check the HOST as a pseudo-client in case it processed the task directly rather than sending to a network client.
+					std::unique_lock<std::mutex> lock(host->tasksAssignedAsClientMutex);
+					for (auto &t : host->tasksAssignedAsClient)
+					{
+						if (t->getInitialTaskID() == result->getInitialTaskID() &&
+							t->getTaskPartNumber() == result->getTaskPartNumber())
+						{
+							resultValid = true;
+							break;
+						}
+					}
 					lock.unlock();
+
+					//Check CLIENTS to see if one of them processed this task.
+					if (!resultValid)
+					{
+						for (auto &c : host->clients)
+						{
+							std::unique_lock<std::mutex> lock(c->taskMutex);
+							for (auto &t : c->tasks)
+							{
+								if (t->getInitialTaskID() == result->getInitialTaskID() &&
+									t->getTaskPartNumber() == result->getTaskPartNumber())
+								{
+									resultValid = true;
+									break;
+								}
+							}
+							lock.unlock();
+							if (resultValid) break;
+						}
+					}
+
+					if (resultValid)
+					{
+						//Add result data to the host incomplete results queue.
+						std::unique_lock<std::mutex> lock(host->resultsQueueMutex);
+						host->resultQueueIncomplete.push_back(result);
+						lock.unlock();
+					}
+					else
+					{
+						delete result;
+						result = nullptr;
+					}
 
 					//Scan the incomplete results queue for complete results sets and move them to the complete results queue.
 					host->checkForCompleteResults();
