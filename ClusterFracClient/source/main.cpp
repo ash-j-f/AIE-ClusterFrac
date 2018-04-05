@@ -47,10 +47,10 @@ int main(int argc, //Number of strings in array argv
 		cf::Client *c = new cf::Client();
 
 		//Set user defined Task and Result types.
-		c->registerTaskType("BenchmarkTask", []() { BenchmarkTask *b = new BenchmarkTask(); return static_cast<cf::Task *>(b); });
-		c->registerResultType("BenchmarkResult", []() { BenchmarkResult *b = new BenchmarkResult(); return static_cast<cf::Result *>(b); });
-		c->registerTaskType("MandelbrotTask", []() { MandelbrotTask *m = new MandelbrotTask(); return static_cast<cf::Task *>(m); });
-		c->registerResultType("MandelbrotResult", []() { MandelbrotResult *m = new MandelbrotResult(); return static_cast<cf::Result *>(m); });
+		c->registerTaskType("BenchmarkTask", []{ BenchmarkTask *b = new BenchmarkTask(); return static_cast<cf::Task *>(b); });
+		c->registerResultType("BenchmarkResult", []{ BenchmarkResult *b = new BenchmarkResult(); return static_cast<cf::Result *>(b); });
+		c->registerTaskType("MandelbrotTask", []{ MandelbrotTask *m = new MandelbrotTask(); return static_cast<cf::Task *>(m); });
+		c->registerResultType("MandelbrotResult", []{ MandelbrotResult *m = new MandelbrotResult(); return static_cast<cf::Result *>(m); });
 
 		c->setPort(port);
 

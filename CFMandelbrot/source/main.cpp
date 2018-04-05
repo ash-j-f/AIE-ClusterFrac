@@ -103,14 +103,18 @@ int main(int argc, //Number of strings in array argv
 	char *argv[], //Array of command-line argument strings  
 	char *envp[]) // Array of environment variable strings  
 {
-	CF_SETTINGS->setLogLevel(cf::Settings::LogLevels::Error);
+	//CF_SETTINGS->setLogLevel(cf::Settings::LogLevels::Error);
 
 	//Create new host object.
 	cf::Host *host = new cf::Host();
 	
 	//Set user defined Task and Result types.
-	host->registerTaskType("MandelbrotTask", []() { MandelbrotTask *m = new MandelbrotTask(); return static_cast<cf::Task *>(m); });
-	host->registerResultType("MandelbrotResult", []() { MandelbrotResult *m = new MandelbrotResult(); return static_cast<cf::Result *>(m); });
+	host->registerTaskType("MandelbrotTask", []{ MandelbrotTask *m = new MandelbrotTask(); return static_cast<cf::Task *>(m); });
+	host->registerResultType("MandelbrotResult", []{ MandelbrotResult *m = new MandelbrotResult(); return static_cast<cf::Result *>(m); });
+
+	//TEST
+	//xxxx
+	host->setConcurrency(1);
 
 	host->setHostAsClient(true);
 	host->start();

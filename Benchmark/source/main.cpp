@@ -27,8 +27,8 @@ int main(int argc, //Number of strings in array argv
 		}
 
 		//Set user defined Task and Result types.
-		host->registerTaskType("BenchmarkTask", []() { BenchmarkTask *b = new BenchmarkTask(); return static_cast<cf::Task *>(b); });
-		host->registerResultType("BenchmarkResult", []() { BenchmarkResult *b = new BenchmarkResult(); return static_cast<cf::Result *>(b); });
+		host->registerTaskType("BenchmarkTask", []{ BenchmarkTask *b = new BenchmarkTask(); return static_cast<cf::Task *>(b); });
+		host->registerResultType("BenchmarkResult", []{ BenchmarkResult *b = new BenchmarkResult(); return static_cast<cf::Result *>(b); });
 
 		//Allow this host to process tasks as a client.
 		host->setHostAsClient(false);

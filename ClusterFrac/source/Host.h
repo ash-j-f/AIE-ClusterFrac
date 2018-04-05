@@ -104,10 +104,28 @@ namespace cf
 
 		void setHostAsClient(bool state);
 
+		/**
+		* Set thread concurrency to use while procesing tasks.
+		* Setting value to 0 means use hardware defined max concurrency.
+		* Will produce a warning if threads is set lower or higher than the hardware
+		* defined maximum.
+		* @param n The number of concurrent threads to run while processing tasks.
+		* @returns void.
+		*/
+		inline void setConcurrency(unsigned int n)
+		{
+			if (n > 65535) CF_THROW("Invalid concurrency value.");
+			if (n == 0) n = std::thread::hardware_concurrency();
+			MAX_THREADS = n;
+			CF_SAY("Concurrency is set to " + std::to_string(MAX_THREADS) + " thread(s).", Settings::LogLevels::Info);
+			if (MAX_THREADS < std::thread::hardware_concurrency()) CF_SAY("WARNING: Concurrency is LOWER than CPU max concurrent threads.", Settings::LogLevels::Info);
+			if (MAX_THREADS > std::thread::hardware_concurrency()) CF_SAY("WARNING: Concurrency is HIGHER than CPU max concurrent threads.", Settings::LogLevels::Info);
+		};
+
 	private:
 
 		//Maximum threads for multithread process forking.
-		int MAX_THREADS;
+		unsigned int MAX_THREADS;
 
 		//Has the host been started?
 		std::atomic<bool> started;

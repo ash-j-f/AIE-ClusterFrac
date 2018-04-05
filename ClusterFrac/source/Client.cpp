@@ -5,7 +5,8 @@ namespace cf
 
 	Client::Client()
 	{
-		MAX_THREADS = std::thread::hardware_concurrency();
+		//Use default max thread concurrency setting determined by the OS.
+		setConcurrency(0);
 
 		//Default port number
 		port = 5000;

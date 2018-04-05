@@ -4,9 +4,9 @@ namespace cf
 {
 	Host::Host()
 	{
-		//TEST HACK
-		//xxxx
-		MAX_THREADS = std::thread::hardware_concurrency();
+
+		//Use default max thread concurrency setting determined by the OS.
+		setConcurrency(0);
 
 		started = false;
 
@@ -69,7 +69,6 @@ namespace cf
 		started = true;
 
 		CF_SAY("Starting ClusterFrac HOST at " + sf::IpAddress::getLocalAddress().toString() + " on port " + std::to_string(port) + ".", Settings::LogLevels::Info);
-
 		listener.start();
 
 		//Launch host as client task processing thread.
@@ -250,6 +249,16 @@ namespace cf
 		}
 
 		hostAsClient = state;
+
+		if (hostAsClient)
+		{
+			CF_SAY("Host as client is set ON", Settings::LogLevels::Info);
+		}
+		else
+		{
+			CF_SAY("Host as client is set OFF", Settings::LogLevels::Info);
+		}
+		
 	}
 
 	inline int Host::getClientsCount() const
