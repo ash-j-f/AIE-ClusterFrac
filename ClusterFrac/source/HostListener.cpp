@@ -238,9 +238,7 @@ namespace cf
 					//If a client is found to own the task, remove the task from the client and delete it from memory.
 					//If no clients own this task, ignore it.
 					//The host is also checked in case it was running as a pseudo-client for this task.
-					bool resultValid = host->markTaskFinished(result);
-
-					if (resultValid)
+					if (host->markTaskFinished(result))
 					{
 						CF_SAY("Result packet from client " + std::to_string(client->getClientID()) + " is valid.", Settings::LogLevels::Info);
 

@@ -374,7 +374,7 @@ namespace cf
 
 			for (auto &t : localHostAsClientTaskQueueCOPY)
 			{
-				CF_SAY("Processing task locally - started.", Settings::LogLevels::Info);
+				CF_SAY("Processing task " + std::to_string(t->getInitialTaskID()) + " locally.", Settings::LogLevels::Info);
 				
 				//Split the task among available threads and run.
 				//If there is only one thread, don't split the task and just use the original
@@ -384,16 +384,10 @@ namespace cf
 				if (MAX_THREADS > 1)
 				{
 					tasks = t->split(MAX_THREADS);
-
-					//Remove the original task from memory.
-					delete t;
-					t = nullptr;
 				}
 				else
 				{
 					tasks = std::vector<cf::Task *>{ t };
-					//Don't remove original task from memory here we are just passing it along as a subtask. 
-					//It'll get cleaned up later as a subtask.
 				}
 
 				//Remove the task from the local task parts queue.
@@ -416,15 +410,21 @@ namespace cf
 
 				for (auto &thread : threads)
 				{
-					CF_SAY("Processing task locally - waiting for results and merging.", Settings::LogLevels::Info);
+					CF_SAY("Processing task " + std::to_string(t->getInitialTaskID()) + " locally - waiting for results and merging.", Settings::LogLevels::Info);
 					auto result = thread.get();
 					results.push_back(result);
 				}
 
-				for (auto &task : tasks)
+				//Remove split subtasks from memory. 
+				//If there was just one, then that means we used the original task object so don't
+				//remove it from memory here.
+				if (tasks.size() > 1)
 				{
-					delete task;
-					task = nullptr;
+					for (auto &task : tasks)
+					{
+						delete task;
+						task = nullptr;
+					}
 				}
 
 				//Stop benchmark test clock.
@@ -462,11 +462,14 @@ namespace cf
 
 				CF_SAY("Processing task locally - completed.", Settings::LogLevels::Info);
 
+				//Work out which client, if any, owns the task this result came from.
+				//If a client is found to own the task, remove the task from the client and delete it from memory.
+				//If no clients own this task, ignore it.
+				//The host is also checked in case it was running as a pseudo-client for this task.
+				if (!markTaskFinished(result)) CF_THROW("Results processed locally are invalid. No owner found.");
+
 				//Place the result in the host result parts queue.
 				std::unique_lock<std::mutex> lock2(resultsQueueMutex);
-
-				//xxxx
-
 				resultQueueIncomplete.push_back(result);
 				lock2.unlock();
 
