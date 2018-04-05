@@ -49,6 +49,8 @@ namespace cf
 
 		Result *run() const;
 
+		inline void setHostTimeSent(sf::Time t) { hostTimeSent = t; };
+
 	private:
 
 		//The ID of the initial task before it was split.
@@ -65,6 +67,18 @@ namespace cf
 		//to allow growing and unrolling of the stack as tasks are split and 
 		//results are merged.
 		std::vector<sf::Uint32> taskPartsTotalStack;
+
+		//Maximum time in milliseconds that a client is allowed to spend on this task
+		//(or task part) before the host will cancel the request and try again.
+		//This time is from the host point of view, elapsed since task send started
+		//so it includes all overheads like network and CPU time.
+		//This value is only used for tasks or task parts sent to the client.
+		float maxTaskTimeMilliseconds;
+
+		//Host time this task was sent to the client. Used to calculate elapsed time
+		//since the task was sent when checking expiry relative to maxTaskTimeMilliseconds.
+		//This value is only used for tasks or task parts sent to the client.
+		sf::Time hostTimeSent;
 
 		/**
 		* Split this task up as equally as possible in to N chunks, and return

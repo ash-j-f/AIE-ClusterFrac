@@ -2,6 +2,7 @@
 #include <atomic>
 #include <mutex>
 #include <SFML\Network.hpp>
+#include "Task.h"
 
 namespace cf
 {
@@ -59,15 +60,27 @@ namespace cf
 		//Should this client be removed?
 		std::atomic<bool> remove;
 
+		//Tasks assigned to this client.
+		std::vector<Task *> tasks;
+
+		/**
+		* Assign a task to this client so that its progress can be tracked.
+		* @returns void.
+		*/
+		inline void trackTask(Task* t) { std::unique_lock<std::mutex> lock(taskMutex); tasks.push_back(t); };
+
 		/**
 		* Get client ID.
 		* @returns The client's ID.
 		*/
-		unsigned int getClientID() { return ID; }
+		inline unsigned int getClientID() const { return ID; }
 
 	private:
 
 		//Unique client ID on this host.
 		unsigned int ID;
+
+		//Task tracking list mutex.
+		std::mutex taskMutex;
 	};
 }

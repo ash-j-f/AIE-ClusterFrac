@@ -68,6 +68,9 @@ namespace cf
 
 		started = true;
 
+		//Reset time since startup.
+		clock.restart();
+
 		CF_SAY("Starting ClusterFrac HOST at " + sf::IpAddress::getLocalAddress().toString() + " on port " + std::to_string(port) + ".", Settings::LogLevels::Info);
 		listener.start();
 
@@ -173,6 +176,13 @@ namespace cf
 				freeClient->busy = true;
 				Task *task = *it;
 				it++;
+
+				//Set a host-relative timestamp on the task so we can track how long it is taking.
+				task->setHostTimeSent(getTime());
+				
+				//Assign the task to the client so we can track its progress.
+				freeClient->trackTask(task);
+
 				sender.sendTask(freeClient, task);				
 			}
 			
@@ -181,12 +191,7 @@ namespace cf
 		//Wait for threads to finish.
 		sender.waitForComplete();
 
-		//Destroy the subtask copies and empty the subtask list.
-		for (auto &task : subTaskQueue)
-		{
-			delete task;
-			task = nullptr;
-		}
+		//Empty the subtask list.
 		subTaskQueue.clear();
 
 		CF_SAY("Task sending finished.", Settings::LogLevels::Info);

@@ -131,6 +131,9 @@ namespace cf
 
 	private:
 
+		//clock used to track time since startup.
+		sf::Clock clock;
+
 		//Maximum threads for multithread process forking.
 		unsigned int MAX_THREADS;
 
@@ -184,6 +187,9 @@ namespace cf
 
 		//Is this host acting as a client for task processing?
 		bool hostAsClient;
+
+		//Get the time since host startup.
+		sf::Time getTime() { return clock.getElapsedTime(); };
 
 		void hostAsClientProcessTaskThread();
 

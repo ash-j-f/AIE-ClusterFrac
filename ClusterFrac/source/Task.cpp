@@ -10,6 +10,8 @@ namespace cf
 		initialTaskID = CF_ID->getNextTaskID();
 		taskPartNumberStack.push_back(0);
 		taskPartsTotalStack.push_back(1);
+		//Default maximum time a client may spend on this task.
+		maxTaskTimeMilliseconds = 1000.f;
 	}
 
 	Task::~Task()
