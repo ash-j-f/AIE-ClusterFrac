@@ -21,7 +21,7 @@ namespace cf
 		* Constructor with client ID.
 		* @param newID The client ID to use for this new client.
 		*/
-		ClientDetails(unsigned int newID)
+		ClientDetails(unsigned __int64 newID)
 		{
 			ID = newID;
 			init();
@@ -76,11 +76,11 @@ namespace cf
 		* Get client ID.
 		* @returns The client's ID.
 		*/
-		inline unsigned int getClientID() const { return ID; }
+		inline unsigned __int64 getClientID() const { return ID; }
 
 	private:
 
 		//Unique client ID on this host.
-		unsigned int ID;
+		unsigned __int64 ID;
 	};
 }

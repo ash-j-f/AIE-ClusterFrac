@@ -163,7 +163,7 @@ namespace cf
 
 			for (auto &t : taskQueueCOPY)
 			{
-				int taskID = t->getInitialTaskID();
+				unsigned __int64 taskID = t->getInitialTaskID();
 
 				CF_SAY("Task " + std::to_string(taskID) + " - started.", Settings::LogLevels::Info);
 

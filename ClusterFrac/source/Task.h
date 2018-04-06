@@ -39,7 +39,7 @@ namespace cf
 
 		inline int getCurrentTaskPartsTotal() const { if (taskPartsTotalStack.size() == 0) { CF_THROW("Task part total list is empty."); } return taskPartsTotalStack.back(); }
 
-		inline int getInitialTaskID() const { return initialTaskID; };
+		inline unsigned __int64 getInitialTaskID() const { return initialTaskID; };
 
 		std::vector<Task *> split(int count) const;
 
@@ -54,7 +54,7 @@ namespace cf
 	private:
 
 		//The ID of the initial task before it was split.
-		sf::Uint32 initialTaskID;
+		sf::Uint64 initialTaskID;
 
 		//Part number of this task after last split.
 		//Stored as a stack of all values up the task tree from this point

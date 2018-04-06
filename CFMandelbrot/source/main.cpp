@@ -66,7 +66,7 @@ void Mandelbrot::updateImage(double zoom, double offsetX, double offsetY, sf::Im
 	((MandelbrotTask *)task)->minY = 0;
 	((MandelbrotTask *)task)->maxY = IMAGE_HEIGHT;
 
-	int taskID = task->getInitialTaskID();
+	unsigned __int64 taskID = task->getInitialTaskID();
 
 	host->addTaskToQueue(task);
 

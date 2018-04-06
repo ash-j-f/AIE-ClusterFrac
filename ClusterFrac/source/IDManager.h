@@ -27,19 +27,19 @@ namespace cf
 		* Get and reserve the next available client ID, and then increment the internal next client ID counter.
 		* @returns The next available client ID.
 		*/
-		inline unsigned int getNextClientID() { return nextClientID++; }
+		inline unsigned __int64 getNextClientID() { return nextClientID++; }
 
 		/**
 		* Get and reserve the next available task ID, and then increment the internal next task ID counter.
 		* @returns The next available task ID.
 		*/
-		inline unsigned int getNextTaskID() { return nextTaskID++; }
+		inline unsigned __int64 getNextTaskID() { return nextTaskID++; }
 
 		/**
 		* Get and reserve the next available result ID, and then increment the internal next result ID counter.
 		* @returns The next available result ID.
 		*/
-		inline unsigned int getNextResultID() { return nextResultID++; }
+		inline unsigned __int64 getNextResultID() { return nextResultID++; }
 
 	private:
 
@@ -54,12 +54,13 @@ namespace cf
 		~IDManager();
 
 		//Next client ID to use.
-		unsigned int nextClientID;
+		unsigned __int64 nextClientID;
 
 		//Next task ID to use.
-		unsigned int nextTaskID;
+		unsigned __int64 nextTaskID;
 
 		//Next result ID to use.
-		unsigned int nextResultID;
+		unsigned __int64 nextResultID;
+
 	};
 }

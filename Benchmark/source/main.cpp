@@ -74,7 +74,7 @@ int main(int argc, //Number of strings in array argv
 			//Insert test data into test task.
 			testTask->numbers = numbers;
 
-			int taskID = testTask->getInitialTaskID();
+			unsigned __int64 taskID = testTask->getInitialTaskID();
 
 			host->addTaskToQueue(testTask);
 

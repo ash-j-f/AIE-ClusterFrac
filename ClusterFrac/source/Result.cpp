@@ -16,7 +16,7 @@ namespace cf
 	void Result::merge(std::vector<Result*> others)
 	{
 		//Sanity check the whole set is here.
-		sf::Uint32 iID = others[0]->initialTaskID;
+		sf::Uint64 iID = others[0]->initialTaskID;
 		size_t taskPartNumberStackSize = others[0]->taskPartNumberStack.size();
 		size_t taskPartsTotalStackSize = others[0]->taskPartsTotalStack.size();
 		sf::Uint32 taskPartsTotal = others[0]->taskPartsTotalStack.back();

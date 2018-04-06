@@ -103,9 +103,9 @@ namespace cf
 		*/
 		inline int getClientsCount() const;
 
-		bool checkAvailableResult(int taskID);
+		bool checkAvailableResult(unsigned __int64 taskID);
 
-		Result* getAvailableResult(int taskID);
+		Result* getAvailableResult(unsigned __int64 taskID);
 
 		inline bool getHostAsClient() const { return hostAsClient; };
 

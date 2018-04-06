@@ -224,7 +224,7 @@ namespace cf
 		delete result;
 	}
 
-	Result *Host::getAvailableResult(int taskID)
+	Result *Host::getAvailableResult(unsigned __int64 taskID)
 	{
 		//Aquire lock on result queues.
 		std::unique_lock<std::mutex> lock(resultsQueueMutex);
@@ -346,7 +346,7 @@ namespace cf
 		return count;
 	}
 
-	bool Host::checkAvailableResult(int taskID)
+	bool Host::checkAvailableResult(unsigned __int64 taskID)
 	{
 		//Aquire lock on result queues.
 		std::unique_lock<std::mutex> lock(resultsQueueMutex);
