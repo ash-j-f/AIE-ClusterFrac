@@ -410,7 +410,7 @@ namespace cf
 
 				for (auto &thread : threads)
 				{
-					CF_SAY("Processing task " + std::to_string(t->getInitialTaskID()) + " locally - waiting for results and merging.", Settings::LogLevels::Info);
+					CF_SAY("Processing task locally - waiting for results and merging.", Settings::LogLevels::Info);
 					auto result = thread.get();
 					results.push_back(result);
 				}

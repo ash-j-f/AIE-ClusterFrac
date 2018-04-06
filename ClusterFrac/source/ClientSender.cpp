@@ -93,6 +93,7 @@ namespace cf
 						lock3.unlock();
 						delete result;
 						result = nullptr;
+						CF_SAY("Packet sent.", Settings::LogLevels::Info);
 						break;
 					}
 					else if (status == sf::Socket::Status::Partial)
