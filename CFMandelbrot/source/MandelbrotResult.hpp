@@ -20,7 +20,8 @@ private:
 		//Insert the other results into the new merged result.
 		for (auto &r : others)
 		{
-			numbers.insert(numbers.end(), ((MandelbrotResult *)r)->numbers.begin(), ((MandelbrotResult *)r)->numbers.end());
+			MandelbrotResult *mbr = static_cast<MandelbrotResult *>(r);
+			numbers.insert(numbers.end(), mbr->numbers.begin(), mbr->numbers.end());
 		}
 
 	};

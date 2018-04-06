@@ -26,8 +26,8 @@ private:
 
 	inline std::vector<cf::Task *> splitLocal(int count) const
 	{
-		//Get number of pixels being computed.
-		int pixelCount = (maxY - minY);
+		//Get number of pixels being computed per Y-axis chunk.
+		int pixelCount = (maxY - minY) + 1;
 
 		//Limit number of tasks to at least number of target numbers.
 		if (pixelCount < count) count = pixelCount;
@@ -109,6 +109,16 @@ private:
 	inline cf::Result *runLocal() const
 	{
 		MandelbrotResult *result = new MandelbrotResult();
+
+		//	double real = 0 * zoom - IMAGE_WIDTH / 2.0 * zoom + offsetX;
+		//	double imagstart = minY * zoom - IMAGE_HEIGHT / 2.0 * zoom + offsetY;
+		//	for (int x = 0; x < IMAGE_WIDTH; x++, real += zoom) {
+		//		double imag = imagstart;
+		//		for (int y = minY; y < maxY; y++, imag += zoom) {
+		//			int value = mandelbrot(real, imag);
+		//			image.setPixel(x, y, colors[value]);
+		//		}
+		//	}
 
 		double real = 0 * zoom - spaceWidth / 2.0 * zoom + offsetX;
 		double imagstart = minY * zoom - spaceHeight / 2.0 * zoom + offsetY;

@@ -68,7 +68,7 @@ void Mandelbrot::updateImage(double zoom, double offsetX, double offsetY, sf::Im
 	((MandelbrotTask *)task)->spaceWidth = IMAGE_WIDTH;
 	((MandelbrotTask *)task)->spaceHeight = IMAGE_HEIGHT;
 	((MandelbrotTask *)task)->minY = 0;
-	((MandelbrotTask *)task)->maxY = IMAGE_HEIGHT;
+	((MandelbrotTask *)task)->maxY = IMAGE_HEIGHT - 1;
 
 	unsigned __int64 taskID = task->getInitialTaskID();
 
@@ -118,7 +118,7 @@ int main(int argc, //Number of strings in array argv
 
 	//TEST
 	//xxxx
-	host->setConcurrency(1);
+	host->setConcurrency(2);
 
 	host->setHostAsClient(true);
 	host->start();
