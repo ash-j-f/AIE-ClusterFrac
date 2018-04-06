@@ -60,10 +60,34 @@ namespace cf
 		{
 			//CF_SAY("Watching.");
 
+			//Check client tasks for any that have taken too long.
+			for (auto &c : host->clients)
+			{
+				std::vector<Task *> redistributeTasks;
+				std::unique_lock<std::mutex> lock(c->taskMutex);
+				std::vector<Task *>::iterator it;
+				for (it = c->tasks.begin(); it != c->tasks.end();)
+				{
+					Task *t = *it;
+					if ((host->getTime() - t->getHostTimeSent()).asMilliseconds() > t->getMaxTaskTimeMilliseconds())
+					{
+						//Task has taken too long, add it to the list of tasks to distribute to other clients.
+						CF_SAY("Client " + std::to_string(c->getClientID()) + " task " + std::to_string(t->getInitialTaskID()) + " timed out. Redistributing.", Settings::LogLevels::Info);
+						redistributeTasks.push_back(t);
+						//Remove this task from the client's own assigned task list.
+						it = c->tasks.erase(it);
+					}
+					else
+					{
+						it++;
+					}
+				}
+				lock.unlock();
+				//Distribute any now unowned tasks to other clients.
+				if (redistributeTasks.size() > 0) host->distributeSubTasks(redistributeTasks);
+			}
 
-			//TODO
-			//xxxx
-			//DO TASK STATUS WATCHING STUFF HERE
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
 		}
 
 		watching = false;

@@ -77,6 +77,8 @@ namespace cf
 		CF_SAY("Starting ClusterFrac HOST at " + sf::IpAddress::getLocalAddress().toString() + " on port " + std::to_string(port) + ".", Settings::LogLevels::Info);
 		listener.start();
 
+		watcher.start();
+
 		//Launch host as client task processing thread.
 		if (hostAsClient)
 		{

@@ -13,7 +13,7 @@ namespace cf
 		taskPartNumberStack.push_back(0);
 		taskPartsTotalStack.push_back(1);
 		//Default maximum time a client may spend on this task.
-		maxTaskTimeMilliseconds = 1000.f;
+		maxTaskTimeMilliseconds = 10000.f;
 	}
 
 	Task::~Task()

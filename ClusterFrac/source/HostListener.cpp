@@ -158,7 +158,7 @@ namespace cf
 					{
 						//Remove the socket from the selector.
 						selector.remove(*client->socket);
-
+						
 						//Immediately unlock as we are about to delete the object that contains the mutex.
 						lock.unlock();
 
@@ -279,7 +279,11 @@ namespace cf
 
 				//Distribute this client's tasks to other available clients.
 				std::unique_lock<std::mutex> lock(client->taskMutex);
-				host->distributeSubTasks(client->tasks);
+				if (client->tasks.size() > 0)
+				{
+					CF_SAY("Client ID " + std::to_string(client->getClientID()) + " disconnected with unfinished tasks. Redistributing.", Settings::LogLevels::Info);
+					host->distributeSubTasks(client->tasks);
+				}
 				client->tasks.clear();
 				lock.unlock();
 
