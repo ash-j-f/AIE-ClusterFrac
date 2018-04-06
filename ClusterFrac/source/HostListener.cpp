@@ -273,7 +273,16 @@ namespace cf
 				CF_SAY("Client ID " + std::to_string(client->getClientID()) + " from IP "
 					+ (*client->socket).getRemoteAddress().toString() + " disconnected.", Settings::LogLevels::Info);
 				selector.remove(*client->socket);
-				(*client->socket).disconnect();
+				
+				//Disconnect the client.
+				client->socket->disconnect();
+
+				//Distribute this client's tasks to other available clients.
+				std::unique_lock<std::mutex> lock(client->taskMutex);
+				host->distributeSubTasks(client->tasks);
+				client->tasks.clear();
+				lock.unlock();
+
 				//Mark client data for erasure.
 				client->remove = true;
 

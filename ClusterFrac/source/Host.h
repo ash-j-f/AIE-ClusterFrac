@@ -165,6 +165,9 @@ namespace cf
 		//Sender object responsible for managing sender threads.
 		HostSender sender{ this };
 
+		//Watcher object responsible for managing the watcher thread.
+		HostTaskWatcher watcher{ this };
+
 		//Connected client details.
 		std::vector<ClientDetails *> clients;
 
@@ -221,5 +224,7 @@ namespace cf
 		* @returns void.
 		*/
 		void checkForCompleteResults();
+
+		void distributeSubTasks(std::vector<Task *> subTaskQueue);
 	};
 }

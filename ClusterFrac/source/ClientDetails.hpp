@@ -32,6 +32,16 @@ namespace cf
 		*/
 		~ClientDetails()
 		{
+			//Delete from memory any tasks still assigned to this client.
+			std::unique_lock<std::mutex> lock(taskMutex);
+			for (auto &t : tasks)
+			{
+				delete t;
+				t = nullptr;
+			}
+			tasks.clear();
+			lock.unlock();
+
 			delete socket;
 			socket = nullptr;
 		};
