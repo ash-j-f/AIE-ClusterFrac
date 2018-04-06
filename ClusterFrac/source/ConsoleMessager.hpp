@@ -5,6 +5,10 @@
 #include "Settings.h"
 #include "DllExport.h"
 
+#ifdef _WIN32
+	#include <Windows.h>
+#endif
+
 #define CF_CONSOLE cf::ConsoleMessager::getInstance()
 
 #define CF_SAY(s, l) CF_CONSOLE->say(s, l)
@@ -59,14 +63,65 @@ namespace cf
 		/**
 		* Default constructor.
 		*/
-		ConsoleMessager() {};
+		ConsoleMessager() 
+		{
+#ifdef _WIN32
+			
+			//Disable edit mode in the console window. Edit mode causes the application to pause
+			//and output to break if a user clicks in the console window.
+
+			consoleHandle = GetStdHandle(STD_INPUT_HANDLE);
+			DWORD consoleMode;
+
+			// get current console mode
+			if (!GetConsoleMode(consoleHandle, &consoleMode))
+			{
+				// Error: Unable to get console mode.
+				std::cerr << "Error getting console mode." << std::endl;
+				return;
+			}
+
+			originalConsoleMode = consoleMode;
+
+			// Clear the quick edit bit in the mode flags
+	
+			consoleMode &= ~ENABLE_QUICK_EDIT_MODE;
+			consoleMode &= ~ENABLE_MOUSE_INPUT;
+
+			// set the new mode
+			if (!SetConsoleMode(consoleHandle, consoleMode))
+			{
+				// ERROR: Unable to set console mode
+				std::cerr << "Error setting console mode." << std::endl;
+			}
+#endif
+		};
 
 		/**
 		* Default destructor.
 		*/
-		~ConsoleMessager() {};
+		~ConsoleMessager() 
+		{
+#ifdef _WIN32
+			//Restore original console mode options.
+			if (!SetConsoleMode(consoleHandle, originalConsoleMode))
+			{
+				// ERROR: Unable to set console mode
+				std::cerr << "Error setting console mode." << std::endl;
+			}
+#endif
+		};
 
 		//Mutex to ensure console is only written to by one thread at a time.
 		std::mutex console;
+
+#ifdef _WIN32
+		//Console input handle.
+		HANDLE consoleHandle;
+
+		//Console mode settings detected on startup.
+		DWORD originalConsoleMode;
+#endif
+
 	};
 }

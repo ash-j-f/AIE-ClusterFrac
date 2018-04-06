@@ -17,6 +17,8 @@ int main(int argc, //Number of strings in array argv
 		//Set log level for console messages.
 		CF_SETTINGS->setLogLevel(cf::Settings::LogLevels::Debug);
 
+		CF_SAY("Hold Ctrl-Q to quit.", cf::Settings::LogLevels::Info);
+
 		//Create new host object.
 		cf::Host *host = new cf::Host();
 
@@ -82,22 +84,14 @@ int main(int argc, //Number of strings in array argv
 			host->addTaskToQueue(testTask);
 
 			//Wait for at least one client.
-			CF_SAY("Waiting for clients. Press Q to quit.", cf::Settings::LogLevels::Info);
-			while (host->getClientsCount() < 1 && !sf::Keyboard::isKeyPressed(sf::Keyboard::Q))
+			CF_SAY("Waiting for clients. Hold Ctrl-Q to quit.", cf::Settings::LogLevels::Info);
+			while (host->getClientsCount() < 1 && !(sf::Keyboard::isKeyPressed(sf::Keyboard::Q) && (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl) || sf::Keyboard::isKeyPressed(sf::Keyboard::RControl))))
 			{
 				//WAIT.
 				std::this_thread::sleep_for(std::chrono::milliseconds(10));
 			}
 
-			////Wait for user input to continue.
-			//CF_SAY("Press B to start test. Press Q to quit.", cf::Settings::LogLevels::Info);
-			//while (!sf::Keyboard::isKeyPressed(sf::Keyboard::B) && !sf::Keyboard::isKeyPressed(sf::Keyboard::Q))
-			//{
-			//	//WAIT.
-			//	std::this_thread::sleep_for(std::chrono::milliseconds(10));
-			//}
-
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q)) break;
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q) && (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl) || sf::Keyboard::isKeyPressed(sf::Keyboard::RControl))) break;
 
 			//Start benchmark timer.
 			auto start = std::chrono::steady_clock::now();

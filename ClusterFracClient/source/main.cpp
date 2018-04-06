@@ -18,7 +18,7 @@ int main(int argc, //Number of strings in array argv
 	{
 		bool quit = false;
 
-		CF_SAY("Hold Q to quit.", cf::Settings::LogLevels::Info);
+		CF_SAY("Hold Ctrl-Q to quit.", cf::Settings::LogLevels::Info);
 
 		//Set host address to connect to from command line.
 		std::string ip;
@@ -64,7 +64,7 @@ int main(int argc, //Number of strings in array argv
 			//Try to connect to host.
 			while (true)
 			{
-				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q))
+				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q) && (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl) || sf::Keyboard::isKeyPressed(sf::Keyboard::RControl)))
 				{
 					quit = true;
 					break;
@@ -77,7 +77,7 @@ int main(int argc, //Number of strings in array argv
 			//Process tasks while connected.
 			while (c->isConnected())
 			{
-				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q))
+				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q) && (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl) || sf::Keyboard::isKeyPressed(sf::Keyboard::RControl)))
 				{
 					quit = true;
 					break;
