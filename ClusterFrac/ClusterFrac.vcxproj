@@ -103,6 +103,7 @@
     <ClCompile Include="source\ClientListener.cpp" />
     <ClCompile Include="source\ClientSender.cpp" />
     <ClCompile Include="source\Host.cpp" />
+    <ClCompile Include="source\HostTaskWatcher.cpp" />
     <ClCompile Include="source\IDManager.cpp" />
     <ClCompile Include="source\HostListener.cpp" />
     <ClCompile Include="source\Result.cpp" />
@@ -119,6 +120,7 @@
     <ClInclude Include="source\ConsoleMessager.hpp" />
     <ClInclude Include="source\DllExport.h" />
     <ClInclude Include="source\Host.h" />
+    <ClInclude Include="source\HostTaskWatcher.h" />
     <ClInclude Include="source\IDManager.h" />
     <ClInclude Include="source\HostListener.h" />
     <ClInclude Include="source\Result.h" />

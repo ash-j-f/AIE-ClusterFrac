@@ -16,6 +16,7 @@
 #include "IDManager.h"
 #include "HostListener.h"
 #include "HostSender.h"
+#include "HostTaskWatcher.h"
 #include "ClientDetails.hpp"
 
 namespace cf
@@ -31,6 +32,7 @@ namespace cf
 		//These classes require full access to host.
 		friend class HostListener;
 		friend class HostSender;
+		friend class HostTaskWatcher;
 
 	public:
 

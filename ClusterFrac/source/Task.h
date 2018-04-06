@@ -53,6 +53,10 @@ namespace cf
 
 		/**
 		* Assign this task a unique ID, if it doesn't already have one.
+		* This is not done automatically when a task is created.
+		* It should only be called for tasks that are the initial top-level 
+		* task and not on a task-part that will have its ID overwritten by
+		* the parent anyway.
 		* @returns void.
 		*/
 		void assignID() { if (initialTaskID == 0) initialTaskID = CF_ID->getNextTaskID();  };
