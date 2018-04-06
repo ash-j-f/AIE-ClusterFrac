@@ -126,6 +126,8 @@ private:
 			double imag = imagstart;
 			for (unsigned int y = minY; y <= maxY; y++, imag += zoom) {
 				result->numbers.push_back(mandelbrot(real, imag));
+				result->x.push_back(x);
+				result->y.push_back(y);
 			}
 		}
 		return result;

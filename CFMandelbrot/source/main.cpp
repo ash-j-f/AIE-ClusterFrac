@@ -83,14 +83,10 @@ void Mandelbrot::updateImage(double zoom, double offsetX, double offsetY, sf::Im
 	cf::Result *finished = host->getAvailableResult(taskID);
 	MandelbrotResult *output = static_cast<MandelbrotResult *>(finished);
 
-	int pixel = 0;
-	for (int x = 0; x < IMAGE_WIDTH; x++)
-	{
-		for (int y = 0; y < IMAGE_HEIGHT; y++)
-		{
-			image.setPixel(x, y, colors[output->numbers[pixel]]);
-			pixel++;
-		}
+	int count = (int)output->numbers.size();
+	for (int p = 0; p < count; p++)
+	{		
+		image.setPixel(output->x[p], output->y[p], colors[output->numbers[p]]);
 	}
 
 	/*const int STEP = IMAGE_HEIGHT / std::thread::hardware_concurrency();
@@ -115,10 +111,6 @@ int main(int argc, //Number of strings in array argv
 	//Set user defined Task and Result types.
 	host->registerTaskType("MandelbrotTask", []{ MandelbrotTask *m = new MandelbrotTask(); return static_cast<cf::Task *>(m); });
 	host->registerResultType("MandelbrotResult", []{ MandelbrotResult *m = new MandelbrotResult(); return static_cast<cf::Result *>(m); });
-
-	//TEST
-	//xxxx
-	host->setConcurrency(2);
 
 	host->setHostAsClient(true);
 	host->start();
