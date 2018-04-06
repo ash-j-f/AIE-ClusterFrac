@@ -7,7 +7,9 @@ namespace cf
 {
 	Task::Task()
 	{
-		initialTaskID = CF_ID->getNextTaskID();
+		//All tasks start with no ID. Usually they are task parts and inherit this ID from their parent.
+		initialTaskID = 0;
+
 		taskPartNumberStack.push_back(0);
 		taskPartsTotalStack.push_back(1);
 		//Default maximum time a client may spend on this task.

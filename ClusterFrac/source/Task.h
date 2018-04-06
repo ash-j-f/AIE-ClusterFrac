@@ -39,7 +39,7 @@ namespace cf
 
 		inline int getCurrentTaskPartsTotal() const { if (taskPartsTotalStack.size() == 0) { CF_THROW("Task part total list is empty."); } return taskPartsTotalStack.back(); }
 
-		inline unsigned __int64 getInitialTaskID() const { return initialTaskID; };
+		inline unsigned __int64 getInitialTaskID() const { if (initialTaskID == 0) { CF_THROW("This task has no ID."); } return initialTaskID; };
 
 		std::vector<Task *> split(int count) const;
 
@@ -50,6 +50,12 @@ namespace cf
 		Result *run() const;
 
 		inline void setHostTimeSent(sf::Time t) { hostTimeSent = t; };
+
+		/**
+		* Assign this task a unique ID, if it doesn't already have one.
+		* @returns void.
+		*/
+		void assignID() { if (initialTaskID == 0) initialTaskID = CF_ID->getNextTaskID();  };
 
 	private:
 

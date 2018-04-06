@@ -70,6 +70,9 @@ int main(int argc, //Number of strings in array argv
 		while (true)
 		{
 			BenchmarkTask *testTask = new BenchmarkTask();
+			
+			//Assign an ID to this task.
+			testTask->assignID();
 
 			//Insert test data into test task.
 			testTask->numbers = numbers;

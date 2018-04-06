@@ -98,6 +98,8 @@ namespace cf
 
 	void Host::addTaskToQueue(Task *task)
 	{
+		//Ensure this task has an ID assigned.
+		task->assignID();
 		std::unique_lock<std::mutex> lock(taskQueueMutex);
 		taskQueue.push_back(task);
 		CF_SAY("Added task " + std::to_string(task->getInitialTaskID()) + " to queue.", Settings::LogLevels::Info);

@@ -58,6 +58,10 @@ sf::Color Mandelbrot::getColor(int iterations) const {
 void Mandelbrot::updateImage(double zoom, double offsetX, double offsetY, sf::Image& image) const
 {
 	cf::Task *task = new MandelbrotTask();
+
+	//Assign the task a unique ID.
+	task->assignID();
+
 	((MandelbrotTask *)task)->zoom = zoom;
 	((MandelbrotTask *)task)->offsetX = offsetX;
 	((MandelbrotTask *)task)->offsetY = offsetY;
