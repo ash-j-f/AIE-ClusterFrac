@@ -3,6 +3,11 @@
 #include <Task.h>
 #include "BenchmarkResult.hpp"
 
+/**
+* Benchmark test task class.
+* Derived from ClusterFrac library Task class.
+* @author Ashley Flynn - Academy of Interactive Entertainment - 2018.
+*/
 class BenchmarkTask : public cf::Task
 {
 public:

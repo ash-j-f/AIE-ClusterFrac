@@ -2,14 +2,32 @@
 #include <string>
 #include <Result.h>
 
+/**
+* Benchmark test result class.
+* Derived from ClusterFrac library Result class.
+* @author Ashley Flynn - Academy of Interactive Entertainment - 2018.
+*/
 class BenchmarkResult : public cf::Result
 {
 public:
+
+	/**
+	* Default constructor.
+	*/
 	BenchmarkResult() {};
+	
+	/**
+	* Default destructor.
+	*/
 	~BenchmarkResult() {};
 
+	//Test data set.
 	std::vector<float> numbers;
 
+	/**
+	* Get the subtype of this result.
+	* @returns The subtype of this result.
+	*/
 	inline std::string getSubtype() const { return "BenchmarkResult"; };
 
 private:

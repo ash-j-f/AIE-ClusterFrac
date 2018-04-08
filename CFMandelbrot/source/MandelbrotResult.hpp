@@ -2,6 +2,11 @@
 #include <string>
 #include <Result.h>
 
+/**
+* Mandelbrot test result class.
+* Derived from ClusterFrac library Result class.
+* @author Ashley Flynn - Academy of Interactive Entertainment - 2018.
+*/
 class MandelbrotResult : public cf::Result
 {
 public:
