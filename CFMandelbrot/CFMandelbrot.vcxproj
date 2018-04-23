@@ -12,8 +12,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\main.cpp" />
+    <ClCompile Include="source\Mandelbrot.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="source\Mandelbrot.h" />
     <ClInclude Include="source\MandelbrotResult.hpp" />
     <ClInclude Include="source\MandelbrotTask.hpp" />
   </ItemGroup>
