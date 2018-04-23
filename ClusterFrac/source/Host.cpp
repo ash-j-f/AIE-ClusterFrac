@@ -245,7 +245,7 @@ namespace cf
 		
 	}
 
-	bool Host::markTaskFinished(Result * result)
+	bool Host::markTaskFinished(Result *result)
 	{
 		bool resultValid = false;
 

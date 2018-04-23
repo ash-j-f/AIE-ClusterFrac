@@ -44,7 +44,7 @@ int main(int argc, //Number of strings in array argv
 		{
 			//Split the task among available threads and run.
 			int maxThreads = std::thread::hardware_concurrency();
-			int dataSize = 2073600;
+			int dataSize = 16;
 			std::vector<std::future<std::vector<float>>> threads = std::vector<std::future<std::vector<float>>>();
 
 			for (int i = 0; i < maxThreads; i++)
@@ -115,7 +115,7 @@ int main(int argc, //Number of strings in array argv
 
 				//List results.
 				CF_SAY("Results received (" + std::to_string(output->numbers.size()) + "):", cf::Settings::LogLevels::Info);
-				for (int i = 0; i < 5; i++)
+				for (int i = 0; i < 16; i++)
 				{
 					CF_SAY(std::to_string(output->numbers[i]), cf::Settings::LogLevels::Info);
 				}

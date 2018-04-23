@@ -20,7 +20,7 @@ public:
 
 private:
 
-	inline std::vector<cf::Task *> splitLocal(int count) const
+	inline std::vector<cf::Task *> splitLocal(unsigned int count) const
 	{
 		//Limit number of tasks to at least number of target numbers.
 		if ((int)numbers.size() < count) count = (int)numbers.size();
@@ -28,7 +28,7 @@ private:
 		std::vector<BenchmarkTask *> tasks = std::vector<BenchmarkTask *>();
 		tasks.resize(count);
 
-		for (int i = 0; i < count; i++)
+		for (unsigned int i = 0; i < count; i++)
 		{
 			tasks[i] = new BenchmarkTask();
 		}
@@ -37,7 +37,7 @@ private:
 		const int step = (int)floor((float)numbers.size() / (float)count);
 		int start = 0;
 		int end = step;
-		for (int i = 0; i < count; i++)
+		for (unsigned int i = 0; i < count; i++)
 		{
 			//If this is the final split, then get the remainder of items.
 			if (i == count - 1) end = (int)numbers.size();

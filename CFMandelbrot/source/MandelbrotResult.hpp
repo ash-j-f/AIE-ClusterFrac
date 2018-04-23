@@ -46,7 +46,10 @@ private:
 		for (sf::Int64 i = 0; i < size; i++) p << x[i];
 		size = y.size();
 		p << size;
-		for (sf::Int64 i = 0; i < size; i++) p << y[i];
+		for (sf::Int64 i = 0; i < size; i++)
+		{
+			p << y[i];
+		}
 	};
 
 	inline void deserializeLocal(cf::WorkPacket &p)
@@ -60,6 +63,9 @@ private:
 		for (sf::Int64 i = 0; i < size; i++) p >> x[i];
 		p >> size;
 		y.resize(size);
-		for (sf::Int64 i = 0; i < size; i++) p >> y[i];
+		for (sf::Int64 i = 0; i < size; i++)
+		{
+			p >> y[i];
+		}
 	};
 };

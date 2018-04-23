@@ -100,7 +100,7 @@ namespace cf
 		* @param count Split the task into this many subtasks.
 		* @returns A std::vector of pointers to the new split tasks.
 		*/
-		virtual std::vector<Task *> splitLocal(int count) const = 0;
+		virtual std::vector<Task *> splitLocal(unsigned int count) const = 0;
 
 		virtual void serializeLocal(WorkPacket &p) const = 0;
 

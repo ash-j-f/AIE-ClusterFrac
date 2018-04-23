@@ -29,10 +29,10 @@ private:
 
 	static const sf::Uint8 MAX = 255; // maximum number of iterations for mandelbrot()
 
-	inline std::vector<cf::Task *> splitLocal(int count) const
+	inline std::vector<cf::Task *> splitLocal(unsigned int count) const
 	{
 		//Get number of pixels being computed per Y-axis chunk.
-		int pixelCount = (maxY - minY) + 1;
+		unsigned int pixelCount = (maxY - minY) + 1;
 
 		//Limit number of tasks to at least number of target numbers.
 		if (pixelCount < count) count = pixelCount;
@@ -40,22 +40,22 @@ private:
 		std::vector<MandelbrotTask *> tasks = std::vector<MandelbrotTask *>();
 		tasks.resize(count);
 
-		for (int i = 0; i < count; i++)
+		for (unsigned int i = 0; i < count; i++)
 		{
 			tasks[i] = new MandelbrotTask();
 		}
 
 		//Distribute numbers among the new tasks.
-		const int step = (int)floor(pixelCount / (float)count);
-		int start = 0;
-		int end = step - 1;
-		for (int i = 0; i < count; i++)
+		const unsigned int step = (int)floor(pixelCount / (float)count);
+		unsigned int start = minY; // 0;
+		unsigned int end = minY + (step - 1);
+		for (unsigned int i = 0; i < count; i++)
 		{
 			//If this is the final split, then get the remainder of items.
-			if (i == count - 1) end = pixelCount;
+			if (i == count - 1) end = minY + pixelCount;
 
 			tasks[i]->minY = start;
-			tasks[i]->maxY = std::min(end, pixelCount - 1);
+			tasks[i]->maxY = std::min(end, minY + (pixelCount - 1));
 			tasks[i]->zoom = zoom;
 			tasks[i]->offsetX = offsetX;
 			tasks[i]->offsetY = offsetY;
