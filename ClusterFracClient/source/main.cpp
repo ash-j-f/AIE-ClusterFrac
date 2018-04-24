@@ -102,6 +102,4 @@ int main(int argc, //Number of strings in array argv
 		std::cerr << "Unknown exception." << std::endl;
 	}
 
-	system("pause");
-
 }

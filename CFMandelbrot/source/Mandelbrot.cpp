@@ -5,6 +5,9 @@ Mandelbrot::Mandelbrot(cf::Host *newHost) {
 	for (int i = 0; i <= MAX; ++i) {
 		colors[i] = getColor(i);
 	}
+	offsetX = 0;
+	offsetY = 0;
+	zoom = 0;
 }
 
 sf::Color Mandelbrot::getColor(int iterations) const {
@@ -19,6 +22,21 @@ sf::Color Mandelbrot::getColor(int iterations) const {
 	int b = (int)(8.5*(1.0 - t)*(1.0 - t)*(1.0 - t)*t * 255.0);
 
 	return sf::Color(r, g, b);
+}
+
+std::string Mandelbrot::getExecutableFolder() const
+{
+
+	char buffer[MAX_PATH];
+	GetModuleFileName(NULL, buffer, MAX_PATH);
+	char *pos;
+	if (pos = strrchr(buffer, '\\'))
+	{
+		*pos = 0;
+	}
+
+	return buffer;
+	
 }
 
 void Mandelbrot::updateImage(double zoom, double offsetX, double offsetY, sf::Image& image, unsigned int imageWidth, unsigned int imageHeight) const
@@ -62,9 +80,32 @@ void Mandelbrot::updateImage(double zoom, double offsetX, double offsetY, sf::Im
 			image.setPixel(x, y, colors[output->numbers[imageWidth * y + x]]);
 		}
 	}
+}
 
-	/*for (unsigned int p = 0; p < count; p++)
-	{
-		image.setPixel(output->x[p], output->y[p], colors[output->numbers[p]]);
-	}*/
+void Mandelbrot::save()
+{
+	FILE *pFile;
+	
+	fopen_s(&pFile,(getExecutableFolder() + "\\" + "savedata.bin").c_str(), "wb");
+	
+	if (!pFile) return;
+	
+	fwrite(&offsetX, sizeof(char), sizeof(offsetX), pFile);
+	fwrite(&offsetY, sizeof(char), sizeof(offsetY), pFile);
+	fwrite(&zoom, sizeof(char), sizeof(zoom), pFile);
+	fclose(pFile);
+}
+
+void Mandelbrot::load()
+{
+	FILE *pFile;
+
+	fopen_s(&pFile, (getExecutableFolder() + "\\" + "savedata.bin").c_str(), "rb");
+
+	if (!pFile) return;
+
+	fread(&offsetX, sizeof(char), sizeof(offsetX), pFile);
+	fread(&offsetY, sizeof(char), sizeof(offsetY), pFile);
+	fread(&zoom, sizeof(char), sizeof(zoom), pFile);
+	fclose(pFile);
 }

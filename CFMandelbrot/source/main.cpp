@@ -23,10 +23,14 @@ int main(int argc, //Number of strings in array argv
 
 	sf::Clock clock;
 
-	double offsetX = -0.7; // and move around
-	double offsetY = 0.0;
-	double zoom = 0.004; // allow the user to zoom in and out...
 	Mandelbrot mb{host};
+
+	//Defaults.
+	mb.offsetX = -0.7; // and move around
+	mb.offsetY = 0.0;
+	mb.zoom = 0.004; // allow the user to zoom in and out...
+
+	mb.load();
 
 	sf::RenderWindow window(sf::VideoMode(IMAGE_WIDTH, IMAGE_HEIGHT), "Mandelbrot");
 	window.setFramerateLimit(0);
@@ -52,22 +56,22 @@ int main(int argc, //Number of strings in array argv
 					window.close();
 					break;
 				case sf::Keyboard::Equal:
-					zoom *= 0.9;
+					mb.zoom *= 0.9;
 					break;
 				case sf::Keyboard::Dash:
-					zoom /= 0.9;
+					mb.zoom /= 0.9;
 					break;
 				case sf::Keyboard::W:
-					offsetY -= 40 * zoom;
+					mb.offsetY -= 40 * mb.zoom;
 					break;
 				case sf::Keyboard::S:
-					offsetY += 40 * zoom;
+					mb.offsetY += 40 * mb.zoom;
 					break;
 				case sf::Keyboard::A:
-					offsetX -= 40 * zoom;
+					mb.offsetX -= 40 * mb.zoom;
 					break;
 				case sf::Keyboard::D:
-					offsetX += 40 * zoom;
+					mb.offsetX += 40 * mb.zoom;
 					break;
 				default:
 					stateChanged = false;
@@ -79,10 +83,11 @@ int main(int argc, //Number of strings in array argv
 		}
 
 		if (stateChanged) {
-			mb.updateImage(zoom, offsetX, offsetY, image, IMAGE_WIDTH, IMAGE_HEIGHT);
+			mb.updateImage(mb.zoom, mb.offsetX, mb.offsetY, image, IMAGE_WIDTH, IMAGE_HEIGHT);
 			texture.loadFromImage(image);
 			sprite.setTexture(texture);
 			stateChanged = false;
+			mb.save();
 		}
 		window.draw(sprite);
 		window.display();
