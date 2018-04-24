@@ -28,7 +28,7 @@ namespace cf
 			//Shut down host as client processing.
 			hostAsClientTaskProcessThreadRun = false;
 
-			//Wait forhost as client task processing thread to finish.
+			//Wait for host as client task processing thread to finish.
 			if (hostAsClientTaskProcessingThread.joinable()) hostAsClientTaskProcessingThread.join();
 		}
 

@@ -36,7 +36,8 @@ int main(int argc, //Number of strings in array argv
 	sf::Texture texture;
 	sf::Sprite sprite;
 
-	bool stateChanged = true; // track whether the image needs to be regenerated
+	//Does the image need to be updated due to user input?
+	bool stateChanged = true;
 
 	while (window.isOpen()) {
 		sf::Event event;
@@ -83,15 +84,19 @@ int main(int argc, //Number of strings in array argv
 			}
 		}
 
-		if (stateChanged) {
-			mb.updateImage(mb.zoom, mb.offsetX, mb.offsetY, image, IMAGE_WIDTH, IMAGE_HEIGHT);
-			texture.loadFromImage(image);
-			sprite.setTexture(texture);
-			stateChanged = false;
-			mb.save();
+		if (window.isOpen())
+		{
+			if (stateChanged)
+			{
+				mb.updateImage(mb.zoom, mb.offsetX, mb.offsetY, image, IMAGE_WIDTH, IMAGE_HEIGHT);
+				texture.loadFromImage(image);
+				sprite.setTexture(texture);
+				stateChanged = false;
+				mb.save();
+			}
+			window.draw(sprite);
+			window.display();
+			clock.restart();
 		}
-		window.draw(sprite);
-		window.display();
-		clock.restart();
 	}
 }
