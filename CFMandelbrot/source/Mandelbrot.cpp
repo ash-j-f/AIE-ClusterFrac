@@ -80,6 +80,12 @@ void Mandelbrot::updateImage(double zoom, double offsetX, double offsetY, sf::Im
 			image.setPixel(x, y, colors[output->numbers[imageWidth * y + x]]);
 		}
 	}
+
+	//Remove the result from the completed results queue.
+	host->removeResultFromQueue(finished);
+	finished = nullptr;
+	output = nullptr;
+
 }
 
 void Mandelbrot::save()
