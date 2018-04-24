@@ -52,20 +52,19 @@ void Mandelbrot::updateImage(double zoom, double offsetX, double offsetY, sf::Im
 	MandelbrotResult *output = static_cast<MandelbrotResult *>(finished);
 
 	unsigned int count = (unsigned int)output->numbers.size();
-	//unsigned int p = 0;
-	//unsigned int y = 0;
-	//unsigned int x = 0;
-	//for (y = 0; y < imageHeight; y++)
-	//{
-	//	for (x = 0; x < imageWidth; x++)
-	//	{
-	//		image.setPixel(x, y, colors[output->numbers[p]]);
-	//		p++;
-	//	}
-	//}
+	
+	unsigned int y = 0;
+	unsigned int x = 0;
+	for (x = 0; x < imageWidth; x++)
+	{
+		for (y = 0; y < imageHeight; y++)
+		{
+			image.setPixel(x, y, colors[output->numbers[imageWidth * y + x]]);
+		}
+	}
 
-	for (unsigned int p = 0; p < count; p++)
+	/*for (unsigned int p = 0; p < count; p++)
 	{
 		image.setPixel(output->x[p], output->y[p], colors[output->numbers[p]]);
-	}
+	}*/
 }

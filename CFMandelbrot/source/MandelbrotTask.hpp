@@ -115,16 +115,19 @@ private:
 	{
 		MandelbrotResult *result = new MandelbrotResult();
 
+		result->numbers.resize(spaceWidth * ((maxY - minY) + 1));
+
 		double real = 0 * zoom - spaceWidth / 2.0 * zoom + offsetX;
 		double imagstart = minY * zoom - spaceHeight / 2.0 * zoom + offsetY;
-		for (unsigned int x = 0; x < spaceWidth; x++, real += zoom) {
+		for (unsigned int x = 0; x < spaceWidth; x++, real += zoom) 
+		{
 			double imag = imagstart;
-			for (unsigned int y = minY; y <= maxY; y++, imag += zoom) {
-				result->numbers.push_back(mandelbrot(real, imag));
-				result->x.push_back(x);
-				result->y.push_back(y);
+			for (unsigned int y = minY; y <= maxY; y++, imag += zoom) 
+			{
+				result->numbers[spaceWidth * (y - minY) + x] = mandelbrot(real, imag);
 			}
 		}
+
 		return result;
 	};
 
