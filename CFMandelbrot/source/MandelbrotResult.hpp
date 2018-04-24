@@ -23,6 +23,16 @@ private:
 	{
 
 		//Insert the other results into the new merged result.
+		unsigned int sizeSum = (unsigned int)numbers.size();
+		for (auto &r : others)
+		{
+			MandelbrotResult *mbr = static_cast<MandelbrotResult *>(r);
+			sizeSum += (unsigned int)mbr->numbers.size();
+		}
+
+		//Resize the numbers vector max capacity ahead of insertion.
+		numbers.reserve(sizeSum);
+
 		for (auto &r : others)
 		{
 			MandelbrotResult *mbr = static_cast<MandelbrotResult *>(r);
