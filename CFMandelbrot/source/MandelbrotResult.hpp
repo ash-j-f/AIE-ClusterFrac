@@ -15,6 +15,10 @@ public:
 
 	std::vector<sf::Uint8> numbers;
 
+	double zoom;
+	double offsetX;
+	double offsetY;
+
 	inline std::string getSubtype() const { return "MandelbrotResult"; };
 
 private:
@@ -39,10 +43,21 @@ private:
 			numbers.insert(numbers.end(), mbr->numbers.begin(), mbr->numbers.end());
 		}
 
+		//All results in this set will have the same zoom and offset values.
+		if (others.size() > 0)
+		{
+			MandelbrotResult *mbr = static_cast<MandelbrotResult *>(others.front());
+			zoom = mbr->zoom;
+			offsetX = mbr->offsetX;
+			offsetY = mbr->offsetY;
+		}
 	};
 
 	inline void serializeLocal(cf::WorkPacket &p) const
 	{
+		p << zoom;
+		p << offsetX;
+		p << offsetY;
 		sf::Int64 size;
 		size = numbers.size();
 		p << size;
@@ -51,6 +66,9 @@ private:
 
 	inline void deserializeLocal(cf::WorkPacket &p)
 	{
+		p >> zoom;
+		p >> offsetX;
+		p >> offsetY;
 		sf::Int64 size;
 		p >> size;
 		numbers.resize(size);

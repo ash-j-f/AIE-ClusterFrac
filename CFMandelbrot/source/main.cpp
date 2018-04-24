@@ -57,22 +57,22 @@ int main(int argc, //Number of strings in array argv
 					mb.reset();
 					break;
 				case sf::Keyboard::Equal:
-					mb.zoom *= 0.9;
+					mb.zoom = mb.getNewZoom(mb.zoom, 1);
 					break;
 				case sf::Keyboard::Dash:
-					mb.zoom /= 0.9;
+					mb.zoom = mb.getNewZoom(mb.zoom, -1);
 					break;
 				case sf::Keyboard::W:
-					mb.offsetY -= 40 * mb.zoom;
+					mb.offsetY = mb.getNewOffsetY(mb.offsetY, mb.zoom, -1);
 					break;
 				case sf::Keyboard::S:
-					mb.offsetY += 40 * mb.zoom;
+					mb.offsetY = mb.getNewOffsetY(mb.offsetY, mb.zoom, 1);
 					break;
 				case sf::Keyboard::A:
-					mb.offsetX -= 40 * mb.zoom;
+					mb.offsetX = mb.getNewOffsetY(mb.offsetX, mb.zoom, -1);
 					break;
 				case sf::Keyboard::D:
-					mb.offsetX += 40 * mb.zoom;
+					mb.offsetX = mb.getNewOffsetY(mb.offsetX, mb.zoom, 1);
 					break;
 				default:
 					//No change by user input, so don't update the image.

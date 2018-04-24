@@ -115,6 +115,10 @@ private:
 	{
 		MandelbrotResult *result = new MandelbrotResult();
 
+		result->zoom = zoom;
+		result->offsetX = offsetX;
+		result->offsetY = offsetY;
+
 		result->numbers.resize(spaceWidth * ((maxY - minY) + 1));
 
 		double real = 0 * zoom - spaceWidth / 2.0 * zoom + offsetX;

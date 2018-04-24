@@ -39,6 +39,59 @@ std::string Mandelbrot::getExecutableFolder() const
 	
 }
 
+double Mandelbrot::getNewZoom(double currentZoom, int factor) const
+{
+	if (factor == 0) return currentZoom;
+
+	for (int i = 0; i < abs(factor); i++)
+	{
+		if (factor > 0)
+		{
+			currentZoom *= 0.9;
+		}
+		else
+		{
+			currentZoom /= 0.9;
+		}
+	}
+	return currentZoom;
+}
+
+double Mandelbrot::getNewOffsetY(double currentOffsetY, double currentZoom, int factor) const
+{
+	if (factor == 0) return currentOffsetY;
+
+	for (int i = 0; i < abs(factor); i++)
+	{
+		if (factor > 0)
+		{
+			currentOffsetY += 40 * currentZoom;
+		}
+		else
+		{
+			currentOffsetY -= 40 * currentZoom;
+		}
+	}
+	return currentOffsetY;
+}
+
+double Mandelbrot::getNewOffsetX(double currentOffsetX, double currentZoom, int factor) const
+{
+	if (factor == 0) return currentOffsetX;
+
+	for (int i = 0; i < abs(factor); i++)
+	{
+		if (factor > 0)
+		{
+			currentOffsetX += 40 * currentZoom;
+		}
+		else
+		{
+			currentOffsetX -= 40 * currentZoom;
+		}
+	}
+}
+
 void Mandelbrot::updateImage(double zoom, double offsetX, double offsetY, sf::Image& image, unsigned int imageWidth, unsigned int imageHeight) const
 {
 	cf::Task *task = new MandelbrotTask();
@@ -88,7 +141,7 @@ void Mandelbrot::updateImage(double zoom, double offsetX, double offsetY, sf::Im
 
 }
 
-void Mandelbrot::save()
+void Mandelbrot::save() const
 {
 	FILE *pFile;
 	
