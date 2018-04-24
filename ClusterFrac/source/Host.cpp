@@ -537,9 +537,15 @@ namespace cf
 			//Then send this task to the local host-as-client regardless of its busy status.
 			//OR
 			//If this task can be sent to any node type AND host-as-client is enabled AND host isn't busy.
+			//OR
+			//Task can only be sent to remote target node but none are connected AND host-as-client is enabled, 
+			//so process it locally anyway.
 			if ((hostAsClient && task->getNodeTargetType() == Task::NodeTargetTypes::Local)
 				||
-				(hostAsClient && !busy))
+				(hostAsClient && !busy && task->getNodeTargetType() == Task::NodeTargetTypes::Any)
+				||
+				(hostAsClient && !busy && task->getNodeTargetType() == Task::NodeTargetTypes::Remote && getClientsCount() == 1)
+				)
 			{
 				std::unique_lock<std::mutex> lock2(localHostAsClientTaskQueueMutex);
 				CF_SAY("Sending task to local client.", Settings::LogLevels::Info);

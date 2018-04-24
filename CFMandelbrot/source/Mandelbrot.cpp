@@ -40,6 +40,8 @@ void Mandelbrot::updateImage(double zoom, double offsetX, double offsetY, sf::Im
 
 	//Assign the task a unique ID.
 	task->assignID();
+	task->setNodeTargetType(cf::Task::NodeTargetTypes::Any);
+	task->allowNodeTaskSplit = true;
 
 	((MandelbrotTask *)task)->zoom = zoom;
 	((MandelbrotTask *)task)->offsetX = offsetX;
