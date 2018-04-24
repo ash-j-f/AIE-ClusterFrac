@@ -81,7 +81,10 @@ namespace cf
 					if (tcpListener.accept(*newClient->socket) == sf::Socket::Done)
 					{
 						//Add the new client to the clients list.
+						std::unique_lock<std::mutex> clientsLock(host->clientsMutex);
 						host->clients.push_back(newClient);
+						clientsLock.unlock();
+
 						//Add the new client to the selector so that we will
 						//be notified when it sends something.
 						selector.add(*newClient->socket);
@@ -100,6 +103,7 @@ namespace cf
 				else
 				{
 					//The listener socket is not ready, test all other sockets (the clients)
+					std::unique_lock<std::mutex> clientsLock(host->clientsMutex);
 					for (auto &client : host->clients)
 					{
 
@@ -124,6 +128,7 @@ namespace cf
 							}
 						}
 					}
+					clientsLock.unlock();
 				}
 			}
 
@@ -143,6 +148,7 @@ namespace cf
 
 			//Erase dead clients from client list.
 			std::vector<ClientDetails *>::iterator deadIt;
+			std::unique_lock<std::mutex> clientsLock(host->clientsMutex);
 			for (deadIt = host->clients.begin(); deadIt != host->clients.end();)
 			{
 				ClientDetails *client = *deadIt;
@@ -172,6 +178,7 @@ namespace cf
 				if (!removedOne) deadIt++;
 
 			}
+			clientsLock.unlock();
 		}
 
 		listening = false;

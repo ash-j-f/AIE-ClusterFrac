@@ -16,5 +16,4 @@ private:
 	std::array<sf::Color, MAX + 1> colors;
 	cf::Host *host;
 	sf::Color getColor(int iterations) const;
-	/*void updateImageSlice(double zoom, double offsetX, double offsetY, sf::Image& image, int minY, int maxY) const;*/
 };

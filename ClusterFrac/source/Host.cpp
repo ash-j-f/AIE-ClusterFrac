@@ -39,11 +39,13 @@ namespace cf
 		watcher.stop();
 
 		//Clean up any remaining registered clients.
+		std::unique_lock<std::mutex> clientsLock(clientsMutex);
 		for (auto &c : clients)
 		{
 			delete c;
 			c = nullptr;
 		}
+		clientsLock.unlock();
 
 		//Clean up any tasks and results in queues.
 		//Build an unordered set of task/result pointers in case the same
@@ -273,6 +275,7 @@ namespace cf
 		//Check CLIENTS to see if one of them processed this task.
 		if (!resultValid)
 		{
+			std::unique_lock<std::mutex> clientsLock(clientsMutex);
 			for (auto &c : clients)
 			{
 				std::unique_lock<std::mutex> lock(c->taskMutex);
@@ -291,13 +294,16 @@ namespace cf
 				lock.unlock();
 				if (resultValid) break;
 			}
+			clientsLock.unlock();
 		}
 
 		return resultValid;
 	}
 
-	inline int Host::getClientsCount() const
+	inline int Host::getClientsCount()
 	{
+		std::unique_lock<std::mutex> lock(clientsMutex);
+
 		int count = 0;
 
 		//Count connected clients.
@@ -565,6 +571,7 @@ namespace cf
 			{
 				//Search for the next available client.
 				ClientDetails *freeClient = nullptr;
+				std::unique_lock<std::mutex> clientsLock(clientsMutex);
 				for (auto &client : clients)
 				{
 					//Skip busy or removed clients.
@@ -588,6 +595,7 @@ namespace cf
 
 					it++;
 				}
+				clientsLock.unlock();
 			}
 
 		}

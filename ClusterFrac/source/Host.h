@@ -103,7 +103,7 @@ namespace cf
 		* Includes the host itself if hostAsClient is set true.
 		* @returns The number of connected clients.
 		*/
-		inline int getClientsCount() const;
+		inline int getClientsCount();
 
 		bool checkAvailableResult(unsigned __int64 taskID);
 
@@ -170,6 +170,9 @@ namespace cf
 
 		//Connected client details.
 		std::vector<ClientDetails *> clients;
+
+		//Mutex for clients list.
+		std::mutex clientsMutex;
 
 		//Task queue.
 		std::list<cf::Task *> taskQueue;

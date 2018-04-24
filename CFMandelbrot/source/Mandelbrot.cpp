@@ -21,19 +21,6 @@ sf::Color Mandelbrot::getColor(int iterations) const {
 	return sf::Color(r, g, b);
 }
 
-//void Mandelbrot::updateImageSlice(double zoom, double offsetX, double offsetY, sf::Image& image, int minY, int maxY) const
-//{
-//	double real = 0 * zoom - IMAGE_WIDTH / 2.0 * zoom + offsetX;
-//	double imagstart = minY * zoom - IMAGE_HEIGHT / 2.0 * zoom + offsetY;
-//	for (int x = 0; x < IMAGE_WIDTH; x++, real += zoom) {
-//		double imag = imagstart;
-//		for (int y = minY; y < maxY; y++, imag += zoom) {
-//			int value = mandelbrot(real, imag);
-//			image.setPixel(x, y, colors[value]);
-//		}
-//	}
-//}
-
 void Mandelbrot::updateImage(double zoom, double offsetX, double offsetY, sf::Image& image, unsigned int imageWidth, unsigned int imageHeight) const
 {
 	cf::Task *task = new MandelbrotTask();
@@ -64,18 +51,21 @@ void Mandelbrot::updateImage(double zoom, double offsetX, double offsetY, sf::Im
 	cf::Result *finished = host->getAvailableResult(taskID);
 	MandelbrotResult *output = static_cast<MandelbrotResult *>(finished);
 
-	int count = (int)output->numbers.size();
-	for (int p = 0; p < count; p++)
+	unsigned int count = (unsigned int)output->numbers.size();
+	//unsigned int p = 0;
+	//unsigned int y = 0;
+	//unsigned int x = 0;
+	//for (y = 0; y < imageHeight; y++)
+	//{
+	//	for (x = 0; x < imageWidth; x++)
+	//	{
+	//		image.setPixel(x, y, colors[output->numbers[p]]);
+	//		p++;
+	//	}
+	//}
+
+	for (unsigned int p = 0; p < count; p++)
 	{
 		image.setPixel(output->x[p], output->y[p], colors[output->numbers[p]]);
 	}
-
-	/*const int STEP = IMAGE_HEIGHT / std::thread::hardware_concurrency();
-	std::vector<std::thread> threads;
-	for (int i = 0; i < IMAGE_HEIGHT; i += STEP) {
-	threads.push_back(std::thread(&Mandelbrot::updateImageSlice, *this, zoom, offsetX, offsetY, std::ref(image), i, std::min(i + STEP, IMAGE_HEIGHT)));
-	}
-	for (auto &t : threads) {
-	t.join();
-	}*/
 }

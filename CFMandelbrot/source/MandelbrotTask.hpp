@@ -115,16 +115,6 @@ private:
 	{
 		MandelbrotResult *result = new MandelbrotResult();
 
-		//	double real = 0 * zoom - IMAGE_WIDTH / 2.0 * zoom + offsetX;
-		//	double imagstart = minY * zoom - IMAGE_HEIGHT / 2.0 * zoom + offsetY;
-		//	for (int x = 0; x < IMAGE_WIDTH; x++, real += zoom) {
-		//		double imag = imagstart;
-		//		for (int y = minY; y < maxY; y++, imag += zoom) {
-		//			int value = mandelbrot(real, imag);
-		//			image.setPixel(x, y, colors[value]);
-		//		}
-		//	}
-
 		double real = 0 * zoom - spaceWidth / 2.0 * zoom + offsetX;
 		double imagstart = minY * zoom - spaceHeight / 2.0 * zoom + offsetY;
 		for (unsigned int x = 0; x < spaceWidth; x++, real += zoom) {

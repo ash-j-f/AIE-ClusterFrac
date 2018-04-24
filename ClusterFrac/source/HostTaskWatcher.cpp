@@ -61,6 +61,7 @@ namespace cf
 			//CF_SAY("Watching.");
 
 			//Check client tasks for any that have taken too long.
+			std::unique_lock<std::mutex> clientsLock(host->clientsMutex);
 			for (auto &c : host->clients)
 			{
 				std::vector<Task *> redistributeTasks;
@@ -86,6 +87,7 @@ namespace cf
 				//Distribute any now unowned tasks to other clients.
 				if (redistributeTasks.size() > 0) host->distributeSubTasks(redistributeTasks);
 			}
+			clientsLock.unlock();
 
 			std::this_thread::sleep_for(std::chrono::milliseconds(1));
 		}
