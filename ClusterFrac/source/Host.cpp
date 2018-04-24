@@ -15,6 +15,9 @@ namespace cf
 
 		//Should the host process tasks like a client, by default?
 		hostAsClient = true;
+
+		//Default busy status.
+		busy = false;
 	}
 	
 	Host::~Host()
@@ -133,8 +136,9 @@ namespace cf
 		CF_SAY("Dividing tasks among clients.", Settings::LogLevels::Info);
 		for (auto &task : taskQueue)
 		{
-			//Only divide task if there's more than one client. Otherwise just use pointer to the original task.
-			if (getClientsCount() > 1)
+			//Only divide task if there's more than one client, and the task allows itself to be split,
+			//and allows itself to be run on remote clients. Otherwise just use pointer to the original task.
+			if (task->allowNodeTaskSplit && task->getNodeTargetType() != cf::Task::NodeTargetTypes::Local && getClientsCount() > 1)
 			{
 				dividedTasks = task->split(getClientsCount());
 				//Remove original task from memory.
@@ -438,6 +442,8 @@ namespace cf
 				checkForCompleteResults();
 
 			}
+
+			busy = false;
 		}
 	}
 
@@ -515,57 +521,74 @@ namespace cf
 
 	void Host::distributeSubTasks(std::vector<Task *> subTaskQueue)
 	{
-		//Distribute sub tasks among available clients.
 
 		std::unique_lock<std::mutex> lock(taskQueueMutex);
+		//Cpoy the subtask queue.
+		std::vector<cf::Task *> subTaskQueueCOPY = subTaskQueue;
+		lock.unlock();
 
-		//Send one task chunk to the host itself if hostAsClient is enabled.
-		if (hostAsClient)
+		std::vector<Task *>::iterator it = subTaskQueueCOPY.begin();
+		while (it != subTaskQueueCOPY.end())
 		{
-			std::unique_lock<std::mutex> lock2(localHostAsClientTaskQueueMutex);
-			CF_SAY("Sending task to local client.", Settings::LogLevels::Info);
-			Task *task = subTaskQueue.back();
-			subTaskQueue.pop_back();
-			//Set a host-relative timestamp on the task so we can track how long it is taking.
-			task->setHostTimeSent(getTime());
-			//Assign the task to the host-as-client so we can track its progress.
-			trackTask(task);
-			localHostAsClientTaskQueue.push_back(task);
-			lock2.unlock();
-		}
 
-		CF_SAY("Sending tasks to remote clients.", Settings::LogLevels::Info);
-		std::vector<Task *>::iterator it = subTaskQueue.begin();
-		while (it != subTaskQueue.end())
-		{
-			//Search for the next available client.
-			ClientDetails *freeClient = nullptr;
-			for (auto &client : clients)
-			{
-				//Skip busy or removed clients.
-				if (client->busy || client->remove) continue;
-				freeClient = client;
-			}
+			Task *task = *it;
 
-			if (freeClient != nullptr)
+			//Can this task ONLY be sent to local node, and host-as-client is enabled?
+			//Then send this task to the local host-as-client regardless of its busy status.
+			//OR
+			//If this task can be sent to any node type AND host-as-client is enabled AND host isn't busy.
+			if ((hostAsClient && task->getNodeTargetType() == Task::NodeTargetTypes::Local)
+				||
+				(hostAsClient && !busy))
 			{
-				freeClient->busy = true;
-				Task *task = *it;
-				it++;
+				std::unique_lock<std::mutex> lock2(localHostAsClientTaskQueueMutex);
+				CF_SAY("Sending task to local client.", Settings::LogLevels::Info);
+
+				busy = true;
 
 				//Set a host-relative timestamp on the task so we can track how long it is taking.
 				task->setHostTimeSent(getTime());
+				//Assign the task to the host-as-client so we can track its progress.
+				trackTask(task);
+				localHostAsClientTaskQueue.push_back(task);
+				lock2.unlock();
 
-				//Assign the task to the client so we can track its progress.
-				freeClient->trackTask(task);
+				it++;
+			}
+			else
+			{
+				//Search for the next available client.
+				ClientDetails *freeClient = nullptr;
+				for (auto &client : clients)
+				{
+					//Skip busy or removed clients.
+					if (client->busy || client->remove) continue;
+					freeClient = client;
+				}
 
-				sender.sendTask(freeClient, task);
+				if (freeClient != nullptr)
+				{
+					CF_SAY("Sending task to remote client.", Settings::LogLevels::Info);
+
+					freeClient->busy = true;
+
+					//Set a host-relative timestamp on the task so we can track how long it is taking.
+					task->setHostTimeSent(getTime());
+
+					//Assign the task to the client so we can track its progress.
+					freeClient->trackTask(task);
+
+					sender.sendTask(freeClient, task);
+
+					it++;
+				}
 			}
 
 		}
 
 		//Wait for threads to finish.
 		sender.waitForComplete();
+
 	}
 
 }

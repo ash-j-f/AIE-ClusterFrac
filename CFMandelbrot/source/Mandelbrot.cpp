@@ -34,7 +34,7 @@ sf::Color Mandelbrot::getColor(int iterations) const {
 //	}
 //}
 
-void Mandelbrot::updateImage(double zoom, double offsetX, double offsetY, sf::Image& image) const
+void Mandelbrot::updateImage(double zoom, double offsetX, double offsetY, sf::Image& image, unsigned int imageWidth, unsigned int imageHeight) const
 {
 	cf::Task *task = new MandelbrotTask();
 
@@ -44,10 +44,10 @@ void Mandelbrot::updateImage(double zoom, double offsetX, double offsetY, sf::Im
 	((MandelbrotTask *)task)->zoom = zoom;
 	((MandelbrotTask *)task)->offsetX = offsetX;
 	((MandelbrotTask *)task)->offsetY = offsetY;
-	((MandelbrotTask *)task)->spaceWidth = IMAGE_WIDTH;
-	((MandelbrotTask *)task)->spaceHeight = IMAGE_HEIGHT;
+	((MandelbrotTask *)task)->spaceWidth = imageWidth;
+	((MandelbrotTask *)task)->spaceHeight = imageHeight;
 	((MandelbrotTask *)task)->minY = 0;
-	((MandelbrotTask *)task)->maxY = IMAGE_HEIGHT - 1;
+	((MandelbrotTask *)task)->maxY = imageHeight - 1;
 
 	unsigned __int64 taskID = task->getInitialTaskID();
 

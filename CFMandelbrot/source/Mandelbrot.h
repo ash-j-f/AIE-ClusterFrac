@@ -10,7 +10,7 @@
 class Mandelbrot {
 public:
 	Mandelbrot(cf::Host *newHost);
-	void updateImage(double zoom, double offsetX, double offsetY, sf::Image& image) const;
+	void updateImage(double zoom, double offsetX, double offsetY, sf::Image& image, unsigned int imageWidth, unsigned int imageHeight) const;
 private:
 	static const sf::Uint8 MAX = 255; // maximum number of iterations for mandelbrot()
 	std::array<sf::Color, MAX + 1> colors;

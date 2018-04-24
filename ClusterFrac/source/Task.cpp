@@ -15,6 +15,12 @@ namespace cf
 
 		//Default maximum time a client may spend on this task.
 		maxTaskTimeMilliseconds = 10000.f;
+
+		//Default node target type.
+		nodeTargetType = (sf::Uint8) NodeTargetTypes::Any;
+
+		//Allow task splitting between nodes by default.
+		allowNodeTaskSplit = true;
 	}
 
 	Task::~Task()
@@ -25,9 +31,11 @@ namespace cf
 	{
 		std::vector<Task *> tmp = splitLocal(count); 
 		sf::Uint32 i = 0;
-		for (auto &t : tmp) 
-		{ 
+		for (auto &t : tmp)
+		{
 			t->initialTaskID = initialTaskID;
+			t->nodeTargetType = nodeTargetType;
+			t->allowNodeTaskSplit = allowNodeTaskSplit;
 			t->taskPartNumberStack = taskPartNumberStack;
 			t->taskPartNumberStack.push_back(i++);
 			t->taskPartsTotalStack = taskPartsTotalStack;
@@ -41,6 +49,8 @@ namespace cf
 		p << getType();
 		p << getSubtype();
 		p << initialTaskID;
+		p << nodeTargetType;
+		p << allowNodeTaskSplit;
 
 		//Uint32 for best cross platform compatibility for serialisation/deserialisation.
 		sf::Uint32 size = (sf::Uint32)taskPartNumberStack.size();
@@ -56,6 +66,8 @@ namespace cf
 	void Task::deserialize(WorkPacket & p)
 	{
 		p >> initialTaskID;
+		p >> nodeTargetType;
+		p >> allowNodeTaskSplit;
 
 		//Uint32 for best cross platform compatibility for serialisation/deserialisation.
 		sf::Uint32 size;

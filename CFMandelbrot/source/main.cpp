@@ -2,8 +2,8 @@
 #include "Host.h"
 #include "Mandelbrot.h"
 
-static constexpr int IMAGE_WIDTH = 1920;
-static constexpr int IMAGE_HEIGHT = 1080;
+static constexpr unsigned int IMAGE_WIDTH = 1920;
+static constexpr unsigned int IMAGE_HEIGHT = 1080;
 
 int main(int argc, //Number of strings in array argv  
 	char *argv[], //Array of command-line argument strings  
@@ -79,7 +79,7 @@ int main(int argc, //Number of strings in array argv
 		}
 
 		if (stateChanged) {
-			mb.updateImage(zoom, offsetX, offsetY, image);
+			mb.updateImage(zoom, offsetX, offsetY, image, IMAGE_WIDTH, IMAGE_HEIGHT);
 			texture.loadFromImage(image);
 			sprite.setTexture(texture);
 			stateChanged = false;

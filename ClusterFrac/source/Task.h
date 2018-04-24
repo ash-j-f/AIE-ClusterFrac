@@ -18,6 +18,18 @@ namespace cf
 
 		virtual ~Task();
 
+		//Which node types can this task be run on?
+		//The task distributor will only run the task on the chosen node type.
+		//If "host as client" is not enabled, type "Local" will be treated as "Remote".
+		//Local - Local CPU.
+		//Remote - CPU on network.
+		//Any - No preference.
+		enum NodeTargetTypes { Local = 0, Remote = 1, Any = 2 };
+
+		//Is this task allowed to be split between nodes?
+		//Some tasks may perform better when sent to a single node.
+		bool allowNodeTaskSplit;
+
 		/**
 		* Get the type ID of this class.
 		* This identifies the base class type during serialisation and deserialisation.
@@ -65,7 +77,15 @@ namespace cf
 		*/
 		void assignID() { if (initialTaskID == 0) initialTaskID = CF_ID->getNextTaskID();  };
 
+		NodeTargetTypes getNodeTargetType() { return (NodeTargetTypes)nodeTargetType; };
+		void setNodeTargetType(sf::Uint8 newNodeTargetType) { nodeTargetType = newNodeTargetType; };
+		void setNodeTargetType(NodeTargetTypes newNodeTargetType) { nodeTargetType = (sf::Uint8)newNodeTargetType; };
+
 	private:
+
+		//Which node type does this task prefer to be run on?
+		//See NodeTargetTypes enum.
+		sf::Uint8 nodeTargetType;
 
 		//The ID of the initial task before it was split.
 		sf::Uint64 initialTaskID;

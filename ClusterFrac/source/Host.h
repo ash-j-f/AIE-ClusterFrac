@@ -213,6 +213,9 @@ namespace cf
 		//Is this host acting as a client for task processing?
 		bool hostAsClient;
 
+		//Is the host busy with a task?
+		std::atomic<bool> busy;
+
 		//Get the time since host startup.
 		sf::Time getTime() { return clock.getElapsedTime(); };
 
