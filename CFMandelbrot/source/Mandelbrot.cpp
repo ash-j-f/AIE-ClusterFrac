@@ -5,9 +5,9 @@ Mandelbrot::Mandelbrot(cf::Host *newHost) {
 	for (int i = 0; i <= MAX; ++i) {
 		colors[i] = getColor(i);
 	}
-	offsetX = 0;
-	offsetY = 0;
-	zoom = 0;
+	
+	//Reset offset and zoom values to sensible defaults.
+	reset();
 }
 
 sf::Color Mandelbrot::getColor(int iterations) const {
@@ -108,4 +108,12 @@ void Mandelbrot::load()
 	fread(&offsetY, sizeof(char), sizeof(offsetY), pFile);
 	fread(&zoom, sizeof(char), sizeof(zoom), pFile);
 	fclose(pFile);
+}
+
+void Mandelbrot::reset()
+{	
+	//Defaults.
+	offsetX = -0.7;
+	offsetY = 0.0;
+	zoom = 0.004;
 }

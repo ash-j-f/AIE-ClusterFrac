@@ -15,6 +15,7 @@ public:
 	void updateImage(double zoom, double offsetX, double offsetY, sf::Image& image, unsigned int imageWidth, unsigned int imageHeight) const;
 	void save();
 	void load();
+	void reset();
 	double offsetX;
 	double offsetY;
 	double zoom;

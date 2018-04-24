@@ -25,11 +25,7 @@ int main(int argc, //Number of strings in array argv
 
 	Mandelbrot mb{host};
 
-	//Defaults.
-	mb.offsetX = -0.7; // and move around
-	mb.offsetY = 0.0;
-	mb.zoom = 0.004; // allow the user to zoom in and out...
-
+	//Load previous offset position and zoom, if one has been saved.
 	mb.load();
 
 	sf::RenderWindow window(sf::VideoMode(IMAGE_WIDTH, IMAGE_HEIGHT), "Mandelbrot");
@@ -50,10 +46,14 @@ int main(int argc, //Number of strings in array argv
 				window.close();
 				break;
 			case sf::Event::KeyPressed:
-				stateChanged = true; // image needs to be recreated when the user changes zoom or offset
+				//Default to updating the image.
+				stateChanged = true;
 				switch (event.key.code) {
 				case sf::Keyboard::Escape:
 					window.close();
+					break;
+				case sf::Keyboard::R:
+					mb.reset();
 					break;
 				case sf::Keyboard::Equal:
 					mb.zoom *= 0.9;
@@ -74,6 +74,7 @@ int main(int argc, //Number of strings in array argv
 					mb.offsetX += 40 * mb.zoom;
 					break;
 				default:
+					//No change by user input, so don't update the image.
 					stateChanged = false;
 					break;
 				}
