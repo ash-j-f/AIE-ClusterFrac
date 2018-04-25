@@ -82,7 +82,10 @@ int main(int argc, //Number of strings in array argv
 			default:
 				break;
 			}
+		}
 
+		if (window.isOpen())
+		{
 			//For current view position, do we have the next zoomed view in cache?
 			bool found = false;
 			for (auto &mvd : mb.cache)
@@ -111,8 +114,6 @@ int main(int argc, //Number of strings in array argv
 					((MandelbrotTask *)task)->spaceHeight = IMAGE_HEIGHT;
 					((MandelbrotTask *)task)->minY = 0;
 					((MandelbrotTask *)task)->maxY = IMAGE_HEIGHT - 1;
-
-					unsigned __int64 taskID = task->getInitialTaskID();
 
 					host->addTaskToQueue(task);
 
@@ -143,8 +144,6 @@ int main(int argc, //Number of strings in array argv
 					((MandelbrotTask *)task)->minY = 0;
 					((MandelbrotTask *)task)->maxY = IMAGE_HEIGHT - 1;
 
-					unsigned __int64 taskID = task->getInitialTaskID();
-
 					host->addTaskToQueue(task);
 
 					//Create new cache entry for this zoom level.
@@ -174,10 +173,6 @@ int main(int argc, //Number of strings in array argv
 				}
 			}
 
-		}
-
-		if (window.isOpen())
-		{
 			if (stateChanged)
 			{
 				mb.updateImage(mb.zoom, mb.offsetX, mb.offsetY, image, IMAGE_WIDTH, IMAGE_HEIGHT);
