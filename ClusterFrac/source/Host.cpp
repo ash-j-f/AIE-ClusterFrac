@@ -155,10 +155,11 @@ namespace cf
 			}
 			subTaskQueue.insert(subTaskQueue.end(), dividedTasks.begin(), dividedTasks.end());
 		}
-		lock.unlock();
 
 		//Empty the main task queue.
 		taskQueue.clear();
+
+		lock.unlock();
 
 		//Distribute sub tasks among available clients.
 		distributeSubTasks(subTaskQueue);

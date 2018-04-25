@@ -65,11 +65,11 @@ double Mandelbrot::getNewOffsetY(double currentOffsetY, double currentZoom, int 
 	{
 		if (factor > 0)
 		{
-			currentOffsetY += 40 * currentZoom;
+			currentOffsetY += 40.0 * currentZoom;
 		}
 		else
 		{
-			currentOffsetY -= 40 * currentZoom;
+			currentOffsetY -= 40.0 * currentZoom;
 		}
 	}
 	return currentOffsetY;
@@ -83,45 +83,69 @@ double Mandelbrot::getNewOffsetX(double currentOffsetX, double currentZoom, int 
 	{
 		if (factor > 0)
 		{
-			currentOffsetX += 40 * currentZoom;
+			currentOffsetX += 40.0 * currentZoom;
 		}
 		else
 		{
-			currentOffsetX -= 40 * currentZoom;
+			currentOffsetX -= 40.0 * currentZoom;
 		}
 	}
 }
 
-void Mandelbrot::updateImage(double zoom, double offsetX, double offsetY, sf::Image& image, unsigned int imageWidth, unsigned int imageHeight) const
+void Mandelbrot::updateImage(double zoom, double offsetX, double offsetY, sf::Image& image, unsigned int imageWidth, unsigned int imageHeight)
 {
-	cf::Task *task = new MandelbrotTask();
+	cf::Result *viewResult = nullptr;
 
-	//Assign the task a unique ID.
-	task->assignID();
-	task->setNodeTargetType(cf::Task::NodeTargetTypes::Any);
-	task->allowNodeTaskSplit = true;
+	//Is this view in the cache?
+	for (auto &vd : cache)
+	{
+		if (vd.zoom == zoom && vd.offsetX == offsetX && vd.offsetY == offsetY)
+		{
+			viewResult = vd.result;
+			break;
+		}
+	}
 
-	((MandelbrotTask *)task)->zoom = zoom;
-	((MandelbrotTask *)task)->offsetX = offsetX;
-	((MandelbrotTask *)task)->offsetY = offsetY;
-	((MandelbrotTask *)task)->spaceWidth = imageWidth;
-	((MandelbrotTask *)task)->spaceHeight = imageHeight;
-	((MandelbrotTask *)task)->minY = 0;
-	((MandelbrotTask *)task)->maxY = imageHeight - 1;
+	if (viewResult == nullptr)
+	{
+		cf::Task *task = new MandelbrotTask();
 
-	unsigned __int64 taskID = task->getInitialTaskID();
+		//Assign the task a unique ID.
+		task->assignID();
+		task->setNodeTargetType(cf::Task::NodeTargetTypes::Local);
+		task->allowNodeTaskSplit = false;
 
-	host->addTaskToQueue(task);
+		((MandelbrotTask *)task)->zoom = zoom;
+		((MandelbrotTask *)task)->offsetX = offsetX;
+		((MandelbrotTask *)task)->offsetY = offsetY;
+		((MandelbrotTask *)task)->spaceWidth = imageWidth;
+		((MandelbrotTask *)task)->spaceHeight = imageHeight;
+		((MandelbrotTask *)task)->minY = 0;
+		((MandelbrotTask *)task)->maxY = imageHeight - 1;
 
-	//Wait until task is sent. Will wait for at least 1 client to be connected.
-	while (!host->sendTasks());
+		unsigned __int64 taskID = task->getInitialTaskID();
 
-	//Wait for results to be complete.
-	while (!host->checkAvailableResult(taskID));
+		host->addTaskToQueue(task);
 
-	cf::Result *finished = host->getAvailableResult(taskID);
-	MandelbrotResult *output = static_cast<MandelbrotResult *>(finished);
+		//Wait until task is sent. Will wait for at least 1 client to be connected.
+		while (!host->sendTasks());
 
+		//Wait for results to be complete.
+		while (!host->checkAvailableResult(taskID));
+
+		viewResult = host->getAvailableResult(taskID);
+
+		//Create new cache entry for this zoom level.
+		MandelbrotViewData mvd;
+		mvd.zoom = zoom;
+		mvd.offsetX = offsetX;
+		mvd.offsetY = offsetY;
+		mvd.result = viewResult;
+		mvd.taskID = task->getInitialTaskID();
+		cache.push_back(mvd);
+	}
+
+	MandelbrotResult *output = static_cast<MandelbrotResult *>(viewResult);
 	unsigned int count = (unsigned int)output->numbers.size();
 	
 	unsigned int y = 0;
@@ -135,9 +159,9 @@ void Mandelbrot::updateImage(double zoom, double offsetX, double offsetY, sf::Im
 	}
 
 	//Remove the result from the completed results queue.
-	host->removeResultFromQueue(finished);
-	finished = nullptr;
-	output = nullptr;
+	//host->removeResultFromQueue(finished);
+	//finished = nullptr;
+	//output = nullptr;
 
 }
 

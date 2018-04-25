@@ -31,5 +31,8 @@
     <ClInclude Include="source\Mandelbrot.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="source\MandelbrotViewData.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

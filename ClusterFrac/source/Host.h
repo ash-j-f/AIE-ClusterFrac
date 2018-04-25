@@ -105,6 +105,8 @@ namespace cf
 		*/
 		inline int getClientsCount();
 
+		inline int getTasksCount() { std::unique_lock<std::mutex> lock(taskQueueMutex); return taskQueue.size(); };
+
 		bool checkAvailableResult(unsigned __int64 taskID);
 
 		Result* getAvailableResult(unsigned __int64 taskID);

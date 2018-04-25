@@ -8,6 +8,7 @@
 #include "Host.h"
 #include "MandelbrotTask.hpp"
 #include "MandelbrotResult.hpp"
+#include "MandelbrotViewData.hpp"
 
 class Mandelbrot {
 public:
@@ -16,6 +17,9 @@ public:
 	double offsetX;
 	double offsetY;
 	double zoom;
+
+	//Cache of view pixel data for various zoom and camera offset positions.
+	std::vector<MandelbrotViewData> cache;
 
 	/**
 	* Get a new zoom value based on a starting zoom value and a zoom factor.
@@ -46,7 +50,7 @@ public:
 	*/
 	double getNewOffsetX(double currentOffsetY, double currentZoom, int factor) const;
 
-	void updateImage(double zoom, double offsetX, double offsetY, sf::Image& image, unsigned int imageWidth, unsigned int imageHeight) const;
+	void updateImage(double zoom, double offsetX, double offsetY, sf::Image& image, unsigned int imageWidth, unsigned int imageHeight);
 	void save() const;
 	void load();
 	void reset();

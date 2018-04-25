@@ -18,6 +18,7 @@
     <ClInclude Include="source\Mandelbrot.h" />
     <ClInclude Include="source\MandelbrotResult.hpp" />
     <ClInclude Include="source\MandelbrotTask.hpp" />
+    <ClInclude Include="source\MandelbrotViewData.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

@@ -82,6 +82,61 @@ int main(int argc, //Number of strings in array argv
 			default:
 				break;
 			}
+
+			//For current view position, do we have the next zoomed view in cache?
+			bool found = false;
+			for (auto &mvd : mb.cache)
+			{
+				if (mvd.offsetX == mb.offsetX && mvd.offsetY == mb.offsetY && mvd.zoom == mb.getNewZoom(mb.zoom, 1))
+				{
+					found = true;
+					break;
+				}
+			}
+
+			if (!found)
+			{
+				cf::Task *task = new MandelbrotTask();
+
+				//Assign the task a unique ID.
+				task->assignID();
+				task->setNodeTargetType(cf::Task::NodeTargetTypes::Remote);
+				task->allowNodeTaskSplit = false;
+
+				((MandelbrotTask *)task)->zoom = mb.getNewZoom(mb.zoom, 1);
+				((MandelbrotTask *)task)->offsetX = mb.offsetX;
+				((MandelbrotTask *)task)->offsetY = mb.offsetY;
+				((MandelbrotTask *)task)->spaceWidth = IMAGE_WIDTH;
+				((MandelbrotTask *)task)->spaceHeight = IMAGE_HEIGHT;
+				((MandelbrotTask *)task)->minY = 0;
+				((MandelbrotTask *)task)->maxY = IMAGE_HEIGHT - 1;
+
+				unsigned __int64 taskID = task->getInitialTaskID();
+
+				host->addTaskToQueue(task);
+
+				//Create new cache entry for this zoom level.
+				MandelbrotViewData mvd;
+				mvd.zoom = ((MandelbrotTask *)task)->zoom;
+				mvd.offsetX = ((MandelbrotTask *)task)->offsetX;
+				mvd.offsetY = ((MandelbrotTask *)task)->offsetY;
+				mvd.result = nullptr;
+				mvd.taskID = task->getInitialTaskID();
+				mb.cache.push_back(mvd);
+			}
+
+			//Send any tasks in the queue.
+			if (host->getTasksCount() > 0) host->sendTasks();
+
+			//Marry results to their cached tasks.
+			for (auto &mvd : mb.cache)
+			{
+				if (mvd.result == nullptr)
+				{
+					if (host->checkAvailableResult(taskID))
+				}
+			}
+
 		}
 
 		if (window.isOpen())
