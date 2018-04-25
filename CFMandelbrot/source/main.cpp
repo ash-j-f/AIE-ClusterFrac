@@ -86,6 +86,18 @@ int main(int argc, //Number of strings in array argv
 
 		if (window.isOpen())
 		{
+
+			if (stateChanged)
+			{
+				mb.updateImage(mb.zoom, mb.offsetX, mb.offsetY, image, IMAGE_WIDTH, IMAGE_HEIGHT);
+				texture.loadFromImage(image);
+				sprite.setTexture(texture);
+				stateChanged = false;
+				mb.save();
+			}
+			window.draw(sprite);
+			window.display();
+
 			//For current view position, do we have the next zoomed view in cache?
 			bool found = false;
 			for (auto &mvd : mb.cache)
@@ -173,16 +185,7 @@ int main(int argc, //Number of strings in array argv
 				}
 			}
 
-			if (stateChanged)
-			{
-				mb.updateImage(mb.zoom, mb.offsetX, mb.offsetY, image, IMAGE_WIDTH, IMAGE_HEIGHT);
-				texture.loadFromImage(image);
-				sprite.setTexture(texture);
-				stateChanged = false;
-				mb.save();
-			}
-			window.draw(sprite);
-			window.display();
+			
 			clock.restart();
 		}
 	}
