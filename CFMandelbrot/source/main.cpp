@@ -69,10 +69,10 @@ int main(int argc, //Number of strings in array argv
 					mb.offsetY = mb.getNewOffsetY(mb.offsetY, mb.zoom, 1);
 					break;
 				case sf::Keyboard::A:
-					mb.offsetX = mb.getNewOffsetY(mb.offsetX, mb.zoom, -1);
+					mb.offsetX = mb.getNewOffsetX(mb.offsetX, mb.zoom, -1);
 					break;
 				case sf::Keyboard::D:
-					mb.offsetX = mb.getNewOffsetY(mb.offsetX, mb.zoom, 1);
+					mb.offsetX = mb.getNewOffsetX(mb.offsetX, mb.zoom, 1);
 					break;
 				default:
 					//No change by user input, so don't update the image.
@@ -96,34 +96,67 @@ int main(int argc, //Number of strings in array argv
 
 			if (!found)
 			{
-				cf::Task *task = new MandelbrotTask();
+				{
+					cf::Task *task = new MandelbrotTask();
 
-				//Assign the task a unique ID.
-				task->assignID();
-				task->setNodeTargetType(cf::Task::NodeTargetTypes::Remote);
-				task->allowNodeTaskSplit = false;
+					//Assign the task a unique ID.
+					task->assignID();
+					task->setNodeTargetType(cf::Task::NodeTargetTypes::Remote);
+					task->allowNodeTaskSplit = false;
 
-				((MandelbrotTask *)task)->zoom = mb.getNewZoom(mb.zoom, 1);
-				((MandelbrotTask *)task)->offsetX = mb.offsetX;
-				((MandelbrotTask *)task)->offsetY = mb.offsetY;
-				((MandelbrotTask *)task)->spaceWidth = IMAGE_WIDTH;
-				((MandelbrotTask *)task)->spaceHeight = IMAGE_HEIGHT;
-				((MandelbrotTask *)task)->minY = 0;
-				((MandelbrotTask *)task)->maxY = IMAGE_HEIGHT - 1;
+					((MandelbrotTask *)task)->zoom = mb.getNewZoom(mb.zoom, 1);
+					((MandelbrotTask *)task)->offsetX = mb.offsetX;
+					((MandelbrotTask *)task)->offsetY = mb.offsetY;
+					((MandelbrotTask *)task)->spaceWidth = IMAGE_WIDTH;
+					((MandelbrotTask *)task)->spaceHeight = IMAGE_HEIGHT;
+					((MandelbrotTask *)task)->minY = 0;
+					((MandelbrotTask *)task)->maxY = IMAGE_HEIGHT - 1;
 
-				unsigned __int64 taskID = task->getInitialTaskID();
+					unsigned __int64 taskID = task->getInitialTaskID();
 
-				host->addTaskToQueue(task);
+					host->addTaskToQueue(task);
 
-				//Create new cache entry for this zoom level.
-				MandelbrotViewData mvd;
-				mvd.zoom = ((MandelbrotTask *)task)->zoom;
-				mvd.offsetX = ((MandelbrotTask *)task)->offsetX;
-				mvd.offsetY = ((MandelbrotTask *)task)->offsetY;
-				mvd.result = nullptr;
-				mvd.taskID = task->getInitialTaskID();
-				mvd.cacheEntryID = mb.nextCacheID++;
-				mb.cache.push_back(mvd);
+					//Create new cache entry for this zoom level.
+					MandelbrotViewData mvd;
+					mvd.zoom = ((MandelbrotTask *)task)->zoom;
+					mvd.offsetX = ((MandelbrotTask *)task)->offsetX;
+					mvd.offsetY = ((MandelbrotTask *)task)->offsetY;
+					mvd.result = nullptr;
+					mvd.taskID = task->getInitialTaskID();
+					mvd.cacheEntryID = mb.nextCacheID++;
+					mb.cache.push_back(mvd);
+				}
+
+				{
+					cf::Task *task = new MandelbrotTask();
+
+					//Assign the task a unique ID.
+					task->assignID();
+					task->setNodeTargetType(cf::Task::NodeTargetTypes::Remote);
+					task->allowNodeTaskSplit = false;
+
+					((MandelbrotTask *)task)->zoom = mb.getNewZoom(mb.zoom, 2);
+					((MandelbrotTask *)task)->offsetX = mb.offsetX;
+					((MandelbrotTask *)task)->offsetY = mb.offsetY;
+					((MandelbrotTask *)task)->spaceWidth = IMAGE_WIDTH;
+					((MandelbrotTask *)task)->spaceHeight = IMAGE_HEIGHT;
+					((MandelbrotTask *)task)->minY = 0;
+					((MandelbrotTask *)task)->maxY = IMAGE_HEIGHT - 1;
+
+					unsigned __int64 taskID = task->getInitialTaskID();
+
+					host->addTaskToQueue(task);
+
+					//Create new cache entry for this zoom level.
+					MandelbrotViewData mvd;
+					mvd.zoom = ((MandelbrotTask *)task)->zoom;
+					mvd.offsetX = ((MandelbrotTask *)task)->offsetX;
+					mvd.offsetY = ((MandelbrotTask *)task)->offsetY;
+					mvd.result = nullptr;
+					mvd.taskID = task->getInitialTaskID();
+					mvd.cacheEntryID = mb.nextCacheID++;
+					mb.cache.push_back(mvd);
+				}
 			}
 
 			//Send any tasks in the queue.

@@ -92,6 +92,8 @@ double Mandelbrot::getNewOffsetX(double currentOffsetX, double currentZoom, int 
 			currentOffsetX -= 40.0 * currentZoom;
 		}
 	}
+
+	return currentOffsetX;
 }
 
 void Mandelbrot::updateImage(double zoom, double offsetX, double offsetY, sf::Image& image, unsigned int imageWidth, unsigned int imageHeight)

@@ -9,7 +9,7 @@ public:
 	/**
 	* Default constructor.
 	*/
-	MandelbrotViewData() { taskID = cacheEntryID = offsetX = offsetY = zoom = 0; result = nullptr; };
+	MandelbrotViewData() { taskID = 0;  cacheEntryID = 0;  offsetX = offsetY = zoom = 0; result = nullptr; };
 
 	/**
 	* Default destructor.
