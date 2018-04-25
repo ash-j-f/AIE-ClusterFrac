@@ -131,9 +131,6 @@ void Mandelbrot::updateImage(double zoom, double offsetX, double offsetY, sf::Im
 
 		host->addTaskToQueue(task);
 
-		//Wait until task is sent. Will wait for at least 1 client to be connected.
-		//while (!host->sendTasks());
-
 		//Wait for results to be complete.
 		while (!host->checkAvailableResult(taskID));
 

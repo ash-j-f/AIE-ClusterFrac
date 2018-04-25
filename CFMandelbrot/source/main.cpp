@@ -5,6 +5,36 @@
 static constexpr unsigned int IMAGE_WIDTH = 1920;
 static constexpr unsigned int IMAGE_HEIGHT = 1080;
 
+void newView(Mandelbrot &mb, cf::Host *host, double zoom, double offsetX, double offsetY)
+{
+	cf::Task *task = new MandelbrotTask();
+
+	//Assign the task a unique ID.
+	task->assignID();
+	task->setNodeTargetType(cf::Task::NodeTargetTypes::Remote);
+	task->allowNodeTaskSplit = false;
+
+	((MandelbrotTask *)task)->zoom = zoom;
+	((MandelbrotTask *)task)->offsetX = offsetX;
+	((MandelbrotTask *)task)->offsetY = offsetY;
+	((MandelbrotTask *)task)->spaceWidth = IMAGE_WIDTH;
+	((MandelbrotTask *)task)->spaceHeight = IMAGE_HEIGHT;
+	((MandelbrotTask *)task)->minY = 0;
+	((MandelbrotTask *)task)->maxY = IMAGE_HEIGHT - 1;
+
+	host->addTaskToQueue(task);
+
+	//Create new cache entry for this zoom level.
+	MandelbrotViewData mvd;
+	mvd.zoom = zoom;
+	mvd.offsetX = offsetX;
+	mvd.offsetY = offsetY;
+	mvd.result = nullptr;
+	mvd.taskID = task->getInitialTaskID();
+	mvd.cacheEntryID = mb.nextCacheID++;
+	mb.cache.push_back(mvd);
+}
+
 int main(int argc, //Number of strings in array argv  
 	char *argv[], //Array of command-line argument strings  
 	char *envp[]) // Array of environment variable strings  
@@ -99,81 +129,143 @@ int main(int argc, //Number of strings in array argv
 			window.display();
 
 			//For current view position, do we have the next zoomed view in cache?
-			bool found = false;
-			for (auto &mvd : mb.cache)
 			{
-				if (mvd.offsetX == mb.offsetX && mvd.offsetY == mb.offsetY && mvd.zoom == mb.getNewZoom(mb.zoom, 1))
+				bool found = false;
+				for (auto &mvd : mb.cache)
 				{
-					found = true;
-					break;
+					if (mvd.offsetX == mb.offsetX && mvd.offsetY == mb.offsetY && mvd.zoom == mb.getNewZoom(mb.zoom, 1))
+					{
+						found = true;
+						break;
+					}
+				}
+
+				if (!found)
+				{
+					newView(mb, host, mb.getNewZoom(mb.zoom, 1), mb.offsetX, mb.offsetY);
 				}
 			}
 
-			if (!found)
 			{
+				bool found = false;
+				for (auto &mvd : mb.cache)
 				{
-					cf::Task *task = new MandelbrotTask();
-
-					//Assign the task a unique ID.
-					task->assignID();
-					task->setNodeTargetType(cf::Task::NodeTargetTypes::Remote);
-					task->allowNodeTaskSplit = false;
-
-					((MandelbrotTask *)task)->zoom = mb.getNewZoom(mb.zoom, 1);
-					((MandelbrotTask *)task)->offsetX = mb.offsetX;
-					((MandelbrotTask *)task)->offsetY = mb.offsetY;
-					((MandelbrotTask *)task)->spaceWidth = IMAGE_WIDTH;
-					((MandelbrotTask *)task)->spaceHeight = IMAGE_HEIGHT;
-					((MandelbrotTask *)task)->minY = 0;
-					((MandelbrotTask *)task)->maxY = IMAGE_HEIGHT - 1;
-
-					host->addTaskToQueue(task);
-
-					//Create new cache entry for this zoom level.
-					MandelbrotViewData mvd;
-					mvd.zoom = ((MandelbrotTask *)task)->zoom;
-					mvd.offsetX = ((MandelbrotTask *)task)->offsetX;
-					mvd.offsetY = ((MandelbrotTask *)task)->offsetY;
-					mvd.result = nullptr;
-					mvd.taskID = task->getInitialTaskID();
-					mvd.cacheEntryID = mb.nextCacheID++;
-					mb.cache.push_back(mvd);
+					if (mvd.offsetX == mb.offsetX && mvd.offsetY == mb.offsetY && mvd.zoom == mb.getNewZoom(mb.zoom, 2))
+					{
+						found = true;
+						break;
+					}
 				}
 
+				if (!found)
 				{
-					cf::Task *task = new MandelbrotTask();
-
-					//Assign the task a unique ID.
-					task->assignID();
-					task->setNodeTargetType(cf::Task::NodeTargetTypes::Remote);
-					task->allowNodeTaskSplit = false;
-
-					((MandelbrotTask *)task)->zoom = mb.getNewZoom(mb.zoom, 2);
-					((MandelbrotTask *)task)->offsetX = mb.offsetX;
-					((MandelbrotTask *)task)->offsetY = mb.offsetY;
-					((MandelbrotTask *)task)->spaceWidth = IMAGE_WIDTH;
-					((MandelbrotTask *)task)->spaceHeight = IMAGE_HEIGHT;
-					((MandelbrotTask *)task)->minY = 0;
-					((MandelbrotTask *)task)->maxY = IMAGE_HEIGHT - 1;
-
-					host->addTaskToQueue(task);
-
-					//Create new cache entry for this zoom level.
-					MandelbrotViewData mvd;
-					mvd.zoom = ((MandelbrotTask *)task)->zoom;
-					mvd.offsetX = ((MandelbrotTask *)task)->offsetX;
-					mvd.offsetY = ((MandelbrotTask *)task)->offsetY;
-					mvd.result = nullptr;
-					mvd.taskID = task->getInitialTaskID();
-					mvd.cacheEntryID = mb.nextCacheID++;
-					mb.cache.push_back(mvd);
+					newView(mb, host, mb.getNewZoom(mb.zoom, 2), mb.offsetX, mb.offsetY);
 				}
 			}
 
-			//Send any tasks in the queue.
-			//if (host->getTasksCount() > 0) host->sendTasks();
+			{
+				bool found = false;
+				for (auto &mvd : mb.cache)
+				{
+					if (mvd.offsetX == mb.offsetX && mvd.offsetY == mb.offsetY && mvd.zoom == mb.getNewZoom(mb.zoom, 3))
+					{
+						found = true;
+						break;
+					}
+				}
 
-			//Marry results to their cached tasks.
+				if (!found)
+				{
+					newView(mb, host, mb.getNewZoom(mb.zoom, 3), mb.offsetX, mb.offsetY);
+				}
+			}
+
+			{
+				bool found = false;
+				for (auto &mvd : mb.cache)
+				{
+					if (mvd.offsetX == mb.offsetX && mvd.offsetY == mb.offsetY && mvd.zoom == mb.getNewZoom(mb.zoom, 4))
+					{
+						found = true;
+						break;
+					}
+				}
+
+				if (!found)
+				{
+					newView(mb, host, mb.getNewZoom(mb.zoom, 4), mb.offsetX, mb.offsetY);
+				}
+			}
+
+			{
+				bool found = false;
+				for (auto &mvd : mb.cache)
+				{
+					if (mvd.offsetX == mb.getNewOffsetX(mb.offsetX, mb.zoom, 1) && mvd.offsetY == mb.offsetY && mvd.zoom == mb.zoom)
+					{
+						found = true;
+						break;
+					}
+				}
+
+				if (!found)
+				{
+					newView(mb, host, mb.zoom, mb.getNewOffsetX(mb.offsetX, mb.zoom, 1), mb.offsetY);
+				}
+			}
+
+			{
+				bool found = false;
+				for (auto &mvd : mb.cache)
+				{
+					if (mvd.offsetX == mb.getNewOffsetX(mb.offsetX, mb.zoom, 2) && mvd.offsetY == mb.offsetY && mvd.zoom == mb.zoom)
+					{
+						found = true;
+						break;
+					}
+				}
+
+				if (!found)
+				{
+					newView(mb, host, mb.zoom, mb.getNewOffsetX(mb.offsetX, mb.zoom, 2), mb.offsetY);
+				}
+			}
+
+			{
+				bool found = false;
+				for (auto &mvd : mb.cache)
+				{
+					if (mvd.offsetX == mb.getNewOffsetX(mb.offsetX, mb.zoom, 3) && mvd.offsetY == mb.offsetY && mvd.zoom == mb.zoom)
+					{
+						found = true;
+						break;
+					}
+				}
+
+				if (!found)
+				{
+					newView(mb, host, mb.zoom, mb.getNewOffsetX(mb.offsetX, mb.zoom, 3), mb.offsetY);
+				}
+			}
+
+			{
+				bool found = false;
+				for (auto &mvd : mb.cache)
+				{
+					if (mvd.offsetX == mb.getNewOffsetX(mb.offsetX, mb.zoom, 4) && mvd.offsetY == mb.offsetY && mvd.zoom == mb.zoom)
+					{
+						found = true;
+						break;
+					}
+				}
+
+				if (!found)
+				{
+					newView(mb, host, mb.zoom, mb.getNewOffsetX(mb.offsetX, mb.zoom, 4), mb.offsetY);
+				}
+			}
+
+			//Marry incoming results to their cached tasks.
 			for (auto &mvd : mb.cache)
 			{
 				if (mvd.result == nullptr)
