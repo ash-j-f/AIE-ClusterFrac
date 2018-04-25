@@ -96,52 +96,43 @@ int main(int argc, //Number of strings in array argv
 			//Start benchmark timer.
 			auto start = std::chrono::steady_clock::now();
 
-			if (host->sendTasks())
+			
+			//Wait for results to be complete.
+			CF_SAY("Waiting for completed results.", cf::Settings::LogLevels::Info);
+			while (!host->checkAvailableResult(taskID))
 			{
-				//Wait for results to be complete.
-				CF_SAY("Waiting for completed results.", cf::Settings::LogLevels::Info);
-				while (!host->checkAvailableResult(taskID))
-				{
-					//WAIT
-					std::this_thread::sleep_for(std::chrono::milliseconds(1));
-				}
-
-				cf::Result *finished = host->getAvailableResult(taskID);
-				BenchmarkResult *output = static_cast<BenchmarkResult *>(finished);
-
-				//Stop benchmark test clock.
-				auto end = std::chrono::steady_clock::now();
-				auto diff = end - start;
-
-				//List results.
-				CF_SAY("Results received (" + std::to_string(output->numbers.size()) + "):", cf::Settings::LogLevels::Info);
-				for (int i = 0; i < 16; i++)
-				{
-					CF_SAY(std::to_string(output->numbers[i]), cf::Settings::LogLevels::Info);
-				}
-				CF_SAY("...", cf::Settings::LogLevels::Info);
-
-				CF_SAY("Verifying results.", cf::Settings::LogLevels::Info);
-				for (int i = 0; i < (int)numbers.size(); i++)
-				{
-					if (expectedResults[i] != output->numbers[i]) CF_THROW("Results verification failed. Results did not match!");
-				}
-				CF_SAY("Results verified OK.", cf::Settings::LogLevels::Info);
-
-				//Remove the result from the completed results queue.
-				host->removeResultFromQueue(finished);
-				finished = nullptr;
-				output = nullptr;
-
-				CF_SAY("Computation and network time: " + std::to_string(std::chrono::duration <double, std::milli>(diff).count()) + " ms.", cf::Settings::LogLevels::Info);
-
-			}
-			else
-			{
-				CF_SAY("Unable to send task. Trying again.", cf::Settings::LogLevels::Error);
 				//WAIT
-				std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+				std::this_thread::sleep_for(std::chrono::milliseconds(1));
 			}
+
+			cf::Result *finished = host->getAvailableResult(taskID);
+			BenchmarkResult *output = static_cast<BenchmarkResult *>(finished);
+
+			//Stop benchmark test clock.
+			auto end = std::chrono::steady_clock::now();
+			auto diff = end - start;
+
+			//List results.
+			CF_SAY("Results received (" + std::to_string(output->numbers.size()) + "):", cf::Settings::LogLevels::Info);
+			for (int i = 0; i < 16; i++)
+			{
+				CF_SAY(std::to_string(output->numbers[i]), cf::Settings::LogLevels::Info);
+			}
+			CF_SAY("...", cf::Settings::LogLevels::Info);
+
+			CF_SAY("Verifying results.", cf::Settings::LogLevels::Info);
+			for (int i = 0; i < (int)numbers.size(); i++)
+			{
+				if (expectedResults[i] != output->numbers[i]) CF_THROW("Results verification failed. Results did not match!");
+			}
+			CF_SAY("Results verified OK.", cf::Settings::LogLevels::Info);
+
+			//Remove the result from the completed results queue.
+			host->removeResultFromQueue(finished);
+			finished = nullptr;
+			output = nullptr;
+
+			CF_SAY("Computation and network time: " + std::to_string(std::chrono::duration <double, std::milli>(diff).count()) + " ms.", cf::Settings::LogLevels::Info);
 
 		}
 

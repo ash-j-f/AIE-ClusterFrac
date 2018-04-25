@@ -89,6 +89,8 @@ namespace cf
 			}
 			clientsLock.unlock();
 
+			if (host->getTasksCount() > 0 && host->getClientsCount() > 0) host->sendTasks();
+
 			std::this_thread::sleep_for(std::chrono::milliseconds(1));
 		}
 

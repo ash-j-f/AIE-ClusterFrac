@@ -171,7 +171,7 @@ int main(int argc, //Number of strings in array argv
 			}
 
 			//Send any tasks in the queue.
-			if (host->getTasksCount() > 0) host->sendTasks();
+			//if (host->getTasksCount() > 0) host->sendTasks();
 
 			//Marry results to their cached tasks.
 			for (auto &mvd : mb.cache)
