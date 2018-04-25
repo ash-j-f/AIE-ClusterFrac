@@ -122,6 +122,7 @@ int main(int argc, //Number of strings in array argv
 				mvd.offsetY = ((MandelbrotTask *)task)->offsetY;
 				mvd.result = nullptr;
 				mvd.taskID = task->getInitialTaskID();
+				mvd.cacheEntryID = mb.nextCacheID++;
 				mb.cache.push_back(mvd);
 			}
 
@@ -133,7 +134,10 @@ int main(int argc, //Number of strings in array argv
 			{
 				if (mvd.result == nullptr)
 				{
-					if (host->checkAvailableResult(taskID))
+					if (host->checkAvailableResult(mvd.taskID))
+					{
+						mvd.result = host->getAvailableResult(mvd.taskID);
+					}
 				}
 			}
 

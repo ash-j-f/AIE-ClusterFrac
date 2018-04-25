@@ -6,6 +6,8 @@ Mandelbrot::Mandelbrot(cf::Host *newHost) {
 		colors[i] = getColor(i);
 	}
 	
+	nextCacheID = 0;
+
 	//Reset offset and zoom values to sensible defaults.
 	reset();
 }
@@ -142,6 +144,7 @@ void Mandelbrot::updateImage(double zoom, double offsetX, double offsetY, sf::Im
 		mvd.offsetY = offsetY;
 		mvd.result = viewResult;
 		mvd.taskID = task->getInitialTaskID();
+		mvd.cacheEntryID = nextCacheID++;
 		cache.push_back(mvd);
 	}
 

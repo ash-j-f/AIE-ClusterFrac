@@ -21,6 +21,9 @@ public:
 	//Cache of view pixel data for various zoom and camera offset positions.
 	std::vector<MandelbrotViewData> cache;
 
+	//Next available cache id.
+	unsigned int nextCacheID;
+
 	/**
 	* Get a new zoom value based on a starting zoom value and a zoom factor.
 	* @param currentZoom The current zoom value.
