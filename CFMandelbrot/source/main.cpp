@@ -127,19 +127,7 @@ int main(int argc, //Number of strings in array argv
 		if (window.isOpen())
 		{
 
-			if (stateChanged)
-			{
-				bool updated = mb.updateImage(mb.zoom, mb.offsetX, mb.offsetY, image, IMAGE_WIDTH, IMAGE_HEIGHT);
-				if (updated)
-				{
-					texture.loadFromImage(image);
-					sprite.setTexture(texture);
-					stateChanged = false;
-					mb.save();
-				}
-			}
-			window.draw(sprite);
-			window.display();
+			
 
 			//For current view position, do we have the next zoomed view in cache?
 			
@@ -208,6 +196,20 @@ int main(int argc, //Number of strings in array argv
 					}
 				}
 			}
+
+			if (stateChanged)
+			{
+				bool updated = mb.updateImage(mb.zoom, mb.offsetX, mb.offsetY, image, IMAGE_WIDTH, IMAGE_HEIGHT);
+				if (updated)
+				{
+					texture.loadFromImage(image);
+					sprite.setTexture(texture);
+					stateChanged = false;
+					mb.save();
+				}
+			}
+			window.draw(sprite);
+			window.display();
 
 			//Keep up to N result sets in cache. Each set is one screen worth of pixel bytes in size.
 			//Or about 2.5MB per 1920x1080 screen.
