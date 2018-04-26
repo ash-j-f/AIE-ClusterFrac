@@ -228,3 +228,8 @@ void Mandelbrot::reset()
 	offsetY = 0.0;
 	zoom = 0.004;
 }
+
+void Mandelbrot::resetZoomOnly()
+{
+	zoom = 0.004;
+}

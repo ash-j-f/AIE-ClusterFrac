@@ -90,6 +90,10 @@ int main(int argc, //Number of strings in array argv
 					mb.reset();
 					zoomingIn = true;
 					break;
+				case sf::Keyboard::T:
+					mb.resetZoomOnly();
+					zoomingIn = true;
+					break;
 				case sf::Keyboard::Equal:
 					mb.zoom = mb.getNewZoom(mb.zoom, 1);
 					zoomingIn = true;
@@ -207,7 +211,7 @@ int main(int argc, //Number of strings in array argv
 
 			//Keep up to N result sets in cache. Each set is one screen worth of pixel bytes in size.
 			//Or about 2.5MB per 1920x1080 screen.
-			mb.purgeCache(200);
+			mb.purgeCache(400);
 			
 			clock.restart();
 		}

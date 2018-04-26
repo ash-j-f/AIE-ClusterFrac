@@ -57,6 +57,7 @@ public:
 	void save() const;
 	void load();
 	void reset();
+	void resetZoomOnly();
 
 	/**
 	* Remove excess cache results from cache and from host results list.
