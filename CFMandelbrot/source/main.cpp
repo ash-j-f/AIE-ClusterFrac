@@ -127,14 +127,12 @@ int main(int argc, //Number of strings in array argv
 		if (window.isOpen())
 		{
 
-			
-
 			//For current view position, do we have the next zoomed view in cache?
 			
-			int clCount = host->getClientsCount() - 1;
+			int clCount = host->getClientsCount();
 			for (int i = 0; i < clCount; i++)
 			{
-				int zoomFactor = (zoomingIn ? 1 : -1);
+				int zoomFactor = 0;// (zoomingIn ? 1 : -1);
 
 				while (true)
 				{
@@ -185,7 +183,7 @@ int main(int argc, //Number of strings in array argv
 			}
 			*/
 
-			//Marry incoming results to their cached tasks.
+			//Match incoming results to their cached tasks.
 			for (auto &mvd : mb.cache)
 			{
 				if (mvd.result == nullptr)
@@ -197,11 +195,40 @@ int main(int argc, //Number of strings in array argv
 				}
 			}
 
+			//If a new camera position or zoom was set, update the current image on screen.
 			if (stateChanged)
 			{
-				bool updated = mb.updateImage(mb.zoom, mb.offsetX, mb.offsetY, image, IMAGE_WIDTH, IMAGE_HEIGHT);
-				if (updated)
+				//bool updated = mb.updateImage(mb.zoom, mb.offsetX, mb.offsetY, image, IMAGE_WIDTH, IMAGE_HEIGHT);
+				
+				//Is this view zoom and offset already in the cache?
+				cf::Result *viewResult = nullptr;
+				bool found = false;
+				for (auto &vd : mb.cache)
 				{
+					if (vd.zoom == mb.zoom && vd.offsetX == mb.offsetX && vd.offsetY == mb.offsetY)
+					{
+						found = true;
+						viewResult = vd.result;
+						break;
+					}
+				}
+				
+				
+				if (viewResult != nullptr)
+				{
+					MandelbrotResult *output = static_cast<MandelbrotResult *>(viewResult);
+					unsigned int count = (unsigned int)output->numbers.size();
+
+					unsigned int y = 0;
+					unsigned int x = 0;
+					for (x = 0; x < IMAGE_WIDTH; x++)
+					{
+						for (y = 0; y < IMAGE_HEIGHT; y++)
+						{
+							image.setPixel(x, y, mb.colors[output->numbers[IMAGE_WIDTH * y + x]]);
+						}
+					}
+
 					texture.loadFromImage(image);
 					sprite.setTexture(texture);
 					stateChanged = false;

@@ -18,6 +18,9 @@ public:
 	double offsetY;
 	double zoom;
 
+	static const sf::Uint8 MAX = 255; // maximum number of iterations for mandelbrot()
+	std::array<sf::Color, MAX + 1> colors;
+
 	//Cache of view pixel data for various zoom and camera offset positions.
 	std::vector<MandelbrotViewData> cache;
 
@@ -69,8 +72,6 @@ public:
 	void purgeCache(int maxCacheResults);
 
 private:
-	static const sf::Uint8 MAX = 255; // maximum number of iterations for mandelbrot()
-	std::array<sf::Color, MAX + 1> colors;
 	cf::Host *host;
 	sf::Color getColor(int iterations) const;
 	std::string getExecutableFolder() const;

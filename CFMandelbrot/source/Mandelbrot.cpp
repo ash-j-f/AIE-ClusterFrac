@@ -122,7 +122,7 @@ bool Mandelbrot::updateImage(double zoom, double offsetX, double offsetY, sf::Im
 {
 	cf::Result *viewResult = nullptr;
 
-	//Is this view in the cache?
+	//Is this view zoom and offset already in the cache?
 	bool found = false;
 	for (auto &vd : cache)
 	{
@@ -134,6 +134,7 @@ bool Mandelbrot::updateImage(double zoom, double offsetX, double offsetY, sf::Im
 		}
 	}
 
+	//Cached version of this view not found, so generate a new one via a new task.
 	if (viewResult == nullptr && !found)
 	{
 		cf::Task *task = new MandelbrotTask();
