@@ -53,7 +53,7 @@ public:
 	*/
 	double getNewOffsetX(double currentOffsetY, double currentZoom, int factor) const;
 
-	void updateImage(double zoom, double offsetX, double offsetY, sf::Image& image, unsigned int imageWidth, unsigned int imageHeight);
+	bool updateImage(double zoom, double offsetX, double offsetY, sf::Image& image, unsigned int imageWidth, unsigned int imageHeight);
 	void save() const;
 	void load();
 	void reset();

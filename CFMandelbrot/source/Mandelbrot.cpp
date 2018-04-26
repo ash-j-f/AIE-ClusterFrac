@@ -96,21 +96,23 @@ double Mandelbrot::getNewOffsetX(double currentOffsetX, double currentZoom, int 
 	return currentOffsetX;
 }
 
-void Mandelbrot::updateImage(double zoom, double offsetX, double offsetY, sf::Image& image, unsigned int imageWidth, unsigned int imageHeight)
+bool Mandelbrot::updateImage(double zoom, double offsetX, double offsetY, sf::Image& image, unsigned int imageWidth, unsigned int imageHeight)
 {
 	cf::Result *viewResult = nullptr;
 
 	//Is this view in the cache?
+	bool found = false;
 	for (auto &vd : cache)
 	{
 		if (vd.zoom == zoom && vd.offsetX == offsetX && vd.offsetY == offsetY)
 		{
+			found = true;
 			viewResult = vd.result;
 			break;
 		}
 	}
 
-	if (viewResult == nullptr)
+	if (viewResult == nullptr && !found)
 	{
 		cf::Task *task = new MandelbrotTask();
 
@@ -147,23 +149,25 @@ void Mandelbrot::updateImage(double zoom, double offsetX, double offsetY, sf::Im
 		cache.push_back(mvd);
 	}
 
-	MandelbrotResult *output = static_cast<MandelbrotResult *>(viewResult);
-	unsigned int count = (unsigned int)output->numbers.size();
-	
-	unsigned int y = 0;
-	unsigned int x = 0;
-	for (x = 0; x < imageWidth; x++)
+	if (viewResult != nullptr)
 	{
-		for (y = 0; y < imageHeight; y++)
+		MandelbrotResult *output = static_cast<MandelbrotResult *>(viewResult);
+		unsigned int count = (unsigned int)output->numbers.size();
+
+		unsigned int y = 0;
+		unsigned int x = 0;
+		for (x = 0; x < imageWidth; x++)
 		{
-			image.setPixel(x, y, colors[output->numbers[imageWidth * y + x]]);
+			for (y = 0; y < imageHeight; y++)
+			{
+				image.setPixel(x, y, colors[output->numbers[imageWidth * y + x]]);
+			}
 		}
+
+		return true;
 	}
 
-	//Remove the result from the completed results queue.
-	//host->removeResultFromQueue(finished);
-	//finished = nullptr;
-	//output = nullptr;
+	return false;
 
 }
 

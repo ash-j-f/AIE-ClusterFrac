@@ -69,9 +69,12 @@ int main(int argc, //Number of strings in array argv
 	//Does the image need to be updated due to user input?
 	bool stateChanged = true;
 
+	//Last zoom direction. Used to determine which direction new cached zoom levels should be generated. 
+	bool zoomingIn = true;
+
 	while (window.isOpen()) {
 		sf::Event event;
-		while (window.pollEvent(event)) {
+		while (window.pollEvent(event) && !stateChanged) {
 			switch (event.type) {
 			case sf::Event::Closed:
 				window.close();
@@ -85,12 +88,15 @@ int main(int argc, //Number of strings in array argv
 					break;
 				case sf::Keyboard::R:
 					mb.reset();
+					zoomingIn = true;
 					break;
 				case sf::Keyboard::Equal:
 					mb.zoom = mb.getNewZoom(mb.zoom, 1);
+					zoomingIn = true;
 					break;
 				case sf::Keyboard::Dash:
 					mb.zoom = mb.getNewZoom(mb.zoom, -1);
+					zoomingIn = false;
 					break;
 				case sf::Keyboard::W:
 					mb.offsetY = mb.getNewOffsetY(mb.offsetY, mb.zoom, -1);
@@ -119,34 +125,43 @@ int main(int argc, //Number of strings in array argv
 
 			if (stateChanged)
 			{
-				mb.updateImage(mb.zoom, mb.offsetX, mb.offsetY, image, IMAGE_WIDTH, IMAGE_HEIGHT);
-				texture.loadFromImage(image);
-				sprite.setTexture(texture);
-				stateChanged = false;
-				mb.save();
+				bool updated = mb.updateImage(mb.zoom, mb.offsetX, mb.offsetY, image, IMAGE_WIDTH, IMAGE_HEIGHT);
+				if (updated)
+				{
+					texture.loadFromImage(image);
+					sprite.setTexture(texture);
+					stateChanged = false;
+					mb.save();
+				}
 			}
 			window.draw(sprite);
 			window.display();
 
 			//For current view position, do we have the next zoomed view in cache?
 			{
-				bool found = false;
-				for (auto &mvd : mb.cache)
+				for (int i = 0; i < host->getClientsCount() - 1; i++)
 				{
-					if (mvd.offsetX == mb.offsetX && mvd.offsetY == mb.offsetY && mvd.zoom == mb.getNewZoom(mb.zoom, 1))
-					{
-						found = true;
-						break;
-					}
-				}
+					int zoomFactor = (i + 1) * (zoomingIn ? 1 : -1);
 
-				if (!found)
-				{
-					newView(mb, host, mb.getNewZoom(mb.zoom, 1), mb.offsetX, mb.offsetY);
+					bool found = false;
+					for (auto &mvd : mb.cache)
+					{
+						if (mvd.offsetX == mb.offsetX && mvd.offsetY == mb.offsetY && mvd.zoom == mb.getNewZoom(mb.zoom, zoomFactor))
+						{
+							found = true;
+							break;
+						}
+					}
+
+					if (!found)
+					{
+						newView(mb, host, mb.getNewZoom(mb.zoom, zoomFactor), mb.offsetX, mb.offsetY);
+					}
 				}
 			}
 
-			/*{
+			/*
+			{
 				bool found = false;
 				for (auto &mvd : mb.cache)
 				{
@@ -162,57 +177,7 @@ int main(int argc, //Number of strings in array argv
 					newView(mb, host, mb.zoom, mb.getNewOffsetX(mb.offsetX, mb.zoom, 1), mb.offsetY);
 				}
 			}
-
-			{
-				bool found = false;
-				for (auto &mvd : mb.cache)
-				{
-					if (mvd.offsetX == mb.getNewOffsetX(mb.offsetX, mb.zoom, -1) && mvd.offsetY == mb.offsetY && mvd.zoom == mb.zoom)
-					{
-						found = true;
-						break;
-					}
-				}
-
-				if (!found)
-				{
-					newView(mb, host, mb.zoom, mb.getNewOffsetX(mb.offsetX, mb.zoom, -1), mb.offsetY);
-				}
-			}
-
-			{
-				bool found = false;
-				for (auto &mvd : mb.cache)
-				{
-					if (mvd.offsetX == mb.offsetX && mvd.offsetY == mb.getNewOffsetY(mb.offsetY, mb.zoom, 1) && mvd.zoom == mb.zoom)
-					{
-						found = true;
-						break;
-					}
-				}
-
-				if (!found)
-				{
-					newView(mb, host, mb.zoom, mb.offsetX, mb.getNewOffsetY(mb.offsetY, mb.zoom, 1));
-				}
-			}
-
-			{
-				bool found = false;
-				for (auto &mvd : mb.cache)
-				{
-					if (mvd.offsetX == mb.offsetX && mvd.offsetY == mb.getNewOffsetY(mb.offsetY, mb.zoom, -1) && mvd.zoom == mb.zoom)
-					{
-						found = true;
-						break;
-					}
-				}
-
-				if (!found)
-				{
-					newView(mb, host, mb.zoom, mb.offsetX, mb.getNewOffsetY(mb.offsetY, mb.zoom, -1));
-				}
-			}*/
+			*/
 
 			//Marry incoming results to their cached tasks.
 			for (auto &mvd : mb.cache)
