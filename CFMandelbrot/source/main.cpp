@@ -143,7 +143,7 @@ int main(int argc, //Number of strings in array argv
 
 			//For current view position, do we have the next zoomed view in cache?
 			
-			int clCount = host->getClientsCount();
+			int clCount = host->getClientsCount() - 1;
 			for (int i = 0; i < clCount; i++)
 			{
 				int zoomFactor = (zoomingIn ? 1 : -1);

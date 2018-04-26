@@ -156,7 +156,7 @@ bool Mandelbrot::updateImage(double zoom, double offsetX, double offsetY, sf::Im
 		host->addTaskToQueue(task);
 
 		//Wait for results to be complete.
-		while (!host->checkAvailableResult(taskID));
+		while (!host->checkAvailableResult(taskID)) std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
 		viewResult = host->getAvailableResult(taskID);
 

@@ -599,6 +599,8 @@ namespace cf
 				clientsLock.unlock();
 			}
 
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+
 		}
 
 		//Wait for threads to finish.
