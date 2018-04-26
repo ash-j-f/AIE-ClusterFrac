@@ -146,58 +146,7 @@ int main(int argc, //Number of strings in array argv
 				}
 			}
 
-			{
-				bool found = false;
-				for (auto &mvd : mb.cache)
-				{
-					if (mvd.offsetX == mb.offsetX && mvd.offsetY == mb.offsetY && mvd.zoom == mb.getNewZoom(mb.zoom, 2))
-					{
-						found = true;
-						break;
-					}
-				}
-
-				if (!found)
-				{
-					newView(mb, host, mb.getNewZoom(mb.zoom, 2), mb.offsetX, mb.offsetY);
-				}
-			}
-
-			{
-				bool found = false;
-				for (auto &mvd : mb.cache)
-				{
-					if (mvd.offsetX == mb.offsetX && mvd.offsetY == mb.offsetY && mvd.zoom == mb.getNewZoom(mb.zoom, 3))
-					{
-						found = true;
-						break;
-					}
-				}
-
-				if (!found)
-				{
-					newView(mb, host, mb.getNewZoom(mb.zoom, 3), mb.offsetX, mb.offsetY);
-				}
-			}
-
-			{
-				bool found = false;
-				for (auto &mvd : mb.cache)
-				{
-					if (mvd.offsetX == mb.offsetX && mvd.offsetY == mb.offsetY && mvd.zoom == mb.getNewZoom(mb.zoom, 4))
-					{
-						found = true;
-						break;
-					}
-				}
-
-				if (!found)
-				{
-					newView(mb, host, mb.getNewZoom(mb.zoom, 4), mb.offsetX, mb.offsetY);
-				}
-			}
-
-			{
+			/*{
 				bool found = false;
 				for (auto &mvd : mb.cache)
 				{
@@ -218,7 +167,7 @@ int main(int argc, //Number of strings in array argv
 				bool found = false;
 				for (auto &mvd : mb.cache)
 				{
-					if (mvd.offsetX == mb.getNewOffsetX(mb.offsetX, mb.zoom, 2) && mvd.offsetY == mb.offsetY && mvd.zoom == mb.zoom)
+					if (mvd.offsetX == mb.getNewOffsetX(mb.offsetX, mb.zoom, -1) && mvd.offsetY == mb.offsetY && mvd.zoom == mb.zoom)
 					{
 						found = true;
 						break;
@@ -227,7 +176,7 @@ int main(int argc, //Number of strings in array argv
 
 				if (!found)
 				{
-					newView(mb, host, mb.zoom, mb.getNewOffsetX(mb.offsetX, mb.zoom, 2), mb.offsetY);
+					newView(mb, host, mb.zoom, mb.getNewOffsetX(mb.offsetX, mb.zoom, -1), mb.offsetY);
 				}
 			}
 
@@ -235,7 +184,7 @@ int main(int argc, //Number of strings in array argv
 				bool found = false;
 				for (auto &mvd : mb.cache)
 				{
-					if (mvd.offsetX == mb.getNewOffsetX(mb.offsetX, mb.zoom, 3) && mvd.offsetY == mb.offsetY && mvd.zoom == mb.zoom)
+					if (mvd.offsetX == mb.offsetX && mvd.offsetY == mb.getNewOffsetY(mb.offsetY, mb.zoom, 1) && mvd.zoom == mb.zoom)
 					{
 						found = true;
 						break;
@@ -244,7 +193,7 @@ int main(int argc, //Number of strings in array argv
 
 				if (!found)
 				{
-					newView(mb, host, mb.zoom, mb.getNewOffsetX(mb.offsetX, mb.zoom, 3), mb.offsetY);
+					newView(mb, host, mb.zoom, mb.offsetX, mb.getNewOffsetY(mb.offsetY, mb.zoom, 1));
 				}
 			}
 
@@ -252,7 +201,7 @@ int main(int argc, //Number of strings in array argv
 				bool found = false;
 				for (auto &mvd : mb.cache)
 				{
-					if (mvd.offsetX == mb.getNewOffsetX(mb.offsetX, mb.zoom, 4) && mvd.offsetY == mb.offsetY && mvd.zoom == mb.zoom)
+					if (mvd.offsetX == mb.offsetX && mvd.offsetY == mb.getNewOffsetY(mb.offsetY, mb.zoom, -1) && mvd.zoom == mb.zoom)
 					{
 						found = true;
 						break;
@@ -261,9 +210,9 @@ int main(int argc, //Number of strings in array argv
 
 				if (!found)
 				{
-					newView(mb, host, mb.zoom, mb.getNewOffsetX(mb.offsetX, mb.zoom, 4), mb.offsetY);
+					newView(mb, host, mb.zoom, mb.offsetX, mb.getNewOffsetY(mb.offsetY, mb.zoom, -1));
 				}
-			}
+			}*/
 
 			//Marry incoming results to their cached tasks.
 			for (auto &mvd : mb.cache)

@@ -207,13 +207,13 @@ namespace cf
 
 			if (status == sf::Socket::Status::Done)
 			{
-
 				if (packet->getFlag() == cf::WorkPacket::Flag::None)
 				{
 					CF_SAY("Received unknown packet from client " + std::to_string(client->getClientID()) + ".", Settings::LogLevels::Error);
 				}
 				else if (packet->getFlag() == cf::WorkPacket::Flag::Result)
 				{
+
 					CF_SAY("Received result packet from client " + std::to_string(client->getClientID()) + ".", Settings::LogLevels::Info);
 
 					std::string type;
@@ -250,9 +250,9 @@ namespace cf
 						CF_SAY("Result packet from client " + std::to_string(client->getClientID()) + " is valid.", Settings::LogLevels::Info);
 
 						//Add result data to the host incomplete results queue.
-						std::unique_lock<std::mutex> lock(host->resultsQueueMutex);
+						std::unique_lock<std::mutex> lock3(host->resultsQueueMutex);
 						host->resultQueueIncomplete.push_back(result);
-						lock.unlock();
+						lock3.unlock();
 					}
 					else
 					{
@@ -285,14 +285,14 @@ namespace cf
 				client->socket->disconnect();
 
 				//Distribute this client's tasks to other available clients.
-				std::unique_lock<std::mutex> lock(client->taskMutex);
+				std::unique_lock<std::mutex> lock2(client->taskMutex);
 				if (client->tasks.size() > 0)
 				{
 					CF_SAY("Client ID " + std::to_string(client->getClientID()) + " disconnected with unfinished tasks. Redistributing.", Settings::LogLevels::Info);
 					host->distributeSubTasks(client->tasks);
 				}
 				client->tasks.clear();
-				lock.unlock();
+				lock2.unlock();
 
 				//Mark client data for erasure.
 				client->remove = true;
