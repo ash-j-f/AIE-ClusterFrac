@@ -57,6 +57,16 @@ public:
 	void save() const;
 	void load();
 	void reset();
+
+	/**
+	* Remove excess cache results from cache and from host results list.
+	* Won't purge cache entries that are still pending (no results set yet attached).
+	* @param maxCacheResults The maximum number of results to store in the cache. 
+	* The oldest entries in excess of this number are removed.
+	* @returns void.
+	*/
+	void purgeCache(int maxCacheResults);
+
 private:
 	static const sf::Uint8 MAX = 255; // maximum number of iterations for mandelbrot()
 	std::array<sf::Color, MAX + 1> colors;

@@ -11,7 +11,7 @@ void newView(Mandelbrot &mb, cf::Host *host, double zoom, double offsetX, double
 
 	//Assign the task a unique ID.
 	task->assignID();
-	task->setNodeTargetType(cf::Task::NodeTargetTypes::Remote);
+	task->setNodeTargetType(cf::Task::NodeTargetTypes::Any);
 	task->allowNodeTaskSplit = false;
 
 	((MandelbrotTask *)task)->zoom = zoom;
@@ -138,12 +138,16 @@ int main(int argc, //Number of strings in array argv
 			window.display();
 
 			//For current view position, do we have the next zoomed view in cache?
+			
+			int clCount = host->getClientsCount();
+			for (int i = 0; i < clCount; i++)
 			{
-				for (int i = 0; i < host->getClientsCount() - 1; i++)
-				{
-					int zoomFactor = (i + 1) * (zoomingIn ? 1 : -1);
+				int zoomFactor = (zoomingIn ? 1 : -1);
 
+				while (true)
+				{
 					bool found = false;
+					int maxDepth = host->getClientsCount();
 					for (auto &mvd : mb.cache)
 					{
 						if (mvd.offsetX == mb.offsetX && mvd.offsetY == mb.offsetY && mvd.zoom == mb.getNewZoom(mb.zoom, zoomFactor))
@@ -156,9 +160,19 @@ int main(int argc, //Number of strings in array argv
 					if (!found)
 					{
 						newView(mb, host, mb.getNewZoom(mb.zoom, zoomFactor), mb.offsetX, mb.offsetY);
+						break;
+					}
+					else if (abs(zoomFactor) > maxDepth)
+					{
+						break;
+					}
+					else
+					{
+						zoomFactor += (zoomingIn ? 1 : -1);
 					}
 				}
 			}
+			
 
 			/*
 			{
@@ -191,6 +205,9 @@ int main(int argc, //Number of strings in array argv
 				}
 			}
 
+			//Keep up to N result sets in cache. Each set is one screen worth of pixel bytes in size.
+			//Or about 2.5MB per 1920x1080 screen.
+			mb.purgeCache(200);
 			
 			clock.restart();
 		}

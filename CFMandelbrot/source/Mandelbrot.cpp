@@ -12,6 +12,28 @@ Mandelbrot::Mandelbrot(cf::Host *newHost) {
 	reset();
 }
 
+void Mandelbrot::purgeCache(int maxCacheResults)
+{
+	int oldestCacheID = nextCacheID - maxCacheResults;
+
+	//If there aren't yet maxCacheResults number of cached results, abort.
+	if (oldestCacheID <= 0) return;
+
+	std::vector<MandelbrotViewData>::iterator it;
+	for (it = cache.begin(); it != cache.end();)
+	{
+		if ((*it).cacheEntryID < (unsigned int)oldestCacheID && (*it).result != nullptr)
+		{
+			host->removeResultFromQueue((*it).result);
+			it = cache.erase(it);
+		}
+		else
+		{
+			it++;
+		}
+	}
+}
+
 sf::Color Mandelbrot::getColor(int iterations) const {
 
 	//Colouring method from https://solarianprogrammer.com/2013/02/28/mandelbrot-set-cpp-11/
