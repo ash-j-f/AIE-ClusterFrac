@@ -2,8 +2,8 @@
 #include "Host.h"
 #include "Mandelbrot.h"
 
-static constexpr unsigned int IMAGE_WIDTH = 1920;
-static constexpr unsigned int IMAGE_HEIGHT = 1080;
+static constexpr unsigned int IMAGE_WIDTH = 1024;
+static constexpr unsigned int IMAGE_HEIGHT = 768;
 
 void newView(Mandelbrot &mb, cf::Host *host, double zoom, double offsetX, double offsetY)
 {
