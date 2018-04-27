@@ -28,11 +28,16 @@ public:
 	* Get the subtype of this result.
 	* @returns The subtype of this result.
 	*/
-	inline std::string getSubtype() const { return "BenchmarkResult"; };
+	inline std::string getSubtype() const override { return "BenchmarkResult"; };
 
 private:
 
-	inline virtual void mergeLocal(const std::vector<cf::Result *> others)
+	/**
+	* Merge other results in a std::vector into this result.
+	* @param others A std::vector of pointers to the all results in a set to merge with this one.
+	* @returns A pointer to a single new merged result.
+	*/
+	inline void mergeLocal(const std::vector<cf::Result *> others) override
 	{
 
 		//Insert the other results into the new merged result.
@@ -43,14 +48,24 @@ private:
 
 	};
 
-	inline void serializeLocal(cf::WorkPacket &p) const
+	/**
+	* Serialize this result and store the data in a given packet.
+	* @param p The packet to store the data in.
+	* @returns void.
+	*/
+	inline void serializeLocal(cf::WorkPacket &p) const override
 	{
 		sf::Int64 size = numbers.size();
 		p << size;
 		for (sf::Int64 i = 0; i < size; i++) p << numbers[i];
 	};
 
-	inline void deserializeLocal(cf::WorkPacket &p)
+	/**
+	* Deserialize this result from data provided by a packet.
+	* @param p The packet to retrieve the result data from.
+	* @returns void.
+	*/
+	inline void deserializeLocal(cf::WorkPacket &p) override
 	{
 		sf::Int64 size;
 		p >> size;

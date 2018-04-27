@@ -11,16 +11,30 @@
 class BenchmarkTask : public cf::Task
 {
 public:
+
+	/**
+	* Default constructor.
+	*/
 	BenchmarkTask() {};
+
+	/**
+	* Default destructor.
+	*/
 	~BenchmarkTask() {};
 
+	//Test data set.
 	std::vector<float> numbers;
 
+	/**
+	* Get the subtype of this task.
+	* @returns The subtype of this task.
+	*/
 	inline std::string getSubtype() const { return "BenchmarkTask"; };
 
 private:
 
-	inline std::vector<cf::Task *> splitLocal(unsigned int count) const
+
+	inline std::vector<cf::Task *> splitLocal(unsigned int count) const override
 	{
 		//Limit number of tasks to at least number of target numbers.
 		if ((int)numbers.size() < count) count = (int)numbers.size();
@@ -55,14 +69,14 @@ private:
 		return tasksConv;
 	};
 
-	inline void serializeLocal(cf::WorkPacket &p) const
+	inline void serializeLocal(cf::WorkPacket &p) const override
 	{
 		sf::Int64 size = numbers.size();
 		p << size;
 		for (sf::Int64 i = 0; i < size; i++) p << numbers[i];
 	};
 
-	inline void deserializeLocal(cf::WorkPacket &p)
+	inline void deserializeLocal(cf::WorkPacket &p) override
 	{
 		sf::Int64 size;
 		p >> size;
@@ -70,7 +84,7 @@ private:
 		for (sf::Int64 i = 0; i < size; i++) p >> numbers[i];
 	};
 
-	inline cf::Result *runLocal() const
+	inline cf::Result *runLocal() const override
 	{
 		BenchmarkResult *result = new BenchmarkResult();
 

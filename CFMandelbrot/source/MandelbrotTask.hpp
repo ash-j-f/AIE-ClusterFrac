@@ -11,6 +11,8 @@
 class MandelbrotTask : public cf::Task
 {
 public:
+
+
 	MandelbrotTask() {};
 	
 	~MandelbrotTask() {};
@@ -23,13 +25,13 @@ public:
 	sf::Uint32 spaceWidth;
 	sf::Uint32 spaceHeight;
 	
-	inline std::string getSubtype() const { return "MandelbrotTask"; };
+	inline std::string getSubtype() const override { return "MandelbrotTask"; };
 
 private:
 
 	static const sf::Uint8 MAX = 255; // maximum number of iterations for mandelbrot()
 
-	inline std::vector<cf::Task *> splitLocal(unsigned int count) const
+	inline std::vector<cf::Task *> splitLocal(unsigned int count) const override
 	{
 		//Get number of pixels being computed per Y-axis chunk.
 		unsigned int pixelCount = (maxY - minY) + 1;
@@ -73,7 +75,7 @@ private:
 		return tasksConv;
 	};
 
-	inline void serializeLocal(cf::WorkPacket &p) const
+	inline void serializeLocal(cf::WorkPacket &p) const override
 	{
 		p << zoom;
 		p << offsetX;
@@ -84,7 +86,7 @@ private:
 		p << spaceHeight;
 	};
 
-	inline void deserializeLocal(cf::WorkPacket &p)
+	inline void deserializeLocal(cf::WorkPacket &p) override
 	{
 		p >> zoom;
 		p >> offsetX;
@@ -111,7 +113,7 @@ private:
 		return MAX;
 	}
 
-	inline cf::Result *runLocal() const
+	inline cf::Result *runLocal() const override
 	{
 		MandelbrotResult *result = new MandelbrotResult();
 

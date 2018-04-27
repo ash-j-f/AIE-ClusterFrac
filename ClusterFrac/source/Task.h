@@ -53,6 +53,12 @@ namespace cf
 
 		inline unsigned __int64 getInitialTaskID() const { if (initialTaskID == 0) { CF_THROW("This task has no ID."); } return initialTaskID; };
 
+		/**
+		* Split this task up as equally as possible in to N chunks, and return
+		* a std::vector of pointers to those split tasks.
+		* @param count Split the task into this many subtasks.
+		* @returns A std::vector of pointers to the new split tasks.
+		*/
 		std::vector<Task *> split(int count) const;
 
 		void serialize(WorkPacket &p) const;
