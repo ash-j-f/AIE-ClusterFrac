@@ -18,6 +18,9 @@ namespace cf
 
 		//Default busy status.
 		busy = false;
+
+		//Max benchmark elapsed times to store.
+		maxBenchmarkTimes = 100;
 	}
 	
 	Host::~Host()
@@ -263,6 +266,9 @@ namespace cf
 			if (t->getInitialTaskID() == result->getInitialTaskID() &&
 				t->getTaskPartNumber() == result->getTaskPartNumber())
 			{
+				//Record the time this task was started.
+				result->setHostTimeSent(t->getHostTimeSent());
+
 				//Remove this task from the host-as-client.
 				delete t;
 				tasksAssignedAsClient.erase(std::remove(tasksAssignedAsClient.begin(),
@@ -285,7 +291,10 @@ namespace cf
 					if (t->getInitialTaskID() == result->getInitialTaskID() &&
 						t->getTaskPartNumber() == result->getTaskPartNumber())
 					{
-						//Remove this task from the host-as-client.
+						//Record the time this task was started.
+						result->setHostTimeSent(t->getHostTimeSent());
+
+						//Remove this task from the client.
 						delete t;
 						c->tasks.erase(std::remove(c->tasks.begin(), c->tasks.end(), t), c->tasks.end());
 						resultValid = true;
@@ -493,12 +502,22 @@ namespace cf
 					if (resultConstructMap.size() == 0 || resultConstructMap.find(r1->getSubtype()) == resultConstructMap.end()) CF_THROW("Invalid results type.");
 					rNew = resultConstructMap[r1->getSubtype()]();
 					rNew->merge(set);
+
+					//Transfer the task start time from the set to the new merged result.
+					rNew->setHostTimeSent(set[0]->getHostTimeSent());
 				}
 				else
 				{
 					rNew = set.front();
 				}
 
+				//Record the finish time for this result.
+				rNew->setHostTimeFinished(getTime());
+
+				//Add the elapsed time to the benchmark tracker.
+				addBenchmarkTime(rNew->getHostTimeFinished() - rNew->getHostTimeSent());
+
+				//Store the completed result.
 				resultQueueComplete.push_back(rNew);
 
 				//Record these results for removal from the incomplete results set.
@@ -606,6 +625,29 @@ namespace cf
 		//Wait for threads to finish.
 		sender.waitForComplete();
 
+	}
+
+	void Host::addBenchmarkTime(const sf::Time elapsed)
+	{
+		benchmarkTimes.push_back(elapsed);
+
+		//Remove excess times stored in list.
+		while ((int)benchmarkTimes.size() > (int)maxBenchmarkTimes)
+		{
+			benchmarkTimes.pop_front();
+		}
+	}
+
+	sf::Time Host::getAverageBenchmarkTime()
+	{
+		sf::Time sum;
+
+		for (auto &t : benchmarkTimes)
+		{
+			sum += t;
+		}
+
+		return sum / (float)benchmarkTimes.size();
 	}
 
 }

@@ -55,6 +55,10 @@ namespace cf
 
 		void deserialize(cf::WorkPacket &p);
 
+		inline void setHostTimeSent(sf::Time t) { hostTimeSent = t; };
+
+		inline sf::Time getHostTimeSent() const { return hostTimeSent; };
+
 		inline void setHostTimeFinished(sf::Time t) { hostTimeFinished = t; };
 
 		inline sf::Time getHostTimeFinished() const { return hostTimeFinished; };
@@ -75,6 +79,10 @@ namespace cf
 		//to allow growing and unrolling of the stack as tasks are split and 
 		//results are merged.
 		std::vector<sf::Uint32> taskPartsTotalStack;
+
+		//Host time this task was sent to the client.
+		//Only used by the host.
+		sf::Time hostTimeSent;
 
 		//Time this result was accepted as finished by the host.
 		//Only used by the host.

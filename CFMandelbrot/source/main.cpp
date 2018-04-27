@@ -37,6 +37,12 @@ int main(int argc, //Number of strings in array argv
 	cacheCount.setFillColor(sf::Color::White);
 	cacheCount.setPosition(5, 20);
 
+	sf::Text benchTime;
+	benchTime.setFont(font);
+	benchTime.setCharacterSize(12);
+	benchTime.setFillColor(sf::Color::White);
+	benchTime.setPosition(5, 35);
+
 	//Load previous offset position and zoom, if one has been saved.
 	mb.load();
 
@@ -202,11 +208,13 @@ int main(int argc, //Number of strings in array argv
 			//Text updates.
 			clientCount.setString("Clients: " + std::to_string(host->getClientsCount() - 1));
 			cacheCount.setString("Cached views: " + std::to_string(mb.cache.size()));
-			
+			benchTime.setString("Avg. task time (ms): " + std::to_string(host->getAverageBenchmarkTime().asMilliseconds()));
+
 			window.draw(sprite); 
 			window.draw(clientCount);
 			window.draw(cacheCount);
-			
+			window.draw(benchTime);
+
 			window.display();
 
 			//Keep up to N result sets in cache. Each set is one screen worth of pixel bytes in size.

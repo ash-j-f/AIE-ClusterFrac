@@ -147,6 +147,12 @@ namespace cf
 		*/
 		bool markTaskFinished(Result *result);
 
+		/**
+		* Get the average elapsed time for task processing.
+		* @returns The average elapsed time for task processing, in sf::Time format.
+		*/
+		sf::Time getAverageBenchmarkTime();
+
 	private:
 
 		//clock used to track time since startup.
@@ -224,6 +230,12 @@ namespace cf
 		//Get the time since host startup.
 		sf::Time getTime() { return clock.getElapsedTime(); };
 
+		//Max number of benchmark times to store.
+		unsigned int maxBenchmarkTimes;
+
+		//Benchmark elapsed times for results processing.
+		std::list<sf::Time> benchmarkTimes;
+
 		void hostAsClientProcessTaskThread();
 
 		/**
@@ -234,5 +246,13 @@ namespace cf
 		void checkForCompleteResults();
 
 		void distributeSubTasks(std::vector<Task *> subTaskQueue);
+
+		/**
+		* Add an elapsed task time to the benchmark list.
+		* @param elapsed The elapsed time in which a task was completed, in sf::Time format.
+		* @returns void.
+		*/
+		void addBenchmarkTime(const sf::Time elapsed);
+
 	};
 }
