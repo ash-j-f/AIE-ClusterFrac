@@ -25,9 +25,14 @@ public:
 	*/
 	Mandelbrot(cf::Host *newHost);
 
-	double offsetX;
-	double offsetY;
+	//Current view zoom.
 	double zoom;
+
+	//Current view offsetX.
+	double offsetX;
+
+	//Current view offsetY.
+	double offsetY;
 
 	//Cache of view pixel data for various zoom and camera offset positions.
 	std::vector<MandelbrotViewData> cache;
@@ -64,11 +69,40 @@ public:
 	*/
 	double getNewOffsetX(double currentOffsetY, double currentZoom, int factor) const;
 	
+	/**
+	* Create a new view with a given zoom and offset. This creates a ClusterFrac task to generate the view data,
+	* and creates an entry in the cache for this zoom and offset linked to the new task ID.
+	* @param zoom The zoom level to use.
+	* @param offsetX The offset in the X dimension.
+	* @param offsetY The offset in the Y dimension.
+	* @param imageWidth The image width.
+	* @param imageHeight The image height.
+	* @returns void.
+	*/
 	void newView(double zoom, double offsetX, double offsetY, unsigned int imageWidth, unsigned int imageHeight);
 	
+	/**
+	* Save current zoom and offset data to disk.
+	* @returns void.
+	*/
 	void save() const;
+
+	/**
+	* Load zoom and offset data from disk.
+	* @returns void.
+	*/
 	void load();
+
+	/**
+	* Reset the view zoom and offset to defaults.
+	* @returns void.
+	*/
 	void reset();
+
+	/**
+	* Reset the view zoom to default.
+	* @returns void.
+	*/
 	void resetZoomOnly();
 
 	/**
@@ -80,13 +114,35 @@ public:
 	*/
 	void purgeCache(int maxCacheResults);
 
+	/**
+	* Get the color value from the color table at the given index.
+	* @param index The table index to use.
+	* @returns The color value at the given index.
+	*/
 	inline const sf::Color getColor(int index) const { return colors[index];  };
 
+	/**
+	* Get the full path to the location of this executable file.
+	* @returns The full path to the location of this executable file.
+	*/
 	std::string getExecutableFolder() const;
 
 private:
+	
+	//Pointer to the ClusterFrac host object.
 	cf::Host *host;
-	static const sf::Uint8 MAX = 255; // maximum number of iterations for mandelbrot()
+
+	//Maximum number of iterations for Mandelbrot calculations.
+	static const sf::Uint8 MAX = 255;
+
+	//The color table for rendering the Mandelbrot set.
 	std::array<sf::Color, MAX + 1> colors;
+
+	/**
+	* Get a color value based on a Mandelbrot iteration count.
+	* Colouring method from https://solarianprogrammer.com/2013/02/28/mandelbrot-set-cpp-11/
+	* @param iterations The Mandelbrot iteration value for a point.
+	* @returns An sf::Color representing the given number of iterations.
+	*/
 	sf::Color createColor(int iterations) const;
 };

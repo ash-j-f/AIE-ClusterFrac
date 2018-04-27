@@ -8,7 +8,7 @@
 #include "BenchmarkResult.hpp" 
 
 /**
-* ClusterFrac benchmark test.
+* Benchmark reference application that provides an example of using the ClusterFrac library host class.
 * @author Ashley Flynn - Academy of Interactive Entertainment - 2018.
 */
 

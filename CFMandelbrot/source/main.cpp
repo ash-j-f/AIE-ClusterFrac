@@ -3,7 +3,9 @@
 #include "Mandelbrot.h"
 
 /**
-* ClusterFrac Mandelbrot render test.
+* Mandelbrot reference application that provides an example of using the ClusterFrac library host class.
+* User input is provided to allow pan and zoom control. Last pan/zoom position is saved and loaded from 
+* a file on disk.
 * @author Ashley Flynn - Academy of Interactive Entertainment - 2018.
 */
 

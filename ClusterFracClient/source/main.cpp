@@ -11,6 +11,11 @@
 #include "MandelbrotResult.hpp"
 
 /**
+* Client reference application that provides an example of using the ClusterFrac library client class.
+* @author Ashley Flynn - Academy of Interactive Entertainment - 2018.
+*/
+
+/**
 * Main function, performing the core client task.
 * @param argc The number of strings in array argv.
 * @param argv The array of command-line argument strings.
