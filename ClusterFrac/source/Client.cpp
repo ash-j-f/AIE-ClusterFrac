@@ -202,9 +202,10 @@ namespace cf
 
 				std::vector<Result *> results;
 
+				unsigned int threadID = 0;
 				for (auto &thread : threads)
 				{
-					CF_SAY("Task " + std::to_string(taskID) + " - waiting for results and merging.", Settings::LogLevels::Info);
+					CF_SAY("Task " + std::to_string(taskID) + " - processing on thread " + std::to_string(threadID++) + ".", Settings::LogLevels::Info);
 					auto result = thread.get();
 					results.push_back(result);
 				}

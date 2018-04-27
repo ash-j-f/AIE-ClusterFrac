@@ -348,118 +348,128 @@ namespace cf
 	{
 		while (hostAsClientTaskProcessThreadRun)
 		{
-			//Copy the local task queue.
 			std::unique_lock<std::mutex> lock(localHostAsClientTaskQueueMutex);
-			std::list<Task *> localHostAsClientTaskQueueCOPY = localHostAsClientTaskQueue;
-			lock.unlock();
-
-			for (auto &t : localHostAsClientTaskQueueCOPY)
+			if (localHostAsClientTaskQueue.size() > 0)
 			{
-				CF_SAY("Processing task " + std::to_string(t->getInitialTaskID()) + " locally.", Settings::LogLevels::Info);
-				
-				//Split the task among available threads and run.
-				//If there is only one thread, don't split the task and just use the original
-				//task object pointer.
-				std::vector<cf::Task *> tasks;
-				Task *removeTask = t;
-				if (MAX_THREADS > 1)
+				//Copy the local task queue.
+				std::list<Task *> localHostAsClientTaskQueueCOPY = localHostAsClientTaskQueue;
+				lock.unlock();
+
+				for (auto &t : localHostAsClientTaskQueueCOPY)
 				{
-					tasks = t->split(MAX_THREADS);
-				}
-				else
-				{
-					tasks = std::vector<cf::Task *>{ t };
-				}
+					CF_SAY("Processing task " + std::to_string(t->getInitialTaskID()) + " locally.", Settings::LogLevels::Info);
 
-				//Remove the task from the local task parts queue.
-				std::unique_lock<std::mutex> lock3(localHostAsClientTaskQueueMutex);
-				localHostAsClientTaskQueue.erase(std::remove(localHostAsClientTaskQueue.begin(),
-					localHostAsClientTaskQueue.end(), removeTask), localHostAsClientTaskQueue.end());
-				lock3.unlock();
+					//Split the task among available threads and run.
+					//If there is only one thread, don't split the task and just use the original
+					//task object pointer.
+					std::vector<cf::Task *> tasks;
+					Task *removeTask = t;
+					if (MAX_THREADS > 1)
+					{
+						tasks = t->split(MAX_THREADS);
+					}
+					else
+					{
+						tasks = std::vector<cf::Task *>{ t };
+					}
 
-				std::vector<std::future<cf::Result *>> threads = std::vector<std::future<cf::Result *>>();
+					//Remove the task from the local task parts queue.
+					std::unique_lock<std::mutex> lock3(localHostAsClientTaskQueueMutex);
+					localHostAsClientTaskQueue.erase(std::remove(localHostAsClientTaskQueue.begin(),
+						localHostAsClientTaskQueue.end(), removeTask), localHostAsClientTaskQueue.end());
+					lock3.unlock();
 
-				//Start benchmark timer.
-				auto start = std::chrono::steady_clock::now();
+					std::vector<std::future<cf::Result *>> threads = std::vector<std::future<cf::Result *>>();
 
-				for (auto &task : tasks)
-				{
-					threads.push_back(std::async(std::launch::async, [&task]() { return task->run(); }));
-				}
+					//Start benchmark timer.
+					auto start = std::chrono::steady_clock::now();
 
-				std::vector<cf::Result *> results;
-
-				for (auto &thread : threads)
-				{
-					CF_SAY("Processing task locally - waiting for results and merging.", Settings::LogLevels::Info);
-					auto result = thread.get();
-					results.push_back(result);
-				}
-
-				//Remove split subtasks from memory. 
-				//If there was just one, then that means we used the original task object so don't
-				//remove it from memory here.
-				if (tasks.size() > 1)
-				{
 					for (auto &task : tasks)
 					{
-						delete task;
-						task = nullptr;
+						threads.push_back(std::async(std::launch::async, [&task]() { return task->run(); }));
 					}
-				}
 
-				//Stop benchmark test clock.
-				auto end = std::chrono::steady_clock::now();
-				auto diff = end - start;
+					std::vector<cf::Result *> results;
 
-				CF_SAY("Local computation time: " + std::to_string(std::chrono::duration <double, std::milli>(diff).count()) + " ms.", Settings::LogLevels::Info);
-
-				cf::Result *result;
-					
-				//Merge result objects if there was more than one in the resulting set.
-				if (results.size() > 1)
-				{
-					if (resultConstructMap.size() == 0 || resultConstructMap.find(results.front()->getSubtype()) == resultConstructMap.end()) CF_THROW("Invalid results type.");
-					result = resultConstructMap[results.front()->getSubtype()]();
-
-					result->merge(results);
-				}
-				else
-				{
-					result = results.front();
-				}
-
-				//Clean up temporary results objects, but only if they were a set of more than one.
-				//If there was just one result than we need to keep the single result object in memory
-				//and just pass it to the completed results list.
-				if (results.size() > 1)
-				{
-					for (auto &r : results)
+					unsigned int threadID = 0;
+					for (auto &thread : threads)
 					{
-						delete r;
-						r = nullptr;
+						CF_SAY("Processing task locally on thread " + std::to_string(threadID++) + ".", Settings::LogLevels::Info);
+						auto result = thread.get();
+						results.push_back(result);
 					}
+
+					//Remove split subtasks from memory. 
+					//If there was just one, then that means we used the original task object so don't
+					//remove it from memory here.
+					if (tasks.size() > 1)
+					{
+						for (auto &task : tasks)
+						{
+							delete task;
+							task = nullptr;
+						}
+					}
+
+					//Stop benchmark test clock.
+					auto end = std::chrono::steady_clock::now();
+					auto diff = end - start;
+
+					CF_SAY("Local computation time: " + std::to_string(std::chrono::duration <double, std::milli>(diff).count()) + " ms.", Settings::LogLevels::Info);
+
+					cf::Result *result;
+
+					//Merge result objects if there was more than one in the resulting set.
+					if (results.size() > 1)
+					{
+						if (resultConstructMap.size() == 0 || resultConstructMap.find(results.front()->getSubtype()) == resultConstructMap.end()) CF_THROW("Invalid results type.");
+						result = resultConstructMap[results.front()->getSubtype()]();
+
+						result->merge(results);
+					}
+					else
+					{
+						result = results.front();
+					}
+
+					//Clean up temporary results objects, but only if they were a set of more than one.
+					//If there was just one result than we need to keep the single result object in memory
+					//and just pass it to the completed results list.
+					if (results.size() > 1)
+					{
+						for (auto &r : results)
+						{
+							delete r;
+							r = nullptr;
+						}
+					}
+
+					CF_SAY("Processing task locally - completed.", Settings::LogLevels::Info);
+
+					//Work out which client, if any, owns the task this result came from.
+					//If a client is found to own the task, remove the task from the client and delete it from memory.
+					//If no clients own this task, ignore it.
+					//The host is also checked in case it was running as a pseudo-client for this task.
+					if (!markTaskFinished(result)) CF_THROW("Results processed locally are invalid. No owner found.");
+
+					//Place the result in the host result parts queue.
+					std::unique_lock<std::mutex> lock2(resultsQueueMutex);
+					resultQueueIncomplete.push_back(result);
+					lock2.unlock();
+
+					//Scan the incomplete results queue for complete results sets and move them to the complete results queue.
+					checkForCompleteResults();
+
 				}
 
-				CF_SAY("Processing task locally - completed.", Settings::LogLevels::Info);
-
-				//Work out which client, if any, owns the task this result came from.
-				//If a client is found to own the task, remove the task from the client and delete it from memory.
-				//If no clients own this task, ignore it.
-				//The host is also checked in case it was running as a pseudo-client for this task.
-				if (!markTaskFinished(result)) CF_THROW("Results processed locally are invalid. No owner found.");
-
-				//Place the result in the host result parts queue.
-				std::unique_lock<std::mutex> lock2(resultsQueueMutex);
-				resultQueueIncomplete.push_back(result);
-				lock2.unlock();
-
-				//Scan the incomplete results queue for complete results sets and move them to the complete results queue.
-				checkForCompleteResults();
-
+				busy = false;
+			}
+			else
+			{
+				lock.unlock();
 			}
 
-			busy = false;
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
 		}
 	}
 

@@ -44,7 +44,7 @@ int main(int argc, //Number of strings in array argv
 		{
 			//Split the task among available threads and run.
 			int maxThreads = std::thread::hardware_concurrency();
-			int dataSize = 16;
+			int dataSize = 10000000;
 			std::vector<std::future<std::vector<float>>> threads = std::vector<std::future<std::vector<float>>>();
 
 			for (int i = 0; i < maxThreads; i++)
@@ -114,7 +114,7 @@ int main(int argc, //Number of strings in array argv
 
 			//List results.
 			CF_SAY("Results received (" + std::to_string(output->numbers.size()) + "):", cf::Settings::LogLevels::Info);
-			for (int i = 0; i < 16; i++)
+			for (int i = 0; i < (output->numbers.size() >= 10 ? 10 : (int)output->numbers.size()); i++)
 			{
 				CF_SAY(std::to_string(output->numbers[i]), cf::Settings::LogLevels::Info);
 			}
@@ -125,7 +125,7 @@ int main(int argc, //Number of strings in array argv
 			{
 				if (expectedResults[i] != output->numbers[i]) CF_THROW("Results verification failed. Results did not match!");
 			}
-			CF_SAY("Results verified OK.", cf::Settings::LogLevels::Info);
+			CF_SAY("Results verified OK from " + std::to_string(host->getClientsCount()) + " clients.", cf::Settings::LogLevels::Info);
 
 			//Remove the result from the completed results queue.
 			host->removeResultFromQueue(finished);
@@ -133,7 +133,9 @@ int main(int argc, //Number of strings in array argv
 			output = nullptr;
 
 			CF_SAY("Computation and network time: " + std::to_string(std::chrono::duration <double, std::milli>(diff).count()) + " ms.", cf::Settings::LogLevels::Info);
-
+			
+			CF_SAY("Test complete. Running again in 3 secs. Hold Ctrl-Q to quit.", cf::Settings::LogLevels::Info);
+			std::this_thread::sleep_for(std::chrono::milliseconds(3000));
 		}
 
 		delete host;
