@@ -3,7 +3,7 @@
 Mandelbrot::Mandelbrot(cf::Host *newHost) {
 	host = newHost;
 	for (int i = 0; i <= MAX; ++i) {
-		colors[i] = getColor(i);
+		colors[i] = createColor(i);
 	}
 	
 	nextCacheID = 0;
@@ -34,7 +34,7 @@ void Mandelbrot::purgeCache(int maxCacheResults)
 	}
 }
 
-sf::Color Mandelbrot::getColor(int iterations) const {
+sf::Color Mandelbrot::createColor(int iterations) const {
 
 	//Colouring method from https://solarianprogrammer.com/2013/02/28/mandelbrot-set-cpp-11/
 
@@ -118,80 +118,34 @@ double Mandelbrot::getNewOffsetX(double currentOffsetX, double currentZoom, int 
 	return currentOffsetX;
 }
 
-bool Mandelbrot::updateImage(double zoom, double offsetX, double offsetY, sf::Image& image, unsigned int imageWidth, unsigned int imageHeight)
+void Mandelbrot::newView(cf::Host *host, double zoom, double offsetX, double offsetY, unsigned int imageWidth, unsigned int imageHeight)
 {
-	cf::Result *viewResult = nullptr;
+	cf::Task *task = new MandelbrotTask();
 
-	//Is this view zoom and offset already in the cache?
-	bool found = false;
-	for (auto &vd : cache)
-	{
-		if (vd.zoom == zoom && vd.offsetX == offsetX && vd.offsetY == offsetY)
-		{
-			found = true;
-			viewResult = vd.result;
-			break;
-		}
-	}
+	//Assign the task a unique ID.
+	task->assignID();
+	task->setNodeTargetType(cf::Task::NodeTargetTypes::Any);
+	task->allowNodeTaskSplit = false;
 
-	//Cached version of this view not found, so generate a new one via a new task.
-	if (viewResult == nullptr && !found)
-	{
-		cf::Task *task = new MandelbrotTask();
+	((MandelbrotTask *)task)->zoom = zoom;
+	((MandelbrotTask *)task)->offsetX = offsetX;
+	((MandelbrotTask *)task)->offsetY = offsetY;
+	((MandelbrotTask *)task)->spaceWidth = imageWidth;
+	((MandelbrotTask *)task)->spaceHeight = imageHeight;
+	((MandelbrotTask *)task)->minY = 0;
+	((MandelbrotTask *)task)->maxY = imageHeight - 1;
 
-		//Assign the task a unique ID.
-		task->assignID();
-		task->setNodeTargetType(cf::Task::NodeTargetTypes::Local);
-		task->allowNodeTaskSplit = false;
+	host->addTaskToQueue(task);
 
-		((MandelbrotTask *)task)->zoom = zoom;
-		((MandelbrotTask *)task)->offsetX = offsetX;
-		((MandelbrotTask *)task)->offsetY = offsetY;
-		((MandelbrotTask *)task)->spaceWidth = imageWidth;
-		((MandelbrotTask *)task)->spaceHeight = imageHeight;
-		((MandelbrotTask *)task)->minY = 0;
-		((MandelbrotTask *)task)->maxY = imageHeight - 1;
-
-		unsigned __int64 taskID = task->getInitialTaskID();
-
-		host->addTaskToQueue(task);
-
-		//Wait for results to be complete.
-		while (!host->checkAvailableResult(taskID)) std::this_thread::sleep_for(std::chrono::milliseconds(1));
-
-		viewResult = host->getAvailableResult(taskID);
-
-		//Create new cache entry for this zoom level.
-		MandelbrotViewData mvd;
-		mvd.zoom = zoom;
-		mvd.offsetX = offsetX;
-		mvd.offsetY = offsetY;
-		mvd.result = viewResult;
-		mvd.taskID = task->getInitialTaskID();
-		mvd.cacheEntryID = nextCacheID++;
-		cache.push_back(mvd);
-	}
-
-	if (viewResult != nullptr)
-	{
-		MandelbrotResult *output = static_cast<MandelbrotResult *>(viewResult);
-		unsigned int count = (unsigned int)output->numbers.size();
-
-		unsigned int y = 0;
-		unsigned int x = 0;
-		for (x = 0; x < imageWidth; x++)
-		{
-			for (y = 0; y < imageHeight; y++)
-			{
-				image.setPixel(x, y, colors[output->numbers[imageWidth * y + x]]);
-			}
-		}
-
-		return true;
-	}
-
-	return false;
-
+	//Create new cache entry for this zoom level.
+	MandelbrotViewData mvd;
+	mvd.zoom = zoom;
+	mvd.offsetX = offsetX;
+	mvd.offsetY = offsetY;
+	mvd.result = nullptr;
+	mvd.taskID = task->getInitialTaskID();
+	mvd.cacheEntryID = nextCacheID++;
+	cache.push_back(mvd);
 }
 
 void Mandelbrot::save() const

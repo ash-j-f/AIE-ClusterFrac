@@ -5,36 +5,6 @@
 static constexpr unsigned int IMAGE_WIDTH = 1024;
 static constexpr unsigned int IMAGE_HEIGHT = 768;
 
-void newView(Mandelbrot &mb, cf::Host *host, double zoom, double offsetX, double offsetY)
-{
-	cf::Task *task = new MandelbrotTask();
-
-	//Assign the task a unique ID.
-	task->assignID();
-	task->setNodeTargetType(cf::Task::NodeTargetTypes::Any);
-	task->allowNodeTaskSplit = false;
-
-	((MandelbrotTask *)task)->zoom = zoom;
-	((MandelbrotTask *)task)->offsetX = offsetX;
-	((MandelbrotTask *)task)->offsetY = offsetY;
-	((MandelbrotTask *)task)->spaceWidth = IMAGE_WIDTH;
-	((MandelbrotTask *)task)->spaceHeight = IMAGE_HEIGHT;
-	((MandelbrotTask *)task)->minY = 0;
-	((MandelbrotTask *)task)->maxY = IMAGE_HEIGHT - 1;
-
-	host->addTaskToQueue(task);
-
-	//Create new cache entry for this zoom level.
-	MandelbrotViewData mvd;
-	mvd.zoom = zoom;
-	mvd.offsetX = offsetX;
-	mvd.offsetY = offsetY;
-	mvd.result = nullptr;
-	mvd.taskID = task->getInitialTaskID();
-	mvd.cacheEntryID = mb.nextCacheID++;
-	mb.cache.push_back(mvd);
-}
-
 int main(int argc, //Number of strings in array argv  
 	char *argv[], //Array of command-line argument strings  
 	char *envp[]) // Array of environment variable strings  
@@ -128,20 +98,22 @@ int main(int argc, //Number of strings in array argv
 		{
 
 			//For current view position, do we have the next zoomed view in cache?
-			
+			cf::Result *viewResult = nullptr;
 			int clCount = host->getClientsCount();
+			int maxDepth = host->getClientsCount();
 			for (int i = 0; i < clCount; i++)
 			{
-				int zoomFactor = 0;// (zoomingIn ? 1 : -1);
+				int zoomFactor = 0;
 
 				while (true)
 				{
 					bool found = false;
-					int maxDepth = host->getClientsCount();
+					
 					for (auto &mvd : mb.cache)
 					{
 						if (mvd.offsetX == mb.offsetX && mvd.offsetY == mb.offsetY && mvd.zoom == mb.getNewZoom(mb.zoom, zoomFactor))
 						{
+							if (zoomFactor == 0) viewResult = mvd.result;
 							found = true;
 							break;
 						}
@@ -149,7 +121,7 @@ int main(int argc, //Number of strings in array argv
 
 					if (!found)
 					{
-						newView(mb, host, mb.getNewZoom(mb.zoom, zoomFactor), mb.offsetX, mb.offsetY);
+						mb.newView(host, mb.getNewZoom(mb.zoom, zoomFactor), mb.offsetX, mb.offsetY, IMAGE_WIDTH, IMAGE_HEIGHT);
 						break;
 					}
 					else if (abs(zoomFactor) > maxDepth)
@@ -162,26 +134,6 @@ int main(int argc, //Number of strings in array argv
 					}
 				}
 			}
-			
-
-			/*
-			{
-				bool found = false;
-				for (auto &mvd : mb.cache)
-				{
-					if (mvd.offsetX == mb.getNewOffsetX(mb.offsetX, mb.zoom, 1) && mvd.offsetY == mb.offsetY && mvd.zoom == mb.zoom)
-					{
-						found = true;
-						break;
-					}
-				}
-
-				if (!found)
-				{
-					newView(mb, host, mb.zoom, mb.getNewOffsetX(mb.offsetX, mb.zoom, 1), mb.offsetY);
-				}
-			}
-			*/
 
 			//Match incoming results to their cached tasks.
 			for (auto &mvd : mb.cache)
@@ -201,18 +153,6 @@ int main(int argc, //Number of strings in array argv
 				//bool updated = mb.updateImage(mb.zoom, mb.offsetX, mb.offsetY, image, IMAGE_WIDTH, IMAGE_HEIGHT);
 				
 				//Is this view zoom and offset already in the cache?
-				cf::Result *viewResult = nullptr;
-				bool found = false;
-				for (auto &vd : mb.cache)
-				{
-					if (vd.zoom == mb.zoom && vd.offsetX == mb.offsetX && vd.offsetY == mb.offsetY)
-					{
-						found = true;
-						viewResult = vd.result;
-						break;
-					}
-				}
-				
 				
 				if (viewResult != nullptr)
 				{
@@ -225,7 +165,7 @@ int main(int argc, //Number of strings in array argv
 					{
 						for (y = 0; y < IMAGE_HEIGHT; y++)
 						{
-							image.setPixel(x, y, mb.colors[output->numbers[IMAGE_WIDTH * y + x]]);
+							image.setPixel(x, y, mb.getColor(output->numbers[IMAGE_WIDTH * y + x]));
 						}
 					}
 
