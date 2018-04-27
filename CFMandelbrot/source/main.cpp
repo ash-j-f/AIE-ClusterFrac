@@ -13,22 +13,45 @@ int main(int argc, //Number of strings in array argv
 
 	//Create new host object.
 	cf::Host *host = new cf::Host();
-	
-	//Set user defined Task and Result types.
-	host->registerTaskType("MandelbrotTask", []{ MandelbrotTask *m = new MandelbrotTask(); return static_cast<cf::Task *>(m); });
-	host->registerResultType("MandelbrotResult", []{ MandelbrotResult *m = new MandelbrotResult(); return static_cast<cf::Result *>(m); });
 
-	host->setHostAsClient(true);
-	host->start();
+	//Create Mandelbrot object.
+	Mandelbrot mb{ host };
 
-	sf::Clock clock;
+	//Load font file.
+	sf::Font font;
+	if (!font.loadFromFile(mb.getExecutableFolder() + "\\fonts\\" + "Topaz-8.ttf"))
+	{
+		std::cerr << "Could not load font file." << std::endl;
+		exit(1);
+	}
 
-	Mandelbrot mb{host};
+	sf::Text clientCount;
+	clientCount.setFont(font);
+	clientCount.setCharacterSize(12);
+	clientCount.setFillColor(sf::Color::White);
+	clientCount.setPosition(5, 5);
+
+	sf::Text cacheCount;
+	cacheCount.setFont(font);
+	cacheCount.setCharacterSize(12);
+	cacheCount.setFillColor(sf::Color::White);
+	cacheCount.setPosition(5, 20);
 
 	//Load previous offset position and zoom, if one has been saved.
 	mb.load();
 
-	sf::RenderWindow window(sf::VideoMode(IMAGE_WIDTH, IMAGE_HEIGHT), "Mandelbrot");
+	//Set user defined Task and Result types.
+	host->registerTaskType("MandelbrotTask", [] { MandelbrotTask *m = new MandelbrotTask(); return static_cast<cf::Task *>(m); });
+	host->registerResultType("MandelbrotResult", [] { MandelbrotResult *m = new MandelbrotResult(); return static_cast<cf::Result *>(m); });
+
+	//Start the host with ability to process tasks as a client itself.
+	host->setHostAsClient(true);
+	host->start();
+
+	//Clock used for benchmarks.
+	sf::Clock clock;
+
+	sf::RenderWindow window(sf::VideoMode(IMAGE_WIDTH, IMAGE_HEIGHT), "Mandelbrot", sf::Style::Titlebar | sf::Style::Close);
 	window.setFramerateLimit(0);
 
 	sf::Image image;
@@ -98,9 +121,10 @@ int main(int argc, //Number of strings in array argv
 		{
 
 			//For current view position, do we have the next zoomed view in cache?
+			//Get an extra level of zoom depth per connected client.
 			cf::Result *viewResult = nullptr;
 			int clCount = host->getClientsCount();
-			int maxDepth = host->getClientsCount();
+			int maxDepth = host->getClientsCount() - 1;
 			for (int i = 0; i < clCount; i++)
 			{
 				int zoomFactor = 0;
@@ -121,10 +145,10 @@ int main(int argc, //Number of strings in array argv
 
 					if (!found)
 					{
-						mb.newView(host, mb.getNewZoom(mb.zoom, zoomFactor), mb.offsetX, mb.offsetY, IMAGE_WIDTH, IMAGE_HEIGHT);
+						mb.newView(mb.getNewZoom(mb.zoom, zoomFactor), mb.offsetX, mb.offsetY, IMAGE_WIDTH, IMAGE_HEIGHT);
 						break;
 					}
-					else if (abs(zoomFactor) > maxDepth)
+					else if (abs(zoomFactor) >= maxDepth)
 					{
 						break;
 					}
@@ -150,9 +174,8 @@ int main(int argc, //Number of strings in array argv
 			//If a new camera position or zoom was set, update the current image on screen.
 			if (stateChanged)
 			{
-				//bool updated = mb.updateImage(mb.zoom, mb.offsetX, mb.offsetY, image, IMAGE_WIDTH, IMAGE_HEIGHT);
 				
-				//Is this view zoom and offset already in the cache?
+				//Is the current view zoom and offset in the cache and ready to be displayed?
 				
 				if (viewResult != nullptr)
 				{
@@ -175,7 +198,15 @@ int main(int argc, //Number of strings in array argv
 					mb.save();
 				}
 			}
-			window.draw(sprite);
+
+			//Text updates.
+			clientCount.setString("Clients: " + std::to_string(host->getClientsCount() - 1));
+			cacheCount.setString("Cached views: " + std::to_string(mb.cache.size()));
+			
+			window.draw(sprite); 
+			window.draw(clientCount);
+			window.draw(cacheCount);
+			
 			window.display();
 
 			//Keep up to N result sets in cache. Each set is one screen worth of pixel bytes in size.

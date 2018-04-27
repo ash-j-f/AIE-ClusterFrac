@@ -63,9 +63,9 @@ namespace cf
 
 		inline void setHostTimeSent(sf::Time t) { hostTimeSent = t; };
 
-		inline sf::Time getHostTimeSent() { return hostTimeSent; };
+		inline sf::Time getHostTimeSent() const { return hostTimeSent; };
 
-		inline float getMaxTaskTimeMilliseconds() { return maxTaskTimeMilliseconds; };
+		inline float getMaxTaskTimeMilliseconds() const { return maxTaskTimeMilliseconds; };
 
 		/**
 		* Assign this task a unique ID, if it doesn't already have one.

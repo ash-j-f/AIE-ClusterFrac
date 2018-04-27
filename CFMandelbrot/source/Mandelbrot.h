@@ -53,7 +53,7 @@ public:
 	*/
 	double getNewOffsetX(double currentOffsetY, double currentZoom, int factor) const;
 	
-	void newView(cf::Host *host, double zoom, double offsetX, double offsetY, unsigned int imageWidth, unsigned int imageHeight);
+	void newView(double zoom, double offsetX, double offsetY, unsigned int imageWidth, unsigned int imageHeight);
 	
 	void save() const;
 	void load();
@@ -71,10 +71,11 @@ public:
 
 	inline const sf::Color getColor(int index) const { return colors[index];  };
 
+	std::string getExecutableFolder() const;
+
 private:
 	cf::Host *host;
 	static const sf::Uint8 MAX = 255; // maximum number of iterations for mandelbrot()
 	std::array<sf::Color, MAX + 1> colors;
 	sf::Color createColor(int iterations) const;
-	std::string getExecutableFolder() const;
 };

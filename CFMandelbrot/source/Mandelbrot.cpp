@@ -118,7 +118,7 @@ double Mandelbrot::getNewOffsetX(double currentOffsetX, double currentZoom, int 
 	return currentOffsetX;
 }
 
-void Mandelbrot::newView(cf::Host *host, double zoom, double offsetX, double offsetY, unsigned int imageWidth, unsigned int imageHeight)
+void Mandelbrot::newView(double zoom, double offsetX, double offsetY, unsigned int imageWidth, unsigned int imageHeight)
 {
 	cf::Task *task = new MandelbrotTask();
 

@@ -55,6 +55,10 @@ namespace cf
 
 		void deserialize(cf::WorkPacket &p);
 
+		inline void setHostTimeFinished(sf::Time t) { hostTimeFinished = t; };
+
+		inline sf::Time getHostTimeFinished() const { return hostTimeFinished; };
+
 	private:
 
 		//The ID of the initial task before it was split.
@@ -71,6 +75,10 @@ namespace cf
 		//to allow growing and unrolling of the stack as tasks are split and 
 		//results are merged.
 		std::vector<sf::Uint32> taskPartsTotalStack;
+
+		//Time this result was accepted as finished by the host.
+		//Only used by the host.
+		sf::Time hostTimeFinished;
 
 		virtual void mergeLocal(const std::vector<Result *> others) = 0;
 
