@@ -261,6 +261,8 @@ namespace cf
 				//Scan the incomplete results queue for complete results sets and move them to the complete results queue.
 				checkForCompleteResults();
 			}
+
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
 		}
 	}
 
