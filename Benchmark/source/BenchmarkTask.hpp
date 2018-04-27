@@ -33,7 +33,12 @@ public:
 
 private:
 
-
+	/**
+	* Split this task up as equally as possible in to N chunks, and return
+	* a std::vector of pointers to those split tasks.
+	* @param count Split the task into this many subtasks.
+	* @returns A std::vector of pointers to the new split tasks.
+	*/
 	inline std::vector<cf::Task *> splitLocal(unsigned int count) const override
 	{
 		//Limit number of tasks to at least number of target numbers.
@@ -69,6 +74,11 @@ private:
 		return tasksConv;
 	};
 
+	/**
+	* Serialize this task and store the data in a given packet.
+	* @param p The packet to store the data in.
+	* @returns void.
+	*/
 	inline void serializeLocal(cf::WorkPacket &p) const override
 	{
 		sf::Int64 size = numbers.size();
@@ -76,6 +86,11 @@ private:
 		for (sf::Int64 i = 0; i < size; i++) p << numbers[i];
 	};
 
+	/**
+	* Deserialize this task from data provided by a packet.
+	* @param p The packet to retrieve the task data from.
+	* @returns void.
+	*/
 	inline void deserializeLocal(cf::WorkPacket &p) override
 	{
 		sf::Int64 size;
@@ -84,6 +99,10 @@ private:
 		for (sf::Int64 i = 0; i < size; i++) p >> numbers[i];
 	};
 
+	/**
+	* Run the task and produce a results object.
+	* @returns A pointer to the new results object.
+	*/
 	inline cf::Result *runLocal() const override
 	{
 		BenchmarkResult *result = new BenchmarkResult();

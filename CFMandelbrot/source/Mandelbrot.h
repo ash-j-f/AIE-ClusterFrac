@@ -10,8 +10,19 @@
 #include "MandelbrotResult.hpp"
 #include "MandelbrotViewData.hpp"
 
+/**
+* Mandelbrot class used to manage, calculate and display the Mandelbrot set at a chosen zoom level and offset.
+* Provides user input for navigating the Mandelbrot set in real time.
+* @author Ashley Flynn - Academy of Interactive Entertainment - 2018.
+*/
 class Mandelbrot {
+
 public:
+
+	/**
+	* Constructor.
+	* @param newHost The ClusterFrac host object.
+	*/
 	Mandelbrot(cf::Host *newHost);
 
 	double offsetX;

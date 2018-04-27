@@ -61,10 +61,24 @@ namespace cf
 		*/
 		std::vector<Task *> split(int count) const;
 
+		/**
+		* Serialize this task and store the data in a given packet.
+		* @param p The packet to store the data in.
+		* @returns void.
+		*/
 		void serialize(WorkPacket &p) const;
 
+		/**
+		* Deserialize this task from data provided by a packet.
+		* @param p The packet to retrieve the task data from.
+		* @returns void.
+		*/
 		void deserialize(WorkPacket &p);
 
+		/**
+		* Run the task and produce a results object.
+		* @returns A pointer to the new results object.
+		*/
 		Result *run() const;
 
 		inline void setHostTimeSent(sf::Time t) { hostTimeSent = t; };
@@ -128,10 +142,24 @@ namespace cf
 		*/
 		virtual std::vector<Task *> splitLocal(unsigned int count) const = 0;
 
+		/**
+		* Serialize this task and store the data in a given packet.
+		* @param p The packet to store the data in.
+		* @returns void.
+		*/
 		virtual void serializeLocal(WorkPacket &p) const = 0;
 
+		/**
+		* Deserialize this task from data provided by a packet.
+		* @param p The packet to retrieve the task data from.
+		* @returns void.
+		*/
 		virtual void deserializeLocal(WorkPacket &p) = 0;
 
+		/**
+		* Run the task and produce a results object.
+		* @returns A pointer to the new results object.
+		*/
 		virtual Result *runLocal() const = 0;
 
 	};

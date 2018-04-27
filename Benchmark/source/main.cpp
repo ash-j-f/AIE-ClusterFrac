@@ -7,15 +7,23 @@
 #include "BenchmarkTask.hpp" 
 #include "BenchmarkResult.hpp" 
 
-int main(int argc, //Number of strings in array argv  
-	char *argv[], //Array of command-line argument strings  
-	char *envp[]) // Array of environment variable strings  
+/**
+* ClusterFrac benchmark test.
+* @author Ashley Flynn - Academy of Interactive Entertainment - 2018.
+*/
+
+/**
+* Main function, performing the basic benchmark task.
+* @param argc The number of strings in array argv.
+* @param argv The array of command-line argument strings.
+* @param envp The array of environment variable strings.
+*/
+int main(int argc, char *argv[], char *envp[])
 {
 	try
 	{
-
 		//Set log level for console messages.
-		CF_SETTINGS->setLogLevel(cf::Settings::LogLevels::Debug);
+		//CF_SETTINGS->setLogLevel(cf::Settings::LogLevels::Debug);
 
 		CF_SAY("Hold Ctrl-Q to quit.", cf::Settings::LogLevels::Info);
 
@@ -96,7 +104,6 @@ int main(int argc, //Number of strings in array argv
 			//Start benchmark timer.
 			auto start = std::chrono::steady_clock::now();
 
-			
 			//Wait for results to be complete.
 			CF_SAY("Waiting for completed results.", cf::Settings::LogLevels::Info);
 			while (!host->checkAvailableResult(taskID))

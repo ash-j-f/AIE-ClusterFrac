@@ -2,12 +2,24 @@
 #include "Host.h"
 #include "Mandelbrot.h"
 
+/**
+* ClusterFrac Mandelbrot render test.
+* @author Ashley Flynn - Academy of Interactive Entertainment - 2018.
+*/
+
+//Image and window width.
 static constexpr unsigned int IMAGE_WIDTH = 1024;
+
+//Image and window height.
 static constexpr unsigned int IMAGE_HEIGHT = 768;
 
-int main(int argc, //Number of strings in array argv  
-	char *argv[], //Array of command-line argument strings  
-	char *envp[]) // Array of environment variable strings  
+/**
+* Main function, performing the core Mandelbrot test and display task.
+* @param argc The number of strings in array argv.
+* @param argv The array of command-line argument strings.
+* @param envp The array of environment variable strings.
+*/
+int main(int argc, char *argv[], char *envp[])
 {
 	//CF_SETTINGS->setLogLevel(cf::Settings::LogLevels::Error);
 
@@ -24,6 +36,8 @@ int main(int argc, //Number of strings in array argv
 		std::cerr << "Could not load font file." << std::endl;
 		exit(1);
 	}
+
+	//Define text elements.
 
 	sf::Text clientCount;
 	clientCount.setFont(font);
@@ -43,6 +57,25 @@ int main(int argc, //Number of strings in array argv
 	benchTime.setFillColor(sf::Color::White);
 	benchTime.setPosition(5, 35);
 
+	sf::Text onscreenHelp1;
+	onscreenHelp1.setFont(font);
+	onscreenHelp1.setCharacterSize(12);
+	onscreenHelp1.setFillColor(sf::Color::White);
+	onscreenHelp1.setPosition(5, 50);
+	onscreenHelp1.setString("WASD to pan. -/+ to zoom.");
+
+	sf::Text onscreenHelp2;
+	onscreenHelp2.setFont(font);
+	onscreenHelp2.setCharacterSize(12);
+	onscreenHelp2.setFillColor(sf::Color::White);
+	onscreenHelp2.setPosition(5, 65);
+	onscreenHelp2.setString("R rst. view. T rst. zoom.");
+
+	//Box behind text elements.
+	sf::RectangleShape rectangle(sf::Vector2f(285, 85));
+	rectangle.setPosition(0,0);
+	rectangle.setFillColor(sf::Color(0,0,0,127));
+
 	//Load previous offset position and zoom, if one has been saved.
 	mb.load();
 
@@ -57,9 +90,11 @@ int main(int argc, //Number of strings in array argv
 	//Clock used for benchmarks.
 	sf::Clock clock;
 
+	//Create window.
 	sf::RenderWindow window(sf::VideoMode(IMAGE_WIDTH, IMAGE_HEIGHT), "Mandelbrot", sf::Style::Titlebar | sf::Style::Close);
 	window.setFramerateLimit(0);
 
+	//Set up image.
 	sf::Image image;
 	image.create(IMAGE_WIDTH, IMAGE_HEIGHT, sf::Color(0, 0, 0));
 	sf::Texture texture;
@@ -71,6 +106,7 @@ int main(int argc, //Number of strings in array argv
 	//Last zoom direction. Used to determine which direction new cached zoom levels should be generated. 
 	bool zoomingIn = true;
 
+	//User input.
 	while (window.isOpen()) {
 		sf::Event event;
 		while (window.pollEvent(event) && !stateChanged) {
@@ -206,21 +242,29 @@ int main(int argc, //Number of strings in array argv
 			}
 
 			//Text updates.
-			clientCount.setString("Clients: " + std::to_string(host->getClientsCount() - 1));
+			clientCount.setString("Connected Clients: " + std::to_string(host->getClientsCount() - 1));
 			cacheCount.setString("Cached views: " + std::to_string(mb.cache.size()));
 			benchTime.setString("Avg. task time (ms): " + std::to_string(host->getAverageBenchmarkTime().asMilliseconds()));
 
+			//Draw objects on screen.
 			window.draw(sprite); 
+
+			window.draw(rectangle);
+
 			window.draw(clientCount);
 			window.draw(cacheCount);
 			window.draw(benchTime);
+			window.draw(onscreenHelp1);
+			window.draw(onscreenHelp2);
 
+			//Send buffer to GPU.
 			window.display();
 
 			//Keep up to N result sets in cache. Each set is one screen worth of pixel bytes in size.
 			//Or about 2.5MB per 1920x1080 screen.
 			mb.purgeCache(400);
 			
+			//Reset frame clock.
 			clock.restart();
 		}
 	}

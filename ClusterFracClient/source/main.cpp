@@ -10,9 +10,13 @@
 #include "MandelbrotTask.hpp"
 #include "MandelbrotResult.hpp"
 
-int main(int argc, //Number of strings in array argv  
-	char *argv[], //Array of command-line argument strings  
-	char *envp[]) // Array of environment variable strings  
+/**
+* Main function, performing the core client task.
+* @param argc The number of strings in array argv.
+* @param argv The array of command-line argument strings.
+* @param envp The array of environment variable strings.
+*/
+int main(int argc, char *argv[], char *envp[])
 {
 
 	//CF_SETTINGS->setLogLevel(cf::Settings::LogLevels::Error);
