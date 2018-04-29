@@ -25,6 +25,11 @@ public:
 	*/
 	Mandelbrot(cf::Host *newHost);
 
+	/**
+	* Default destructor.
+	*/
+	~Mandelbrot();
+
 	//Current view zoom.
 	double zoom;
 

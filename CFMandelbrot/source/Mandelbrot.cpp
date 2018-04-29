@@ -12,6 +12,11 @@ Mandelbrot::Mandelbrot(cf::Host *newHost) {
 	reset();
 }
 
+Mandelbrot::~Mandelbrot()
+{
+	save();
+}
+
 void Mandelbrot::purgeCache(int maxCacheResults)
 {
 	int oldestCacheID = nextCacheID - maxCacheResults;
@@ -156,10 +161,24 @@ void Mandelbrot::save() const
 	
 	if (!pFile) return;
 	
-	fwrite(&offsetX, sizeof(char), sizeof(offsetX), pFile);
-	fwrite(&offsetY, sizeof(char), sizeof(offsetY), pFile);
-	fwrite(&zoom, sizeof(char), sizeof(zoom), pFile);
-	fclose(pFile);
+	bool closed = false;
+
+	try
+	{
+		fwrite(&offsetX, sizeof(char), sizeof(offsetX), pFile);
+		fwrite(&offsetY, sizeof(char), sizeof(offsetY), pFile);
+		fwrite(&zoom, sizeof(char), sizeof(zoom), pFile);
+	}
+	catch (...)
+	{
+		fclose(pFile);
+		closed = true;
+		//Invalid data in file. Proceed with default values.
+		CF_SAY("Unable to write Mandelbrot data file " + getExecutableFolder() + "\\"
+			+ "savedata.bin. Zoom and offset values not saved.", cf::Settings::LogLevels::Error);
+	}
+	
+	if (!closed) fclose(pFile);
 }
 
 void Mandelbrot::load()
@@ -170,10 +189,32 @@ void Mandelbrot::load()
 
 	if (!pFile) return;
 
-	fread(&offsetX, sizeof(char), sizeof(offsetX), pFile);
-	fread(&offsetY, sizeof(char), sizeof(offsetY), pFile);
-	fread(&zoom, sizeof(char), sizeof(zoom), pFile);
-	fclose(pFile);
+	bool closed = false;
+
+	try
+	{
+		size_t byteSize;
+		byteSize = fread(&offsetX, sizeof(char), sizeof(offsetX), pFile);
+		if (byteSize != sizeof(offsetX)) throw "Invalid data.";
+		byteSize = fread(&offsetY, sizeof(char), sizeof(offsetY), pFile);
+		if (byteSize != sizeof(offsetY)) throw "Invalid data.";
+		byteSize = fread(&zoom, sizeof(char), sizeof(zoom), pFile);
+		if (byteSize != sizeof(zoom)) throw "Invalid data.";
+	}
+	catch (...)
+	{
+		//Invalid data in file. Proceed with default values.
+		CF_SAY("Invalid Mandelbrot data file " + getExecutableFolder() + "\\" 
+			+ "savedata.bin. Using default zoom and offset values.", cf::Settings::LogLevels::Error);
+		fclose(pFile);
+		closed = true;
+		//Reset to defaults.
+		reset();
+		//Save the defaults to repair the file.
+		save();
+	}
+	
+	if (!closed) fclose(pFile);
 }
 
 void Mandelbrot::reset()
