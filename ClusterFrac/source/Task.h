@@ -12,6 +12,8 @@ namespace cf
 {
 	/**
 	* Task object that stores a task to be completed by a client.
+	* Pure virtual class, intended to be used as a base class for derived
+	* custom Task objects.
 	* @author Ashley Flynn - Academy of Interactive Entertainment - 2018.
 	*/
 	class DLL Task
@@ -85,8 +87,17 @@ namespace cf
 		*/
 		Result *run() const;
 
+		/**
+		* Record the time the task was started.
+		* @param t The time the task was started, in sf::Time format.
+		* @returns void.
+		*/
 		inline void setHostTimeSent(sf::Time t) { hostTimeSent = t; };
 
+		/**
+		* Get the time the task was started.
+		* @returns The time the task was started, in sf::Time format.
+		*/
 		inline sf::Time getHostTimeSent() const { return hostTimeSent; };
 
 		inline float getMaxTaskTimeMilliseconds() const { return maxTaskTimeMilliseconds; };
