@@ -8,6 +8,11 @@
 
 namespace cf
 {
+	
+	/**
+	* Result object that stores the results of processing a Task.
+	* @author Ashley Flynn - Academy of Interactive Entertainment - 2018.
+	*/
 	class DLL Result
 	{
 

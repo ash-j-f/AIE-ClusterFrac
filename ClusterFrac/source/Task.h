@@ -10,6 +10,10 @@
 
 namespace cf
 {
+	/**
+	* Task object that stores a task to be completed by a client.
+	* @author Ashley Flynn - Academy of Interactive Entertainment - 2018.
+	*/
 	class DLL Task
 	{
 	public:
