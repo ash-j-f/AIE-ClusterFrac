@@ -59,7 +59,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)\CFMandelbrot\source\;$(SolutionDir)\Benchmark\source\;$(SolutionDir)\ClusterFrac\source\;$(SolutionDir)\SFML-2.4.2\include\;$(SolutionDir)\ZLIB-1.2.11\include\</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>SFML_STATIC;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)\ClusterFrac\lib\;$(SolutionDir)\SFML-2.4.2\lib\</AdditionalLibraryDirectories>
@@ -76,7 +76,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)\CFMandelbrot\source\;$(SolutionDir)\Benchmark\source\;$(SolutionDir)\ClusterFrac\source\;$(SolutionDir)\SFML-2.4.2\include\;$(SolutionDir)\ZLIB-1.2.11\include\</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>SFML_STATIC;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>

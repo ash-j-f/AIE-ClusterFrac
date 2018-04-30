@@ -75,7 +75,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)\SFML-2.4.2\include\;$(SolutionDir)\ClusterFrac\source\;$(SolutionDir)\ZLIB-1.2.11\include\</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion)_DEBUG.pdb</ProgramDataBaseFileName>
-      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -98,7 +98,7 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(SolutionDir)\SFML-2.4.2\include\;$(SolutionDir)\ClusterFrac\source\;$(SolutionDir)\ZLIB-1.2.11\include\</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
