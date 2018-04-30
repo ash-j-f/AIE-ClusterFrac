@@ -59,22 +59,28 @@ int main(int argc, char *argv[], char *envp[])
 	benchTime.setFillColor(sf::Color::White);
 	benchTime.setPosition(5, 35);
 
+	sf::Text zoomAmt;
+	zoomAmt.setFont(font);
+	zoomAmt.setCharacterSize(12);
+	zoomAmt.setFillColor(sf::Color::White);
+	zoomAmt.setPosition(5, 50);
+
 	sf::Text onscreenHelp1;
 	onscreenHelp1.setFont(font);
 	onscreenHelp1.setCharacterSize(12);
 	onscreenHelp1.setFillColor(sf::Color::White);
-	onscreenHelp1.setPosition(5, 50);
+	onscreenHelp1.setPosition(5, 65);
 	onscreenHelp1.setString("WASD to pan. -/+ to zoom.");
 
 	sf::Text onscreenHelp2;
 	onscreenHelp2.setFont(font);
 	onscreenHelp2.setCharacterSize(12);
 	onscreenHelp2.setFillColor(sf::Color::White);
-	onscreenHelp2.setPosition(5, 65);
+	onscreenHelp2.setPosition(5, 80);
 	onscreenHelp2.setString("R rst. view. T rst. zoom.");
 
 	//Box behind text elements.
-	sf::RectangleShape rectangle(sf::Vector2f(285, 85));
+	sf::RectangleShape rectangle(sf::Vector2f(285, 100));
 	rectangle.setPosition(0,0);
 	rectangle.setFillColor(sf::Color(0,0,0,127));
 
@@ -250,6 +256,11 @@ int main(int argc, char *argv[], char *envp[])
 			cacheCount.setString("Cached views: " + std::to_string(mb.cache.size()));
 			benchTime.setString("Avg. task time (ms): " + std::to_string(host->getAverageBenchmarkTime().asMilliseconds()));
 
+			char buffer[1024] = { '\0' };
+			sprintf_s(buffer, "%+.5e", mb.zoom);
+
+			zoomAmt.setString((std::string) "Zoom: " + buffer);
+
 			//Draw objects on screen.
 			window.draw(sprite); 
 
@@ -258,6 +269,7 @@ int main(int argc, char *argv[], char *envp[])
 			window.draw(clientCount);
 			window.draw(cacheCount);
 			window.draw(benchTime);
+			window.draw(zoomAmt);
 			window.draw(onscreenHelp1);
 			window.draw(onscreenHelp2);
 
