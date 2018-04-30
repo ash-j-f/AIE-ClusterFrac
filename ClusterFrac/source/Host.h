@@ -77,6 +77,13 @@ namespace cf
 		void start();
 
 		/**
+		* Stop a host server.
+		* Disconnects all connected clients and deletes all task and result data.
+		* @returns void.
+		*/
+		void stop();
+
+		/**
 		* Set the port number for the host server.
 		* @param portNum The port number to use. Must be in the range [1 .. 65535].
 		* @returns void.

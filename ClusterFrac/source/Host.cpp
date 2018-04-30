@@ -25,7 +25,39 @@ namespace cf
 	
 	Host::~Host()
 	{
+		stop();
+	}
 
+	void Host::start()
+	{
+
+		//If host already started, do nothing.
+		if (started)
+		{
+			CF_SAY("Host already started.", Settings::LogLevels::Error);
+			return;
+		}
+
+		started = true;
+
+		//Reset time since startup.
+		clock.restart();
+
+		CF_SAY("Starting ClusterFrac HOST at " + sf::IpAddress::getLocalAddress().toString() + " on port " + std::to_string(port) + ".", Settings::LogLevels::Info);
+		listener.start();
+
+		watcher.start();
+
+		//Launch host as client task processing thread.
+		if (hostAsClient)
+		{
+			hostAsClientTaskProcessThreadRun = true;
+			hostAsClientTaskProcessingThread = std::thread([this] { hostAsClientProcessTaskThread(); });
+		}
+	}
+
+	void Host::stop()
+	{
 		if (hostAsClientTaskProcessThreadRun)
 		{
 			//Shut down host as client processing.
@@ -71,35 +103,6 @@ namespace cf
 		for (auto &r : resultQueueComplete) removeResults.insert(r);
 		for (auto &r : resultQueueIncomplete) removeResults.insert(r);
 		for (auto &r : removeResults) delete r;
-
-	}
-
-	void Host::start()
-	{
-
-		//If host already started, do nothing.
-		if (started)
-		{
-			CF_SAY("Host already started.", Settings::LogLevels::Error);
-			return;
-		}
-
-		started = true;
-
-		//Reset time since startup.
-		clock.restart();
-
-		CF_SAY("Starting ClusterFrac HOST at " + sf::IpAddress::getLocalAddress().toString() + " on port " + std::to_string(port) + ".", Settings::LogLevels::Info);
-		listener.start();
-
-		watcher.start();
-
-		//Launch host as client task processing thread.
-		if (hostAsClient)
-		{
-			hostAsClientTaskProcessThreadRun = true;
-			hostAsClientTaskProcessingThread = std::thread([this] { hostAsClientProcessTaskThread(); });
-		}
 	}
 
 	void Host::setPort(int portNum)
