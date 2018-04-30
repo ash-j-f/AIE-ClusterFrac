@@ -9,21 +9,46 @@ namespace cf
 	//Forward declarations.
 	class Client;
 
+	/**
+	* ClientSender class. Manages the thread that sends messages to the host.
+	* This is asn essential component of the Client class.
+	* @author Ashley Flynn - Academy of Interactive Entertainment - 2018.
+	*/
+
 	class DLL ClientSender
 	{
 
 	public:
+
+		/**
+		* Constructor that takes a client object as a parameter.
+		* @param newClient Pointer to the client object.
+		*/
 		ClientSender(Client *newClient);
+
+		/**
+		* Default destructor.
+		*/
 		~ClientSender();
 
+		/**
+		* Start the client sender thread.
+		* @returns void.
+		*/
 		void start();
 
+		/**
+		* Stop the client sender thread.
+		* @returns void.
+		*/
 		void stop();
 
 	private:
-
+		
+		//Has the client sender thread been started?
 		bool started;
 
+		//The client object the client sender thread belongs to.
 		Client *client;
 
 		//Should the sender thread be sending completed results?
