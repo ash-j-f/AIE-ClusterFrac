@@ -256,6 +256,7 @@ int main(int argc, char *argv[], char *envp[])
 			cacheCount.setString("Cached views: " + std::to_string(mb.cache.size()));
 			benchTime.setString("Avg. task time (ms): " + std::to_string(host->getAverageBenchmarkTime().asMilliseconds()));
 
+			//Generate scientific notation for zoom level.
 			char buffer[1024] = { '\0' };
 			sprintf_s(buffer, "%+.5e", mb.zoom);
 

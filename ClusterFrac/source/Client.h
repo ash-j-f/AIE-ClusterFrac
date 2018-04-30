@@ -39,12 +39,24 @@ namespace cf
 		*/
 		~Client();
 
+		/**
+		* Register new task construction callback.
+		* @param name The name of the new task.
+		* @param f The callback function to use to construct a new task of this type.
+		* @returns void.
+		*/
 		inline void registerTaskType(std::string name, std::function<Task *()> f) 
 		{ 
 			CF_SAY("Registered task type " + name, Settings::LogLevels::Info); 
 			taskConstructMap[name] = f; 
 		};
 
+		/**
+		* Register new result construction callback.
+		* @param name The name of the new result.
+		* @param f The callback function to use to construct a new result of this type.
+		* @returns void.
+		*/
 		inline void registerResultType(std::string name, std::function<Result *()> f) 
 		{ 
 			CF_SAY("Registered result type " + name, Settings::LogLevels::Info); 
@@ -174,6 +186,10 @@ namespace cf
 		//Should the client tasks processing thread continue to run?
 		std::atomic<bool> ProcessTaskThreadRun;
 
+		/**
+		* Process tasks that have been added to the task queue.
+		* @returns void.
+		*/
 		void ProcessTaskThread();
 
 		/**
