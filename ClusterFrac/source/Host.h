@@ -117,14 +117,38 @@ namespace cf
 		*/
 		inline int getClientsCount();
 
+		/**
+		* Get a count of the tasks in the task queue.
+		* @returns The number of tasks in the task queue.
+		*/
 		inline int getTasksCount() { std::unique_lock<std::mutex> lock(taskQueueMutex); return (int)taskQueue.size(); };
 
+		/**
+		* Check if a result with a specified task ID is available in the results queue.
+		* @param taskID The ID of the task that created the result.
+		* @returns True if the result is in the queue, false if not.
+		*/
 		bool checkAvailableResult(unsigned __int64 taskID);
 
+		/**
+		* Get a pointer to a result in results queue based on its task ID.
+		* @param taskID The ID of the task that created the result.
+		* @returns A pointer to the result if it is available, or nullptr if it is not available.
+		*/
 		Result* getAvailableResult(unsigned __int64 taskID);
 
+		/**
+		* Is host-as-client enabled on this host?
+		* @returns True if host-as-client is enabled, false if not.
+		*/
 		inline bool getHostAsClient() const { return hostAsClient; };
 
+		/**
+		* Enable or disable the host-as-client feature for this host.
+		* Host-as-client means the host will process tasks as if it were one of the connected clients.
+		* @param state Set true to enable host-as-client, false to disable.
+		* @returns void.
+		*/
 		void setHostAsClient(bool state);
 
 		/**
@@ -257,6 +281,11 @@ namespace cf
 		*/
 		void checkForCompleteResults();
 
+		/**
+		* Send sub tasks to connecte clients, and/or to the host as if it were a client if host-as-client is enabled.
+		* @param subTaskQueue The queue of divided tasks to send to clients.
+		* @returns void.
+		*/
 		void distributeSubTasks(std::vector<Task *> subTaskQueue);
 
 		/**
