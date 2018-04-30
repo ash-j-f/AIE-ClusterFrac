@@ -30,6 +30,12 @@ public:
 	*/
 	~Mandelbrot();
 
+	//Current zoom level.
+	int zoomLevel;
+	
+	//Starting zoom at zoomLevel 0.
+	double defaultZoom;
+
 	//Current view zoom.
 	double zoom;
 
@@ -52,7 +58,7 @@ public:
 	* times to zoom in or out from the current zoom level.
 	* @returns The new zoom value.
 	*/
-	double getNewZoom(double currentZoom, int factor) const;
+	double getNewZoom(int factor) const;
 
 	/**
 	* Get a new offsetY value based on a starting value and a move factor.

@@ -68,22 +68,11 @@ std::string Mandelbrot::getExecutableFolder() const
 	
 }
 
-double Mandelbrot::getNewZoom(double currentZoom, int factor) const
+double Mandelbrot::getNewZoom(int factor) const
 {
-	if (factor == 0) return currentZoom;
+	double newZoom = defaultZoom * pow(0.9, zoomLevel + factor);
 
-	for (int i = 0; i < abs(factor); i++)
-	{
-		if (factor > 0)
-		{
-			currentZoom *= 0.9;
-		}
-		else
-		{
-			currentZoom /= 0.9;
-		}
-	}
-	return currentZoom;
+	return newZoom;
 }
 
 double Mandelbrot::getNewOffsetY(double currentOffsetY, double currentZoom, int factor) const
@@ -168,6 +157,8 @@ void Mandelbrot::save() const
 		fwrite(&offsetX, sizeof(char), sizeof(offsetX), pFile);
 		fwrite(&offsetY, sizeof(char), sizeof(offsetY), pFile);
 		fwrite(&zoom, sizeof(char), sizeof(zoom), pFile);
+		fwrite(&zoomLevel, sizeof(char), sizeof(zoomLevel), pFile);
+		fwrite(&defaultZoom, sizeof(char), sizeof(defaultZoom), pFile);
 	}
 	catch (...)
 	{
@@ -200,6 +191,10 @@ void Mandelbrot::load()
 		if (byteSize != sizeof(offsetY)) throw "Invalid data.";
 		byteSize = fread(&zoom, sizeof(char), sizeof(zoom), pFile);
 		if (byteSize != sizeof(zoom)) throw "Invalid data.";
+		byteSize = fread(&zoomLevel, sizeof(char), sizeof(zoomLevel), pFile);
+		if (byteSize != sizeof(zoomLevel)) throw "Invalid data.";
+		byteSize = fread(&defaultZoom, sizeof(char), sizeof(defaultZoom), pFile);
+		if (byteSize != sizeof(defaultZoom)) throw "Invalid data.";
 	}
 	catch (...)
 	{
@@ -223,9 +218,12 @@ void Mandelbrot::reset()
 	offsetX = -0.7;
 	offsetY = 0.0;
 	zoom = 0.004;
+	defaultZoom = zoom;
+	zoomLevel = 0;
 }
 
 void Mandelbrot::resetZoomOnly()
 {
 	zoom = 0.004;
+	zoomLevel = 0;
 }

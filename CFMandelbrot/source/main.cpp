@@ -132,11 +132,13 @@ int main(int argc, char *argv[], char *envp[])
 					zoomingIn = true;
 					break;
 				case sf::Keyboard::Equal:
-					mb.zoom = mb.getNewZoom(mb.zoom, 1);
+					mb.zoomLevel++;
+					mb.zoom = mb.getNewZoom(1);
 					zoomingIn = true;
 					break;
 				case sf::Keyboard::Dash:
-					mb.zoom = mb.getNewZoom(mb.zoom, -1);
+					mb.zoomLevel--;
+					mb.zoom = mb.getNewZoom(-1);
 					zoomingIn = false;
 					break;
 				case sf::Keyboard::W:
@@ -179,7 +181,7 @@ int main(int argc, char *argv[], char *envp[])
 					
 					for (auto &mvd : mb.cache)
 					{
-						if (mvd.offsetX == mb.offsetX && mvd.offsetY == mb.offsetY && mvd.zoom == mb.getNewZoom(mb.zoom, zoomFactor))
+						if (mvd.offsetX == mb.offsetX && mvd.offsetY == mb.offsetY && mvd.zoom == mb.getNewZoom(zoomFactor))
 						{
 							if (zoomFactor == 0) viewResult = mvd.result;
 							found = true;
@@ -189,7 +191,7 @@ int main(int argc, char *argv[], char *envp[])
 
 					if (!found)
 					{
-						mb.newView(mb.getNewZoom(mb.zoom, zoomFactor), mb.offsetX, mb.offsetY, IMAGE_WIDTH, IMAGE_HEIGHT);
+						mb.newView(mb.getNewZoom(zoomFactor), mb.offsetX, mb.offsetY, IMAGE_WIDTH, IMAGE_HEIGHT);
 						break;
 					}
 					else if (abs(zoomFactor) >= maxDepth)

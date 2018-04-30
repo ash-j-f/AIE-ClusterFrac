@@ -45,6 +45,13 @@ namespace cf
 		std::unique_lock<std::mutex> clientsLock(clientsMutex);
 		for (auto &c : clients)
 		{
+			if (!c->remove)
+			{
+				//Send disconnect message to client.
+				std::unique_lock<std::mutex> socketLock(c->socketMutex);
+				c->socket->disconnect();
+			}
+
 			delete c;
 			c = nullptr;
 		}
