@@ -60,6 +60,7 @@
       <PreprocessorDefinitions>SFML_STATIC;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ProgramDataBaseFileName>$(IntDir)$(ProjectName)_DEBUG.pdb</ProgramDataBaseFileName>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <MultiProcessorCompilation>false</MultiProcessorCompilation>
     </ClCompile>
     <Lib>
       <AdditionalDependencies>sfml-network-s-d.lib;sfml-system-s-d.lib;ws2_32.lib;zlibstat_DEBUG.lib</AdditionalDependencies>
@@ -82,6 +83,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)\SFML-2.4.2\include\;$(SolutionDir)\ZLIB-1.2.11\include\</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>SFML_STATIC;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <MultiProcessorCompilation>false</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
