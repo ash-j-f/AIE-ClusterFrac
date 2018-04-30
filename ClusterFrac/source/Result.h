@@ -53,7 +53,7 @@ namespace cf
 
 		/**
 		* Get the task part number of this result, realtive to the result set this result
-		* beolngs to. Task part numbering starts at 0.
+		* belongs to. Task part numbering starts at 0.
 		* @returns The task part number of this result.
 		*/
 		inline int getTaskPartNumber() const { if (taskPartNumberStack.size() == 0) { CF_THROW("Task part number list is empty."); } return taskPartNumberStack.back(); };
@@ -65,7 +65,8 @@ namespace cf
 		inline int getCurrentTaskPartsTotal() const { if (taskPartsTotalStack.size() == 0) { CF_THROW("Task part total list is empty."); } return taskPartsTotalStack.back(); }
 
 		/**
-		* Get the task ID for this result.
+		* Get the task ID for this task. The task ID is set when a task is first created.
+		* When a task is split, all sub tasks that for a set for one task share a task ID.
 		* @returns The task ID for this result.
 		*/
 		inline unsigned __int64 getInitialTaskID() const { return initialTaskID; };
@@ -145,6 +146,12 @@ namespace cf
 		//Only used by the host.
 		sf::Time hostTimeFinished;
 
+		/**
+		* Merge other results in a std::vector into this result.
+		* Merge must include all results in the current set or merge will fail with an error.
+		* @param others A std::vector of pointers to the all results in a set to merge with this one.
+		* @returns void.
+		*/
 		virtual void mergeLocal(const std::vector<Result *> others) = 0;
 
 		/**

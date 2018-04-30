@@ -35,7 +35,7 @@ private:
 	/**
 	* Merge other results in a std::vector into this result.
 	* @param others A std::vector of pointers to the all results in a set to merge with this one.
-	* @returns A pointer to a single new merged result.
+	* @returns void.
 	*/
 	inline void mergeLocal(const std::vector<cf::Result *> others) override
 	{

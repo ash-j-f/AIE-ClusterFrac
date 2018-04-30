@@ -20,8 +20,15 @@ namespace cf
 	{
 	public:
 
+		/**
+		* Default constructor.
+		*/
 		Task();
 
+		/**
+		* Default destructor.
+		* Virtual, as this is used as a base class.
+		*/
 		virtual ~Task();
 
 		//Which node types can this task be run on?
@@ -53,10 +60,24 @@ namespace cf
 		*/
 		virtual std::string getSubtype() const = 0;
 
+		/**
+		* Get the task part number of this task, realtive to the task set this task
+		* belongs to. Task part numbering starts at 0.
+		* @returns The task part number of this result.
+		*/
 		inline int getTaskPartNumber() const { if (taskPartNumberStack.size() == 0) { CF_THROW("Task part number list is empty."); } return taskPartNumberStack.back(); };
 
+		/**
+		* Get the total number of task parts for the task set this task belongs to.
+		* @returns The total number of task parts in this result set.
+		*/
 		inline int getCurrentTaskPartsTotal() const { if (taskPartsTotalStack.size() == 0) { CF_THROW("Task part total list is empty."); } return taskPartsTotalStack.back(); }
 
+		/**
+		* Get the task ID for this task. The task ID is set when a task is first created.
+		* When a task is split, all sub tasks that for a set for one task share a task ID.
+		* @returns The task ID for this task.
+		*/
 		inline unsigned __int64 getInitialTaskID() const { if (initialTaskID == 0) { CF_THROW("This task has no ID."); } return initialTaskID; };
 
 		/**
@@ -100,6 +121,11 @@ namespace cf
 		*/
 		inline sf::Time getHostTimeSent() const { return hostTimeSent; };
 
+		/**
+		* Get the maximum time this task may take to execute before being cancelled and restarted.
+		* Time is in milliseconds.
+		* @return The maximum time this task may take to execute before being cancelled and restarted, in milliseconds.
+		*/
 		inline float getMaxTaskTimeMilliseconds() const { return maxTaskTimeMilliseconds; };
 
 		/**
@@ -112,8 +138,25 @@ namespace cf
 		*/
 		void assignID() { if (initialTaskID == 0) initialTaskID = CF_ID->getNextTaskID();  };
 
+		/**
+		* Get the client node type this task may be executed on.
+		* @returns The node type this task may be executed on.
+		*/
 		NodeTargetTypes getNodeTargetType() { return (NodeTargetTypes)nodeTargetType; };
+
+		/**
+		* Set the client node type this task may be executed on.
+		* For mapping client node types to integer, see NodeTargetTypes enum.
+		* @param newNodeTargetType The node target type as a sf::Uint8.
+		* @returns void.
+		*/
 		void setNodeTargetType(sf::Uint8 newNodeTargetType) { nodeTargetType = newNodeTargetType; };
+		
+		/**
+		* Set the client node type this task may be executed on.
+		* @param newNodeTargetType The node target type as an entry from NodeTargetTypes enum.
+		* @returns void.
+		*/
 		void setNodeTargetType(NodeTargetTypes newNodeTargetType) { nodeTargetType = (sf::Uint8)newNodeTargetType; };
 
 	private:
