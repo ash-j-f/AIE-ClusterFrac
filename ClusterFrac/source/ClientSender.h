@@ -11,10 +11,9 @@ namespace cf
 
 	/**
 	* ClientSender class. Manages the thread that sends messages to the host.
-	* This is asn essential component of the Client class.
+	* This is an essential component of the Client class.
 	* @author Ashley Flynn - Academy of Interactive Entertainment - 2018.
 	*/
-
 	class DLL ClientSender
 	{
 

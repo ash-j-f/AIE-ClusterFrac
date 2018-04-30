@@ -11,7 +11,7 @@ namespace cf
 
 	/**
 	* ClientListener class. Manages the thread that listens for incoming messages from the host.
-	* This is asn essential component of the Client class.
+	* This is an essential component of the Client class.
 	* @author Ashley Flynn - Academy of Interactive Entertainment - 2018.
 	*/
 	class DLL ClientListener
@@ -60,7 +60,7 @@ namespace cf
 		std::thread listenerThread;
 
 		/**
-		* Listen for incoming connections.
+		* Listen for incoming connections and messages.
 		* To be used by a dedicated thread.
 		* @returns void.
 		*/

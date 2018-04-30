@@ -10,21 +10,45 @@ namespace cf
 	//Forward declarations.
 	class Host;
 
+	/**
+	* HostListener class. Manages the thread that listens for incoming connections and messages from clients.
+	* This is an essential component of the Host class.
+	* @author Ashley Flynn - Academy of Interactive Entertainment - 2018.
+	*/
 	class DLL HostListener
 	{
 
 	public:
+
+		/**
+		* Constructor that takes a host object as a parameter.
+		* @param newClient Pointer to the host object.
+		*/
 		HostListener(Host *newHost);
+
+		/**
+		* Default destructor.
+		*/
 		~HostListener();
 
+		/**
+		* Start the host listener thread.
+		* @returns void.
+		*/
 		void start();
 
+		/**
+		* Stop the host listener thread.
+		* @returns void.
+		*/
 		void stop();
 
 	private:
 
+		//Has the host listener thread been started?
 		bool started;
 
+		//The host object the host listener thread belongs to.
 		Host *host;
 
 		//Socket selector for managing multiple connections.
@@ -55,6 +79,11 @@ namespace cf
 		*/
 		void listenThread();
 
+		/**
+		* Listen for incoming connections and messages from clients.
+		* To be used by a dedicated thread.
+		* @returns void.
+		*/
 		void clientReceiveThread(ClientDetails *client, std::atomic<bool> *cFlag);
 	};
 }
