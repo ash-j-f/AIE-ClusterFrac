@@ -77,9 +77,6 @@ namespace cf
 				done = true;
 				lock.unlock();
 			}
-			//Abort after a timeout.
-			//TODO
-			//done = true;
 			
 			std::this_thread::sleep_for(std::chrono::milliseconds(1));
 		}

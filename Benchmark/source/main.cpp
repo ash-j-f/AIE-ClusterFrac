@@ -46,34 +46,43 @@ int main(int argc, char *argv[], char *envp[])
 		host->start();
 		CF_SAY("Generating test data - started.", cf::Settings::LogLevels::Info);
 
-		//Generate test data.
-		std::vector<float> numbers;
-		std::vector<float> expectedResults;
+		//Generate test data. Data range is INCLUSIVE.
+		int dataRangeStart = 0;
+		int dataRangeEnd = 31;
+		int dataSize = (dataRangeEnd - dataRangeStart) + 1;
+		std::vector<float> expectedResults(dataSize);
 		{
 			//Split the task among available threads and run.
 			int maxThreads = std::thread::hardware_concurrency();
-			int dataSize = 10000000;
 			std::vector<std::future<std::vector<float>>> threads = std::vector<std::future<std::vector<float>>>();
 
+			int step = dataSize / maxThreads;
+			int offset = 0;
 			for (int i = 0; i < maxThreads; i++)
 			{
-				threads.push_back(std::async(std::launch::async, [maxThreads, dataSize]() {
+				threads.push_back(std::async(std::launch::async, [maxThreads, dataSize, offset]() {
 					std::vector<float> f;
 					for (int i = 0; i < (dataSize / maxThreads); i++)
 					{
-						f.push_back((float)rand() / 100.0f);
+						f.push_back(sqrt((float)(offset + i)));
 					}
 					return f;
 				}));
+				offset += step;
 			}
 
+			unsigned int j = 0;
 			for (auto &thread : threads)
 			{
 				auto result = thread.get();
-				numbers.insert(numbers.end(), result.begin(), result.end());
+				size_t resultCount = result.size();
+				for (size_t i = 0; i < resultCount; i++)
+				{
+					expectedResults[j] = result[i];
+					j++;
+				}
 			}
 		}
-		for (auto &n : numbers) expectedResults.push_back(sqrtf(n));
 
 		CF_SAY("Generating test data - complete.", cf::Settings::LogLevels::Info);
 
@@ -85,7 +94,8 @@ int main(int argc, char *argv[], char *envp[])
 			testTask->assignID();
 
 			//Insert test data into test task.
-			testTask->numbers = numbers;
+			testTask->dataRangeStart = dataRangeStart;
+			testTask->dataRangeEnd = dataRangeEnd;
 
 			unsigned __int64 taskID = testTask->getInitialTaskID();
 
@@ -128,7 +138,7 @@ int main(int argc, char *argv[], char *envp[])
 			CF_SAY("...", cf::Settings::LogLevels::Info);
 
 			CF_SAY("Verifying results.", cf::Settings::LogLevels::Info);
-			for (int i = 0; i < (int)numbers.size(); i++)
+			for (int i = 0; i < (int)expectedResults.size(); i++)
 			{
 				if (expectedResults[i] != output->numbers[i]) CF_THROW("Results verification failed. Results did not match!");
 			}

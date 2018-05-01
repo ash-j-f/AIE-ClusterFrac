@@ -20,10 +20,11 @@ public:
 	/**
 	* Default destructor.
 	*/
-	~BenchmarkTask() {};
+	~BenchmarkTask() { dataRangeStart = dataRangeEnd = 0; };
 
 	//Test data set.
-	std::vector<float> numbers;
+	sf::Uint32 dataRangeStart;
+	sf::Uint32 dataRangeEnd;
 
 	/**
 	* Get the subtype of this task.
@@ -42,7 +43,8 @@ private:
 	inline std::vector<cf::Task *> splitLocal(unsigned int count) const override
 	{
 		//Limit number of tasks to at least number of target numbers.
-		if ((int)numbers.size() < count) count = (int)numbers.size();
+		unsigned int valueCount = (dataRangeEnd - dataRangeStart) + 1;
+		if (valueCount < count) count = valueCount;
 
 		std::vector<BenchmarkTask *> tasks = std::vector<BenchmarkTask *>();
 		tasks.resize(count);
@@ -52,16 +54,17 @@ private:
 			tasks[i] = new BenchmarkTask();
 		}
 
-		//Distribute numbers among the new BenchmarkTasks.
-		const int step = (int)floor((float)numbers.size() / (float)count);
-		int start = 0;
-		int end = step;
+		//Distribute numbers among the new tasks.
+		const unsigned int step = (int)floor((float)valueCount / (float)count);
+		unsigned int start = dataRangeStart;
+		unsigned int end = dataRangeStart + (step - 1);
 		for (unsigned int i = 0; i < count; i++)
 		{
 			//If this is the final split, then get the remainder of items.
-			if (i == count - 1) end = (int)numbers.size();
+			if (i == count - 1) end = dataRangeStart + valueCount;
 
-			tasks[i]->numbers.insert(tasks[i]->numbers.begin(), numbers.begin() + start, numbers.begin() + std::min(end, (int)numbers.size()));
+			tasks[i]->dataRangeStart = start;
+			tasks[i]->dataRangeEnd = std::min(end, dataRangeStart + (valueCount - 1));
 
 			start = start + step;
 			end = end + step;
@@ -81,9 +84,8 @@ private:
 	*/
 	inline void serializeLocal(cf::WorkPacket &p) const override
 	{
-		sf::Int64 size = numbers.size();
-		p << size;
-		for (sf::Int64 i = 0; i < size; i++) p << numbers[i];
+		p << dataRangeStart;
+		p << dataRangeEnd;
 	};
 
 	/**
@@ -93,10 +95,8 @@ private:
 	*/
 	inline void deserializeLocal(cf::WorkPacket &p) override
 	{
-		sf::Int64 size;
-		p >> size;
-		numbers.resize(size);
-		for (sf::Int64 i = 0; i < size; i++) p >> numbers[i];
+		p >> dataRangeStart;
+		p >> dataRangeEnd;
 	};
 
 	/**
@@ -107,7 +107,10 @@ private:
 	{
 		BenchmarkResult *result = new BenchmarkResult();
 
-		for (auto &n : numbers) result->numbers.push_back(sqrtf(n));
+		for (unsigned int i = dataRangeStart; i <= dataRangeEnd; i++)
+		{
+			result->numbers.push_back((float)sqrt(i));
+		}
 
 		return result;
 	};
