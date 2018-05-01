@@ -61,6 +61,7 @@
       <ProgramDataBaseFileName>$(IntDir)$(ProjectName)_DEBUG.pdb</ProgramDataBaseFileName>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <MinimalRebuild>false</MinimalRebuild>
     </ClCompile>
     <Lib>
       <AdditionalDependencies>sfml-network-s-d.lib;sfml-system-s-d.lib;ws2_32.lib;zlibstat_DEBUG.lib</AdditionalDependencies>
