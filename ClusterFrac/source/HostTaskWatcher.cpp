@@ -65,6 +65,9 @@ namespace cf
 			std::unique_lock<std::mutex> clientsLock(host->clientsMutex);
 			for (auto &c : host->clients)
 			{
+				//Skip removed clients.
+				if (c->remove) continue;
+
 				std::unique_lock<std::mutex> lock(c->taskMutex);
 				std::vector<Task *>::iterator it;
 				for (it = c->tasks.begin(); it != c->tasks.end();)

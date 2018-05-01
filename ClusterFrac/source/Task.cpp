@@ -34,6 +34,7 @@ namespace cf
 		for (auto &t : tmp)
 		{
 			t->initialTaskID = initialTaskID;
+			t->maxTaskTimeMilliseconds = maxTaskTimeMilliseconds;
 			t->nodeTargetType = nodeTargetType;
 			t->allowNodeTaskSplit = allowNodeTaskSplit;
 			t->taskPartNumberStack = taskPartNumberStack;
@@ -51,6 +52,7 @@ namespace cf
 		p << initialTaskID;
 		p << nodeTargetType;
 		p << allowNodeTaskSplit;
+		p << maxTaskTimeMilliseconds;
 
 		//Uint32 for best cross platform compatibility for serialisation/deserialisation.
 		sf::Uint32 size = (sf::Uint32)taskPartNumberStack.size();
@@ -68,6 +70,7 @@ namespace cf
 		p >> initialTaskID;
 		p >> nodeTargetType;
 		p >> allowNodeTaskSplit;
+		p >> maxTaskTimeMilliseconds;
 
 		//Uint32 for best cross platform compatibility for serialisation/deserialisation.
 		sf::Uint32 size;

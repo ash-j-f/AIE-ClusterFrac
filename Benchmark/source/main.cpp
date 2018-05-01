@@ -48,8 +48,9 @@ int main(int argc, char *argv[], char *envp[])
 
 		//Generate test data. Data range is INCLUSIVE.
 		int dataRangeStart = 1;
-		int dataRangeEnd = 10000000;
-		int cycles = 100;
+		int dataRangeEnd = 10000;
+		int cycles = 1;
+		int timeout = 20000; //Timeout per task chunk in ms.
 		int valueCount = (dataRangeEnd - dataRangeStart) + 1;
 		std::vector<double> expectedResults(valueCount);
 
@@ -109,7 +110,7 @@ int main(int argc, char *argv[], char *envp[])
 			BenchmarkTask *testTask = new BenchmarkTask();
 			
 			//Set a high timeout value. This task could take a long time per client node.
-			testTask->setMaxTaskTimeMilliseconds(20000);
+			testTask->setMaxTaskTimeMilliseconds(timeout);
 
 			//Assign an ID to this task.
 			testTask->assignID();
