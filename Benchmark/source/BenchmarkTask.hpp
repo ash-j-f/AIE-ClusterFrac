@@ -55,7 +55,7 @@ private:
 		}
 
 		//Distribute numbers among the new tasks.
-		const unsigned int step = (int)floor((float)valueCount / (float)count);
+		const unsigned int step = (int)floor(valueCount / (float)count);
 		unsigned int start = dataRangeStart;
 		unsigned int end = dataRangeStart + (step - 1);
 		for (unsigned int i = 0; i < count; i++)
@@ -109,7 +109,7 @@ private:
 
 		for (unsigned int i = dataRangeStart; i <= dataRangeEnd; i++)
 		{
-			result->numbers.push_back((float)sqrt(i));
+			result->numbers.push_back((double)sqrtl((double)i));
 		}
 
 		return result;

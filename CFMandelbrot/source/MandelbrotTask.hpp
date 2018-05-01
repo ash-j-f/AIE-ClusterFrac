@@ -78,7 +78,7 @@ private:
 
 		//Distribute numbers among the new tasks.
 		const unsigned int step = (int)floor(pixelCount / (float)count);
-		unsigned int start = minY; // 0;
+		unsigned int start = minY;
 		unsigned int end = minY + (step - 1);
 		for (unsigned int i = 0; i < count; i++)
 		{

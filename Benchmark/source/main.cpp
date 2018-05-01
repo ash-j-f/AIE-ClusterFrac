@@ -47,28 +47,38 @@ int main(int argc, char *argv[], char *envp[])
 		CF_SAY("Generating test data - started.", cf::Settings::LogLevels::Info);
 
 		//Generate test data. Data range is INCLUSIVE.
-		int dataRangeStart = 0;
-		int dataRangeEnd = 31;
-		int dataSize = (dataRangeEnd - dataRangeStart) + 1;
-		std::vector<float> expectedResults(dataSize);
+		int dataRangeStart = 1;
+		int dataRangeEnd = 100000000;
+		int valueCount = (dataRangeEnd - dataRangeStart) + 1;
+		std::vector<double> expectedResults(valueCount);
+
 		{
 			//Split the task among available threads and run.
-			int maxThreads = std::thread::hardware_concurrency();
-			std::vector<std::future<std::vector<float>>> threads = std::vector<std::future<std::vector<float>>>();
+			unsigned int maxThreads = std::thread::hardware_concurrency();
+			std::vector<std::future<std::vector<double>>> threads = std::vector<std::future<std::vector<double>>>();
 
-			int step = dataSize / maxThreads;
-			int offset = 0;
-			for (int i = 0; i < maxThreads; i++)
+			const unsigned int step = (int)floor(valueCount / (float)maxThreads);
+			int start = dataRangeStart;
+			int end = dataRangeStart + (step - 1);
+			for (unsigned int i = 0; i < maxThreads; i++)
 			{
-				threads.push_back(std::async(std::launch::async, [maxThreads, dataSize, offset]() {
-					std::vector<float> f;
-					for (int i = 0; i < (dataSize / maxThreads); i++)
+				//If this is the final split, then get the remainder of items.
+				if (i == maxThreads - 1) end = dataRangeStart + valueCount;
+
+				int tstart = start;
+				int tend = std::min(end, dataRangeStart + (valueCount - 1));
+
+				threads.push_back(std::async(std::launch::async, [maxThreads, valueCount, tstart, tend]() {
+					std::vector<double> f;
+					for (int v = tstart; v <= tend; v++)
 					{
-						f.push_back(sqrt((float)(offset + i)));
+						f.push_back((double)sqrtl((double)v));
 					}
 					return f;
 				}));
-				offset += step;
+
+				start = start + step;
+				end = end + step;
 			}
 
 			unsigned int j = 0;

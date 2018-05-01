@@ -22,7 +22,7 @@ public:
 	~BenchmarkResult() {};
 
 	//Test data set.
-	std::vector<float> numbers;
+	std::vector<double> numbers;
 
 	/**
 	* Get the subtype of this result.
