@@ -126,7 +126,14 @@ namespace cf
 		* Time is in milliseconds.
 		* @return The maximum time this task may take to execute before being cancelled and restarted, in milliseconds.
 		*/
-		inline float getMaxTaskTimeMilliseconds() const { return maxTaskTimeMilliseconds; };
+		inline unsigned int getMaxTaskTimeMilliseconds() const { return maxTaskTimeMilliseconds; };
+
+		/**
+		* Set the maximum time this task may take to execute before being cancelled and restarted.
+		* Time is in milliseconds.
+		* @param n The maximum time this task may take to execute before being cancelled and restarted, in milliseconds.
+		*/
+		inline void setMaxTaskTimeMilliseconds(unsigned int n) { if (n == 0) { CF_THROW("Invalid timeout setting for task."); } maxTaskTimeMilliseconds = n; };
 
 		/**
 		* Assign this task a unique ID, if it doesn't already have one.
@@ -185,7 +192,7 @@ namespace cf
 		//This time is from the host point of view, elapsed since task send started
 		//so it includes all overheads like network and CPU time.
 		//This value is only used for tasks or task parts sent to the client.
-		float maxTaskTimeMilliseconds;
+		unsigned int maxTaskTimeMilliseconds;
 
 		//Host time this task was sent to the client. Used to calculate elapsed time
 		//since the task was sent when checking expiry relative to maxTaskTimeMilliseconds.

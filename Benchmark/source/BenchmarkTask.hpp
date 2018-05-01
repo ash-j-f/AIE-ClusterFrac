@@ -20,11 +20,12 @@ public:
 	/**
 	* Default destructor.
 	*/
-	~BenchmarkTask() { dataRangeStart = dataRangeEnd = 0; };
+	~BenchmarkTask() { dataRangeStart = dataRangeEnd = cycles = 0; };
 
 	//Test data set.
 	sf::Uint32 dataRangeStart;
 	sf::Uint32 dataRangeEnd;
+	sf::Uint32 cycles;
 
 	/**
 	* Get the subtype of this task.
@@ -65,6 +66,7 @@ private:
 
 			tasks[i]->dataRangeStart = start;
 			tasks[i]->dataRangeEnd = std::min(end, dataRangeStart + (valueCount - 1));
+			tasks[i]->cycles = cycles;
 
 			start = start + step;
 			end = end + step;
@@ -86,6 +88,7 @@ private:
 	{
 		p << dataRangeStart;
 		p << dataRangeEnd;
+		p << cycles;
 	};
 
 	/**
@@ -97,6 +100,7 @@ private:
 	{
 		p >> dataRangeStart;
 		p >> dataRangeEnd;
+		p >> cycles;
 	};
 
 	/**
@@ -109,7 +113,12 @@ private:
 
 		for (unsigned int i = dataRangeStart; i <= dataRangeEnd; i++)
 		{
-			result->numbers.push_back((double)sqrtl((double)i));
+			double r = i;
+			for (unsigned int c = 0; c < cycles; c++)
+			{
+				r = (double)sqrtl((double)r);
+			}
+			result->numbers.push_back(r);
 		}
 
 		return result;

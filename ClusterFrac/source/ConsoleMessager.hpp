@@ -1,5 +1,6 @@
 #pragma once
 #include <iostream>
+#include <iomanip>
 #include <string>
 #include <mutex>
 #include "Settings.h"
@@ -65,6 +66,7 @@ namespace cf
 		*/
 		ConsoleMessager() 
 		{
+
 #ifdef _WIN32
 			
 			//Disable edit mode in the console window. Edit mode causes the application to pause

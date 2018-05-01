@@ -61,16 +61,16 @@ namespace cf
 			//CF_SAY("Watching.");
 
 			//Check client tasks for any that have taken too long.
+			std::vector<Task *> redistributeTasks;
 			std::unique_lock<std::mutex> clientsLock(host->clientsMutex);
 			for (auto &c : host->clients)
 			{
-				std::vector<Task *> redistributeTasks;
 				std::unique_lock<std::mutex> lock(c->taskMutex);
 				std::vector<Task *>::iterator it;
 				for (it = c->tasks.begin(); it != c->tasks.end();)
 				{
 					Task *t = *it;
-					if ((host->getTime() - t->getHostTimeSent()).asMilliseconds() > t->getMaxTaskTimeMilliseconds())
+					if ((host->getTime() - t->getHostTimeSent()).asMilliseconds() > (sf::Int32)t->getMaxTaskTimeMilliseconds())
 					{
 						//Task has taken too long, add it to the list of tasks to distribute to other clients.
 						CF_SAY("Client " + std::to_string(c->getClientID()) + " task " + std::to_string(t->getInitialTaskID()) + " timed out. Redistributing.", Settings::LogLevels::Info);
@@ -84,10 +84,11 @@ namespace cf
 					}
 				}
 				lock.unlock();
-				//Distribute any now unowned tasks to other clients.
-				if (redistributeTasks.size() > 0) host->distributeSubTasks(redistributeTasks);
 			}
 			clientsLock.unlock();
+
+			//Distribute any now unowned tasks to other clients.
+			if (redistributeTasks.size() > 0) host->distributeSubTasks(redistributeTasks);
 
 			if (host->getTasksCount() > 0 && host->getClientsCount() > 0) host->sendTasks();
 

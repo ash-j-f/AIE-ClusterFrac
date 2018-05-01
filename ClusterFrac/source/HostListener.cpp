@@ -286,16 +286,20 @@ namespace cf
 
 				//Distribute this client's tasks to other available clients.
 				std::unique_lock<std::mutex> lock2(client->taskMutex);
+				std::vector<cf::Task *> redistTasks;
 				if (client->tasks.size() > 0)
 				{
 					CF_SAY("Client ID " + std::to_string(client->getClientID()) + " disconnected with unfinished tasks. Redistributing.", Settings::LogLevels::Info);
-					host->distributeSubTasks(client->tasks);
+					redistTasks = client->tasks;
 				}
 				client->tasks.clear();
+
 				lock2.unlock();
 
 				//Mark client data for erasure.
 				client->remove = true;
+
+				if (redistTasks.size() > 0) host->distributeSubTasks(redistTasks);
 
 				break;
 			}

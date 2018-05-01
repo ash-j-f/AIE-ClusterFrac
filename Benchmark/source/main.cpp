@@ -48,7 +48,8 @@ int main(int argc, char *argv[], char *envp[])
 
 		//Generate test data. Data range is INCLUSIVE.
 		int dataRangeStart = 1;
-		int dataRangeEnd = 100000000;
+		int dataRangeEnd = 10000000;
+		int cycles = 100;
 		int valueCount = (dataRangeEnd - dataRangeStart) + 1;
 		std::vector<double> expectedResults(valueCount);
 
@@ -68,11 +69,18 @@ int main(int argc, char *argv[], char *envp[])
 				int tstart = start;
 				int tend = std::min(end, dataRangeStart + (valueCount - 1));
 
-				threads.push_back(std::async(std::launch::async, [maxThreads, valueCount, tstart, tend]() {
+				threads.push_back(std::async(std::launch::async, [maxThreads, valueCount, tstart, tend, cycles]() {
 					std::vector<double> f;
 					for (int v = tstart; v <= tend; v++)
 					{
-						f.push_back((double)sqrtl((double)v));
+
+						double r = v;
+						for (int c = 0; c < cycles; c++)
+						{
+							r = (double)sqrtl((double)r);
+						}
+
+						f.push_back(r);
 					}
 					return f;
 				}));
@@ -100,12 +108,16 @@ int main(int argc, char *argv[], char *envp[])
 		{
 			BenchmarkTask *testTask = new BenchmarkTask();
 			
+			//Set a high timeout value. This task could take a long time per client node.
+			testTask->setMaxTaskTimeMilliseconds(20000);
+
 			//Assign an ID to this task.
 			testTask->assignID();
 
 			//Insert test data into test task.
 			testTask->dataRangeStart = dataRangeStart;
 			testTask->dataRangeEnd = dataRangeEnd;
+			testTask->cycles = cycles;
 
 			unsigned __int64 taskID = testTask->getInitialTaskID();
 
@@ -143,7 +155,11 @@ int main(int argc, char *argv[], char *envp[])
 			CF_SAY("Results received (" + std::to_string(output->numbers.size()) + "):", cf::Settings::LogLevels::Info);
 			for (int i = 0; i < (output->numbers.size() >= 10 ? 10 : (int)output->numbers.size()); i++)
 			{
-				CF_SAY(std::to_string(output->numbers[i]), cf::Settings::LogLevels::Info);
+
+				char buffer[1024] = { '\0' };
+				sprintf_s(buffer, "%.15g", output->numbers[i]);
+
+				CF_SAY(std::string(buffer), cf::Settings::LogLevels::Info);
 			}
 			CF_SAY("...", cf::Settings::LogLevels::Info);
 

@@ -14,7 +14,7 @@ namespace cf
 		taskPartsTotalStack.push_back(1);
 
 		//Default maximum time a client may spend on this task.
-		maxTaskTimeMilliseconds = 10000.f;
+		maxTaskTimeMilliseconds = 10000;
 
 		//Default node target type.
 		nodeTargetType = (sf::Uint8) NodeTargetTypes::Any;
