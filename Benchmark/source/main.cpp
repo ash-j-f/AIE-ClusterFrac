@@ -56,7 +56,7 @@ int main(int argc, char *argv[], char *envp[])
 		int dataRangeStart = 1;
 		int dataRangeEnd = 100;
 		unsigned int cycles = 10000000; //100000000;
-		int timeout = 10000; //Timeout per task chunk in ms.
+		int timeout = 100; //Timeout per task chunk in ms.
 		int valueCount = (dataRangeEnd - dataRangeStart) + 1;
 		std::vector<double> expectedResults(valueCount);
 

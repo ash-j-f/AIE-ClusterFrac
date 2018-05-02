@@ -20,6 +20,7 @@ namespace cf
 		size_t taskPartNumberStackSize = others[0]->taskPartNumberStack.size();
 		size_t taskPartsTotalStackSize = others[0]->taskPartsTotalStack.size();
 		sf::Uint32 taskPartsTotal = others[0]->taskPartsTotalStack.back();
+		if (others.size() != (size_t)taskPartsTotal) CF_THROW("Cannot merge results. Incorrect number of results to merge for this set.");
 		for (auto &r : others)
 		{
 			if (
