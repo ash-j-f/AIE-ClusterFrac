@@ -234,8 +234,14 @@ namespace cf
 		//Incomplete results queue.
 		std::list<cf::Result *> resultQueueIncomplete;
 
+		//Mutex for incomplete results queue.
+		std::mutex resultsQueueIncompleteMutex;
+
 		//Complete results queue.
 		std::list<cf::Result *> resultQueueComplete;
+
+		//Mutex for complete results queue.
+		std::mutex resultsQueueCompleteMutex;
 
 		//Local task queue for host, that it should process as a client if hostAsClient is enabled.
 		std::list<cf::Task *> localHostAsClientTaskQueue;
@@ -248,9 +254,6 @@ namespace cf
 
 		//Should the host processing tasks as a client thread continue to run?
 		std::atomic<bool> hostAsClientTaskProcessThreadRun;
-
-		//Mutex for results queues
-		std::mutex resultsQueueMutex;
 
 		//Tasks assigned to this client.
 		std::vector<Task *> tasksAssignedAsClient;

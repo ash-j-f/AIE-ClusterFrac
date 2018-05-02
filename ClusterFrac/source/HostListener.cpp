@@ -250,7 +250,7 @@ namespace cf
 						CF_SAY("Result packet from client " + std::to_string(client->getClientID()) + " is valid.", Settings::LogLevels::Info);
 
 						//Add result data to the host incomplete results queue.
-						std::unique_lock<std::mutex> lock3(host->resultsQueueMutex);
+						std::unique_lock<std::mutex> lock3(host->resultsQueueIncompleteMutex);
 						host->resultQueueIncomplete.push_back(result);
 						lock3.unlock();
 

@@ -6,7 +6,7 @@ namespace cf
 	{
 
 		//Use default max thread concurrency setting determined by the OS.
-		setConcurrency(0);
+		MAX_THREADS = std::thread::hardware_concurrency();
 
 		started = false;
 
@@ -187,7 +187,7 @@ namespace cf
 
 	void Host::addResultToQueue(Result *result)
 	{
-		std::unique_lock<std::mutex> lock(resultsQueueMutex);
+		std::unique_lock<std::mutex> lock(resultsQueueIncompleteMutex);
 		resultQueueIncomplete.push_back(result);
 		CF_SAY("Added result to queue.", Settings::LogLevels::Info);
 	}
@@ -195,7 +195,7 @@ namespace cf
 	void Host::removeResultFromQueue(Result *result)
 	{
 		//Aquire lock on result queues.
-		std::unique_lock<std::mutex> lock(resultsQueueMutex);
+		std::unique_lock<std::mutex> lock(resultsQueueCompleteMutex);
 		if (std::find(resultQueueComplete.begin(), resultQueueComplete.end(), result) == resultQueueComplete.end())
 		{
 			CF_THROW("Remove failed. Cannot find that result in the completed results queue.");
@@ -208,7 +208,7 @@ namespace cf
 	Result *Host::getAvailableResult(unsigned __int64 taskID)
 	{
 		//Aquire lock on result queues.
-		std::unique_lock<std::mutex> lock(resultsQueueMutex);
+		std::unique_lock<std::mutex> lock(resultsQueueCompleteMutex);
 
 		if (resultQueueComplete.size() > 0)
 		{
@@ -340,7 +340,7 @@ namespace cf
 	bool Host::checkAvailableResult(unsigned __int64 taskID)
 	{
 		//Aquire lock on result queues.
-		std::unique_lock<std::mutex> lock(resultsQueueMutex);
+		std::unique_lock<std::mutex> lock(resultsQueueCompleteMutex);
 
 		if (resultQueueComplete.size() > 0)
 		{
@@ -467,7 +467,7 @@ namespace cf
 					}
 
 					//Place the result in the host result parts queue.
-					std::unique_lock<std::mutex> lock2(resultsQueueMutex);
+					std::unique_lock<std::mutex> lock2(resultsQueueIncompleteMutex);
 					resultQueueIncomplete.push_back(result);
 					lock2.unlock();
 
@@ -486,18 +486,20 @@ namespace cf
 	void Host::checkForCompleteResults()
 	{
 		//Aquire lock on result queues.
-		std::unique_lock<std::mutex> lock(resultsQueueMutex);
+		std::unique_lock<std::mutex> lockResCopy(resultsQueueIncompleteMutex);
+		std::list<Result *> resultQueueIncompleteCOPY = resultQueueIncomplete;
+		lockResCopy.unlock();
 
 		std::vector<Result *> set;
 		std::vector<Result *> remove;
-		for (auto &r1 : resultQueueIncomplete)
+		for (auto &r1 : resultQueueIncompleteCOPY)
 		{
 			//If this result part is already in the removal list, then skip it.
 			if (remove.size() > 0 && std::find(remove.begin(), remove.end(), r1) != remove.end()) continue;
 
 			set.push_back(r1);
 
-			for (auto &r2 : resultQueueIncomplete)
+			for (auto &r2 : resultQueueIncompleteCOPY)
 			{
 				//Skip checking against ourself.
 				if (r1 == r2) continue;
@@ -538,7 +540,9 @@ namespace cf
 				addBenchmarkTime(rNew->getHostTimeFinished() - rNew->getHostTimeSent());
 
 				//Store the completed result.
+				std::unique_lock<std::mutex> lockComp(resultsQueueCompleteMutex);
 				resultQueueComplete.push_back(rNew);
+				lockComp.unlock();
 
 				//Record these results for removal from the incomplete results set.
 				remove.insert(remove.end(), set.begin(), set.end());
@@ -547,6 +551,7 @@ namespace cf
 			set.clear();
 		}
 
+		std::unique_lock<std::mutex> lockRemove(resultsQueueIncompleteMutex);
 		for (auto &r : remove)
 		{
 
@@ -562,6 +567,7 @@ namespace cf
 			}
 
 		}
+		lockRemove.unlock();
 
 	}
 
