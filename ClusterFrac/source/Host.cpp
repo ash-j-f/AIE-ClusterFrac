@@ -131,9 +131,11 @@ namespace cf
 	bool Host::sendTasks()
 	{
 
-		std::unique_lock<std::mutex> lock(taskQueueMutex);
+		int clientCount = getClientsCount();
 
-		if (getClientsCount() < 1)
+		std::unique_lock<std::mutex> taskQueueLock(taskQueueMutex);
+
+		if (clientCount < 1)
 		{
 			CF_SAY("Cannot send tasks. No clients connected.", Settings::LogLevels::Error);
 			return false;
@@ -146,16 +148,17 @@ namespace cf
 		}
 
 		//Divide tasks among clients.
-		std::vector<Task *> subTaskQueue;
+		std::vector<Task *> tmpSubTaskQueue;
 		std::vector<Task *> dividedTasks;
+
 		CF_SAY("Dividing tasks among clients.", Settings::LogLevels::Info);
 		for (auto &task : taskQueue)
 		{
 			//Only divide task if there's more than one client, and the task allows itself to be split,
 			//and allows itself to be run on remote clients. Otherwise just use pointer to the original task.
-			if (task->allowNodeTaskSplit && task->getNodeTargetType() != cf::Task::NodeTargetTypes::Local && getClientsCount() > 1)
+			if (task->allowNodeTaskSplit && task->getNodeTargetType() != cf::Task::NodeTargetTypes::Local && clientCount > 1)
 			{
-				dividedTasks = task->split(getClientsCount());
+				dividedTasks = task->split(clientCount);
 				//Remove original task from memory.
 				delete task;
 				task = nullptr;
@@ -166,21 +169,18 @@ namespace cf
 				//We DON'T remove the original task queue pointer object from memory here as we'll keep using it.
 				dividedTasks = std::vector<Task *>{task};
 			}
-			subTaskQueue.insert(subTaskQueue.end(), dividedTasks.begin(), dividedTasks.end());
+			tmpSubTaskQueue.insert(tmpSubTaskQueue.end(), dividedTasks.begin(), dividedTasks.end());
 		}
 
 		//Empty the main task queue.
 		taskQueue.clear();
 
-		lock.unlock();
+		taskQueueLock.unlock();
 
-		//Distribute sub tasks among available clients.
-		distributeSubTasks(subTaskQueue);
-
-		//Empty the subtask list.
-		subTaskQueue.clear();
-
-		CF_SAY("Task sending finished.", Settings::LogLevels::Info);
+		//Add sub tasks to sub task queue. 
+		std::unique_lock<std::mutex> subTaskQueueLock(subTaskQueueMutex);
+		subTaskQueue.insert(subTaskQueue.end(), tmpSubTaskQueue.begin(), tmpSubTaskQueue.end());
+		subTaskQueueLock.unlock();
 
 		return true;
 	}
@@ -571,11 +571,20 @@ namespace cf
 
 	}
 
-	void Host::distributeSubTasks(std::vector<Task *> subTaskQueue)
+	void Host::distributeSubTasks()
 	{
 
-		std::vector<Task *>::iterator it = subTaskQueue.begin();
-		while (it != subTaskQueue.end())
+		//Do nothing if subtask queue is empty. 
+		if (subTaskQueue.size() == 0) return;
+
+		//Copy current subtask queue entries for processing.
+		std::unique_lock<std::mutex> copyLock(subTaskQueueMutex);
+		std::list<Task *> subTaskQueueCOPY = subTaskQueue;
+		copyLock.unlock();
+
+		std::list<Task *>::iterator it = subTaskQueueCOPY.begin();
+
+		while (it != subTaskQueueCOPY.end())
 		{
 
 			Task *task = *it;
@@ -594,7 +603,7 @@ namespace cf
 				(hostAsClient && !busy && task->getNodeTargetType() == Task::NodeTargetTypes::Remote && getClientsCount() == 1)
 				)
 			{
-				std::unique_lock<std::mutex> lock2(localHostAsClientTaskQueueMutex);
+				std::unique_lock<std::mutex> hostAsClientLock(localHostAsClientTaskQueueMutex);
 				CF_SAY("Sending task to local client.", Settings::LogLevels::Info);
 
 				busy = true;
@@ -604,7 +613,7 @@ namespace cf
 				//Assign the task to the host-as-client so we can track its progress.
 				trackTask(task);
 				localHostAsClientTaskQueue.push_back(task);
-				lock2.unlock();
+				hostAsClientLock.unlock();
 
 				it++;
 			}
@@ -619,6 +628,7 @@ namespace cf
 					if (client->busy || client->remove) continue;
 					freeClient = client;
 				}
+				clientsLock.unlock();
 
 				if (freeClient != nullptr)
 				{
@@ -636,7 +646,7 @@ namespace cf
 
 					it++;
 				}
-				clientsLock.unlock();
+
 			}
 
 			std::this_thread::sleep_for(std::chrono::milliseconds(1));
@@ -645,6 +655,14 @@ namespace cf
 
 		//Wait for threads to finish.
 		sender.waitForComplete();
+
+		std::unique_lock<std::mutex> lockRemove(subTaskQueueMutex);
+		for (auto &r : subTaskQueueCOPY)
+		{
+			//Remove subtasks from queue that have been sent.
+			subTaskQueue.erase(std::remove(subTaskQueue.begin(), subTaskQueue.end(), r), subTaskQueue.end());
+		}
+		lockRemove.unlock();
 
 	}
 

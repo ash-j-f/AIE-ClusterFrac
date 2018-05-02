@@ -68,7 +68,7 @@ namespace cf
 				//Skip removed clients.
 				if (c->remove) continue;
 
-				std::unique_lock<std::mutex> lock(c->taskMutex);
+				std::unique_lock<std::mutex> taskLock(c->taskMutex);
 				std::vector<Task *>::iterator it;
 				for (it = c->tasks.begin(); it != c->tasks.end();)
 				{
@@ -86,14 +86,23 @@ namespace cf
 						it++;
 					}
 				}
-				lock.unlock();
+				taskLock.unlock();
 			}
 			clientsLock.unlock();
 
 			//Distribute any now unowned tasks to other clients.
-			if (redistributeTasks.size() > 0) host->distributeSubTasks(redistributeTasks);
+			if (redistributeTasks.size() > 0)
+			{
+				std::unique_lock<std::mutex> lock3(host->subTaskQueueMutex);
+				host->subTaskQueue.insert(host->subTaskQueue.end(), redistributeTasks.begin(), redistributeTasks.end());
+				lock3.unlock();
+			}
 
+			//Send any pending tasks waiting on the host. 
 			if (host->getTasksCount() > 0 && host->getClientsCount() > 0) host->sendTasks();
+
+			//Send any pending subtasks waiting on the host.
+			host->distributeSubTasks();
 
 			std::this_thread::sleep_for(std::chrono::milliseconds(1));
 		}

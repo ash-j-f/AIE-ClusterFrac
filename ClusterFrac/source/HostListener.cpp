@@ -299,7 +299,13 @@ namespace cf
 				//Mark client data for erasure.
 				client->remove = true;
 
-				if (redistTasks.size() > 0) host->distributeSubTasks(redistTasks);
+				if (redistTasks.size() > 0)
+				{
+					//Redistribute sub tasks to other clients. 
+					std::unique_lock<std::mutex> lock3(host->subTaskQueueMutex);
+					host->subTaskQueue.insert(host->subTaskQueue.end(), redistTasks.begin(), redistTasks.end());
+					lock3.unlock();
+				}
 
 				break;
 			}

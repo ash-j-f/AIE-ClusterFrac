@@ -231,6 +231,12 @@ namespace cf
 		//Mutex for task queue
 		std::mutex taskQueueMutex;
 
+		//Subtask queue.
+		std::list<cf::Task *> subTaskQueue;
+
+		//Mutex for subtask queue
+		std::mutex subTaskQueueMutex;
+
 		//Incomplete results queue.
 		std::list<cf::Result *> resultQueueIncomplete;
 
@@ -293,10 +299,9 @@ namespace cf
 
 		/**
 		* Send sub tasks to connecte clients, and/or to the host as if it were a client if host-as-client is enabled.
-		* @param subTaskQueue The queue of divided tasks to send to clients.
 		* @returns void.
 		*/
-		void distributeSubTasks(std::vector<Task *> subTaskQueue);
+		void distributeSubTasks();
 
 		/**
 		* Add an elapsed task time to the benchmark list.
