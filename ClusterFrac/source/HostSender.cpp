@@ -78,6 +78,7 @@ namespace cf
 
 				if (redistTasks.size() > 0)
 				{
+
 					client->socket->disconnect();
 					std::unique_lock<std::mutex> taskLock(client->taskMutex);
 					//Remove the disconnected clients tasks.
