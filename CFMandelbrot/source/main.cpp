@@ -28,6 +28,18 @@ int main(int argc, char *argv[], char *envp[])
 	//Create new host object.
 	cf::Host *host = new cf::Host();
 
+	//Check if a non default port was specified.
+	if (argc > 1)
+	{
+		host->setPort(atoi(argv[1]));
+	}
+
+	//Check if a non default concurrency was specified.
+	if (argc > 2)
+	{
+		host->setConcurrency(atoi(argv[2]));
+	}
+
 	//Create Mandelbrot object.
 	Mandelbrot mb{ host };
 

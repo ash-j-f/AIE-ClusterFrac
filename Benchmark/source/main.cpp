@@ -36,6 +36,12 @@ int main(int argc, char *argv[], char *envp[])
 			host->setPort(atoi(argv[1]));
 		}
 
+		//Check if a non default concurrency was specified.
+		if (argc > 2)
+		{
+			host->setConcurrency(atoi(argv[2]));
+		}
+
 		//Set user defined Task and Result types.
 		host->registerTaskType("BenchmarkTask", []{ BenchmarkTask *b = new BenchmarkTask(); return static_cast<cf::Task *>(b); });
 		host->registerResultType("BenchmarkResult", []{ BenchmarkResult *b = new BenchmarkResult(); return static_cast<cf::Result *>(b); });
