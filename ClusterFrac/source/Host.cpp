@@ -146,7 +146,7 @@ namespace cf
 		}
 
 		//Divide tasks among clients.
-		std::vector<Task *> subTaskQueue;
+		std::vector<Task *> tmpSubTaskQueue;
 		std::vector<Task *> dividedTasks;
 		CF_SAY("Dividing tasks among clients.", Settings::LogLevels::Info);
 		for (auto &task : taskQueue)
@@ -166,7 +166,7 @@ namespace cf
 				//We DON'T remove the original task queue pointer object from memory here as we'll keep using it.
 				dividedTasks = std::vector<Task *>{task};
 			}
-			subTaskQueue.insert(subTaskQueue.end(), dividedTasks.begin(), dividedTasks.end());
+			tmpSubTaskQueue.insert(tmpSubTaskQueue.end(), dividedTasks.begin(), dividedTasks.end());
 		}
 
 		//Empty the main task queue.
@@ -174,20 +174,17 @@ namespace cf
 
 		lock.unlock();
 
-		//Distribute sub tasks among available clients.
-		distributeSubTasks(subTaskQueue);
-
-		//Empty the subtask list.
-		subTaskQueue.clear();
-
-		CF_SAY("Task sending finished.", Settings::LogLevels::Info);
+		//Add sub tasks to sub task queue.
+		std::unique_lock<std::mutex> lock2(subTaskQueueMutex);
+		subTaskQueue.insert(subTaskQueue.end(), tmpSubTaskQueue.begin(), tmpSubTaskQueue.end());
+		lock2.unlock();
 
 		return true;
 	}
 
 	void Host::addResultToQueue(Result *result)
 	{
-		std::unique_lock<std::mutex> lock(resultsQueueMutex);
+		std::unique_lock<std::mutex> lock(resultsQueueIncompleteMutex);
 		resultQueueIncomplete.push_back(result);
 		CF_SAY("Added result to queue.", Settings::LogLevels::Info);
 	}
@@ -195,7 +192,7 @@ namespace cf
 	void Host::removeResultFromQueue(Result *result)
 	{
 		//Aquire lock on result queues.
-		std::unique_lock<std::mutex> lock(resultsQueueMutex);
+		std::unique_lock<std::mutex> lock(resultsQueueCompleteMutex);
 		if (std::find(resultQueueComplete.begin(), resultQueueComplete.end(), result) == resultQueueComplete.end())
 		{
 			CF_THROW("Remove failed. Cannot find that result in the completed results queue.");
@@ -208,7 +205,7 @@ namespace cf
 	Result *Host::getAvailableResult(unsigned __int64 taskID)
 	{
 		//Aquire lock on result queues.
-		std::unique_lock<std::mutex> lock(resultsQueueMutex);
+		std::unique_lock<std::mutex> lock(resultsQueueCompleteMutex);
 
 		if (resultQueueComplete.size() > 0)
 		{
@@ -340,7 +337,7 @@ namespace cf
 	bool Host::checkAvailableResult(unsigned __int64 taskID)
 	{
 		//Aquire lock on result queues.
-		std::unique_lock<std::mutex> lock(resultsQueueMutex);
+		std::unique_lock<std::mutex> lock(resultsQueueCompleteMutex);
 
 		if (resultQueueComplete.size() > 0)
 		{
@@ -358,10 +355,10 @@ namespace cf
 	{
 		while (hostAsClientTaskProcessThreadRun)
 		{
-			std::unique_lock<std::mutex> lock(localHostAsClientTaskQueueMutex);
 			if (localHostAsClientTaskQueue.size() > 0)
 			{
 				//Copy the local task queue.
+				std::unique_lock<std::mutex> lock(localHostAsClientTaskQueueMutex);
 				std::list<Task *> localHostAsClientTaskQueueCOPY = localHostAsClientTaskQueue;
 				lock.unlock();
 
@@ -463,7 +460,7 @@ namespace cf
 					if (!markTaskFinished(result)) CF_THROW("Results processed locally are invalid. No owner found.");
 
 					//Place the result in the host result parts queue.
-					std::unique_lock<std::mutex> lock2(resultsQueueMutex);
+					std::unique_lock<std::mutex> lock2(resultsQueueIncompleteMutex);
 					resultQueueIncomplete.push_back(result);
 					lock2.unlock();
 
@@ -474,10 +471,6 @@ namespace cf
 
 				busy = false;
 			}
-			else
-			{
-				lock.unlock();
-			}
 
 			std::this_thread::sleep_for(std::chrono::milliseconds(1));
 		}
@@ -486,18 +479,20 @@ namespace cf
 	void Host::checkForCompleteResults()
 	{
 		//Aquire lock on result queues.
-		std::unique_lock<std::mutex> lock(resultsQueueMutex);
+		std::unique_lock<std::mutex> lock(resultsQueueIncompleteMutex);
+		std::list<Result *> resultQueueIncompleteCOPY = resultQueueIncomplete;
+		lock.unlock();
 
 		std::vector<Result *> set;
 		std::vector<Result *> remove;
-		for (auto &r1 : resultQueueIncomplete)
+		for (auto &r1 : resultQueueIncompleteCOPY)
 		{
 			//If this result part is already in the removal list, then skip it.
 			if (remove.size() > 0 && std::find(remove.begin(), remove.end(), r1) != remove.end()) continue;
 
 			set.push_back(r1);
 
-			for (auto &r2 : resultQueueIncomplete)
+			for (auto &r2 : resultQueueIncompleteCOPY)
 			{
 				//Skip checking against ourself.
 				if (r1 == r2) continue;
@@ -538,7 +533,9 @@ namespace cf
 				addBenchmarkTime(rNew->getHostTimeFinished() - rNew->getHostTimeSent());
 
 				//Store the completed result.
+				std::unique_lock<std::mutex> lock2(resultsQueueCompleteMutex);
 				resultQueueComplete.push_back(rNew);
+				lock2.unlock();
 
 				//Record these results for removal from the incomplete results set.
 				remove.insert(remove.end(), set.begin(), set.end());
@@ -547,6 +544,7 @@ namespace cf
 			set.clear();
 		}
 
+		std::unique_lock<std::mutex> lock3(resultsQueueIncompleteMutex);
 		for (auto &r : remove)
 		{
 
@@ -562,19 +560,20 @@ namespace cf
 			}
 
 		}
+		lock3.unlock();
 
 	}
 
-	void Host::distributeSubTasks(std::vector<Task *> subTaskQueue)
+	void Host::distributeSubTasks()
 	{
 
-		std::unique_lock<std::mutex> lock(taskQueueMutex);
-		//Cpoy the subtask queue.
-		std::vector<cf::Task *> subTaskQueueCOPY = subTaskQueue;
-		lock.unlock();
+		//Do nothing if subtask queue is empty.
+		if (subTaskQueue.size() == 0) return;
 
-		std::vector<Task *>::iterator it = subTaskQueueCOPY.begin();
-		while (it != subTaskQueueCOPY.end())
+		std::unique_lock<std::mutex> lock(subTaskQueueMutex);
+
+		std::list<Task *>::iterator it = subTaskQueue.begin();
+		while (it != subTaskQueue.end())
 		{
 
 			Task *task = *it;
@@ -642,9 +641,13 @@ namespace cf
 
 		}
 
-		//Wait for threads to finish.
+		//Empty the subtask queue.
+		subTaskQueue.clear();
+
+		//Wait for sender threads to finish.
 		sender.waitForComplete();
 
+		CF_SAY("Task sending finished.", Settings::LogLevels::Info);
 	}
 
 	void Host::addBenchmarkTime(const sf::Time elapsed)

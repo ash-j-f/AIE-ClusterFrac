@@ -231,11 +231,23 @@ namespace cf
 		//Mutex for task queue
 		std::mutex taskQueueMutex;
 
+		//Subtask queue.
+		std::list<cf::Task *> subTaskQueue;
+
+		//Mutex for subtask queue.
+		std::mutex subTaskQueueMutex;
+
 		//Incomplete results queue.
 		std::list<cf::Result *> resultQueueIncomplete;
 
+		//Mutex for incomplete results queue.
+		std::mutex resultsQueueIncompleteMutex;
+
 		//Complete results queue.
 		std::list<cf::Result *> resultQueueComplete;
+
+		//Mutex for complete results queue.
+		std::mutex resultsQueueCompleteMutex;
 
 		//Local task queue for host, that it should process as a client if hostAsClient is enabled.
 		std::list<cf::Task *> localHostAsClientTaskQueue;
@@ -248,9 +260,6 @@ namespace cf
 
 		//Should the host processing tasks as a client thread continue to run?
 		std::atomic<bool> hostAsClientTaskProcessThreadRun;
-
-		//Mutex for results queues
-		std::mutex resultsQueueMutex;
 
 		//Tasks assigned to this client.
 		std::vector<Task *> tasksAssignedAsClient;
@@ -290,10 +299,9 @@ namespace cf
 
 		/**
 		* Send sub tasks to connecte clients, and/or to the host as if it were a client if host-as-client is enabled.
-		* @param subTaskQueue The queue of divided tasks to send to clients.
 		* @returns void.
 		*/
-		void distributeSubTasks(std::vector<Task *> subTaskQueue);
+		void distributeSubTasks();
 
 		/**
 		* Add an elapsed task time to the benchmark list.

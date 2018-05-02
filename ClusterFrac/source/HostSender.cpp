@@ -50,6 +50,7 @@ namespace cf
 
 				//Socket is in non blocking mode, so more than one call to send may be needed to send all the data.
 				sf::Socket::Status status;
+				std::vector<cf::Task *> redistTasks;
 				while (true)
 				{
 					status = client->socket->send(packet);
@@ -65,17 +66,36 @@ namespace cf
 					}
 					else
 					{
-						std::string s = "Error while sending to client " + std::to_string(client->getClientID()) + ".";
+						std::string s = "Error while sending to client " + std::to_string(client->getClientID()) + ". Disconnecting client and redistributing tasks.";
 						CF_SAY(s, Settings::LogLevels::Error);
-						CF_THROW(s);
+						redistTasks = client->tasks;
 						break;
 					}
 				};
 
 				packet.clear();
+				lock.unlock();
+
+				if (redistTasks.size() > 0)
+				{
+					client->socket->disconnect();
+					std::unique_lock<std::mutex> taskLock(client->taskMutex);
+					//Remove the disconnected clients tasks.
+					client->tasks.clear();
+					taskLock.unlock();
+					//Mark client data for erasure.
+					client->remove = true;
+
+					//Place the client's old tasks back on the sub task queue.
+					std::unique_lock<std::mutex> lock3(host->subTaskQueueMutex);
+					host->subTaskQueue.insert(host->subTaskQueue.end(), redistTasks.begin(), redistTasks.end());
+					lock3.unlock();
+
+					//xxxx doesn't work? Host appears to hangs waiting for all tasks to finish.
+				}
 
 				done = true;
-				lock.unlock();
+
 			}
 			
 			std::this_thread::sleep_for(std::chrono::milliseconds(1));

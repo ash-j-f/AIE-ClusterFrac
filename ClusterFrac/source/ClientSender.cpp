@@ -86,7 +86,7 @@ namespace cf
 
 					if (status == sf::Socket::Status::Done)
 					{
-						//Send was successful. Delete result object from memory and from the completed results list.
+						//Send was successful. delete result object from memory and from the completed results list.
 						std::unique_lock<std::mutex> lock3(client->resultsQueueMutex);
 						client->resultQueueComplete.erase(std::remove(client->resultQueueComplete.begin(),
 							client->resultQueueComplete.end(), result), client->resultQueueComplete.end());
