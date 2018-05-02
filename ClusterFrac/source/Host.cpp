@@ -358,10 +358,11 @@ namespace cf
 	{
 		while (hostAsClientTaskProcessThreadRun)
 		{
-			std::unique_lock<std::mutex> lock(localHostAsClientTaskQueueMutex);
+			
 			if (localHostAsClientTaskQueue.size() > 0)
 			{
 				//Copy the local task queue.
+				std::unique_lock<std::mutex> lock(localHostAsClientTaskQueueMutex);
 				std::list<Task *> localHostAsClientTaskQueueCOPY = localHostAsClientTaskQueue;
 				lock.unlock();
 
@@ -460,7 +461,10 @@ namespace cf
 					//If a client is found to own the task, remove the task from the client and delete it from memory.
 					//If no clients own this task, ignore it.
 					//The host is also checked in case it was running as a pseudo-client for this task.
-					if (!markTaskFinished(result)) CF_THROW("Results processed locally are invalid. No owner found.");
+					if (!markTaskFinished(result))
+					{
+						CF_THROW("Results processed locally are invalid. No owner found.");
+					}
 
 					//Place the result in the host result parts queue.
 					std::unique_lock<std::mutex> lock2(resultsQueueMutex);
@@ -473,10 +477,6 @@ namespace cf
 				}
 
 				busy = false;
-			}
-			else
-			{
-				lock.unlock();
 			}
 
 			std::this_thread::sleep_for(std::chrono::milliseconds(1));
@@ -568,13 +568,8 @@ namespace cf
 	void Host::distributeSubTasks(std::vector<Task *> subTaskQueue)
 	{
 
-		std::unique_lock<std::mutex> lock(taskQueueMutex);
-		//Cpoy the subtask queue.
-		std::vector<cf::Task *> subTaskQueueCOPY = subTaskQueue;
-		lock.unlock();
-
-		std::vector<Task *>::iterator it = subTaskQueueCOPY.begin();
-		while (it != subTaskQueueCOPY.end())
+		std::vector<Task *>::iterator it = subTaskQueue.begin();
+		while (it != subTaskQueue.end())
 		{
 
 			Task *task = *it;

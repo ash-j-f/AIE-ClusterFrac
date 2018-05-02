@@ -113,10 +113,10 @@ private:
 
 		for (unsigned int i = dataRangeStart; i <= dataRangeEnd; i++)
 		{
-			double r = i;
+			double r = 0;
 			for (unsigned int c = 0; c < cycles; c++)
 			{
-				r = (double)sqrtl((double)r);
+				r += ((double)sqrtl(i + c)) / (double)cycles;
 			}
 			result->numbers.push_back(r);
 		}

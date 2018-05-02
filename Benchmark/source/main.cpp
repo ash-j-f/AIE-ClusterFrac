@@ -48,9 +48,9 @@ int main(int argc, char *argv[], char *envp[])
 
 		//Generate test data. Data range is INCLUSIVE.
 		int dataRangeStart = 1;
-		int dataRangeEnd = 10000;
-		int cycles = 1;
-		int timeout = 20000; //Timeout per task chunk in ms.
+		int dataRangeEnd = 100;
+		unsigned int cycles = 10000000; //100000000;
+		int timeout = 10000; //Timeout per task chunk in ms.
 		int valueCount = (dataRangeEnd - dataRangeStart) + 1;
 		std::vector<double> expectedResults(valueCount);
 
@@ -72,13 +72,13 @@ int main(int argc, char *argv[], char *envp[])
 
 				threads.push_back(std::async(std::launch::async, [maxThreads, valueCount, tstart, tend, cycles]() {
 					std::vector<double> f;
-					for (int v = tstart; v <= tend; v++)
+					for (int j = tstart; j <= tend; j++)
 					{
 
-						double r = v;
-						for (int c = 0; c < cycles; c++)
+						double r = 0;
+						for (unsigned int c = 0; c < cycles; c++)
 						{
-							r = (double)sqrtl((double)r);
+							r += ((double)sqrtl(j + c)) / (double)cycles;
 						}
 
 						f.push_back(r);

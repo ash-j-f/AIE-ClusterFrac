@@ -47,7 +47,7 @@ namespace cf
 		*/
 		inline void registerTaskType(std::string name, std::function<Task *()> f) 
 		{ 
-			CF_SAY("Registered task type " + name, Settings::LogLevels::Info); 
+			CF_SAY("Registered task type " + name + ".", Settings::LogLevels::Info); 
 			taskConstructMap[name] = f; 
 		};
 
@@ -59,7 +59,7 @@ namespace cf
 		*/
 		inline void registerResultType(std::string name, std::function<Result *()> f) 
 		{ 
-			CF_SAY("Registered result type " + name, Settings::LogLevels::Info); 
+			CF_SAY("Registered result type " + name + ".", Settings::LogLevels::Info); 
 			resultConstructMap[name] = f; 
 		};
 

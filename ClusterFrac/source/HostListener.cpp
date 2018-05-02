@@ -107,7 +107,7 @@ namespace cf
 					for (auto &client : host->clients)
 					{
 
-						//Skip deleted clients.
+						//Skip clients marked for removal.
 						if (client->remove) continue;
 
 						//Attempt to get socket lock. Try again later if another process already has a lock on this socket.
@@ -253,6 +253,9 @@ namespace cf
 						std::unique_lock<std::mutex> lock3(host->resultsQueueMutex);
 						host->resultQueueIncomplete.push_back(result);
 						lock3.unlock();
+
+						//Scan the incomplete results queue for complete results sets and move them to the complete results queue.
+						host->checkForCompleteResults();
 					}
 					else
 					{
@@ -260,9 +263,6 @@ namespace cf
 						delete result;
 						result = nullptr;
 					}
-
-					//Scan the incomplete results queue for complete results sets and move them to the complete results queue.
-					host->checkForCompleteResults();
 
 					client->busy = false;
 
