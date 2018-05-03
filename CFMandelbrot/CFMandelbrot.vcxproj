@@ -151,7 +151,12 @@
       <AdditionalDependencies>ClusterFrac_DEBUG.lib;gdi32.lib;winmm.lib;opengl32.lib;freetype.lib;jpeg.lib;sfml-network-d.lib;sfml-system-d.lib;sfml-graphics-d.lib;sfml-window-d.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
-      <Command>xcopy "$(ProjectDir)\dependencies\*" "$(ProjectDir)\bin\" /E /Y</Command>
+      <Command>xcopy "$(ProjectDir)\dependencies\*" "$(ProjectDir)\bin\" /E /Y
+xcopy "$(SolutionDir)\ClusterFrac\lib\ClusterFrac_DEBUG.dll" "$(ProjectDir)\bin\" /E /Y
+xcopy "$(SolutionDir)\SFML-2.4.2\bin\sfml-graphics-d-2.dll" "$(ProjectDir)\bin\" /E /Y
+xcopy "$(SolutionDir)\SFML-2.4.2\bin\sfml-window-d-2.dll" "$(ProjectDir)\bin\" /E /Y
+xcopy "$(SolutionDir)\SFML-2.4.2\bin\sfml-network-d-2.dll" "$(ProjectDir)\bin\" /E /Y
+xcopy "$(SolutionDir)\SFML-2.4.2\bin\sfml-system-d-2.dll" "$(ProjectDir)\bin\" /E /Y</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -209,7 +214,12 @@
       </Command>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>xcopy "$(ProjectDir)\dependencies\*" "$(ProjectDir)\bin\" /E /Y</Command>
+      <Command>xcopy "$(ProjectDir)\dependencies\*" "$(ProjectDir)\bin\" /E /Y
+xcopy "$(SolutionDir)\ClusterFrac\lib\ClusterFrac.dll" "$(ProjectDir)\bin\" /E /Y
+xcopy "$(SolutionDir)\SFML-2.4.2\bin\sfml-graphics-2.dll" "$(ProjectDir)\bin\" /E /Y
+xcopy "$(SolutionDir)\SFML-2.4.2\bin\sfml-window-2.dll" "$(ProjectDir)\bin\" /E /Y
+xcopy "$(SolutionDir)\SFML-2.4.2\bin\sfml-network-2.dll" "$(ProjectDir)\bin\" /E /Y
+xcopy "$(SolutionDir)\SFML-2.4.2\bin\sfml-system-2.dll" "$(ProjectDir)\bin\" /E /Y</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
