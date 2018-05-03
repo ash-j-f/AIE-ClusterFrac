@@ -20,7 +20,7 @@ namespace cf
 	* work packets it is sent.
 	* @author Ashley Flynn - Academy of Interactive Entertainment - 2018.
 	*/
-	class DLL Client
+	class Client
 	{
 
 		//These classes require full access to client.
@@ -32,12 +32,12 @@ namespace cf
 		/**
 		* Default constructor.
 		*/
-		Client();
+		DLL Client();
 
 		/**
 		* Default destructor.
 		*/
-		~Client();
+		DLL ~Client();
 
 		/**
 		* Register new task construction callback.
@@ -45,7 +45,7 @@ namespace cf
 		* @param f The callback function to use to construct a new task of this type.
 		* @returns void.
 		*/
-		inline void registerTaskType(std::string name, std::function<Task *()> f) 
+		DLL inline void registerTaskType(std::string name, std::function<Task *()> f)
 		{ 
 			CF_SAY("Registered task type " + name + ".", Settings::LogLevels::Info); 
 			taskConstructMap[name] = f; 
@@ -57,7 +57,7 @@ namespace cf
 		* @param f The callback function to use to construct a new result of this type.
 		* @returns void.
 		*/
-		inline void registerResultType(std::string name, std::function<Result *()> f) 
+		DLL inline void registerResultType(std::string name, std::function<Result *()> f)
 		{ 
 			CF_SAY("Registered result type " + name + ".", Settings::LogLevels::Info); 
 			resultConstructMap[name] = f; 
@@ -67,21 +67,21 @@ namespace cf
 		* Start the client.
 		* @returns void.
 		*/
-		void start();
+		DLL void start();
 
 		/**
 		* Set the port number of the host the client will connect to.
 		* @param portNum The port number to use. Must be in the range [1 .. 65535].
 		* @returns void.
 		*/
-		void setPort(int portNum);
+		DLL void setPort(int portNum);
 
 		/**
 		* Set the IP address of the host the client will connect to.
 		* @param ip The IP address to connect to, in the IPv4 form like "192.168.0.1".
 		* @returns void.
 		*/
-		inline void setIPAddress(std::string ip) { ipAddress = sf::IpAddress(ip); };
+		DLL inline void setIPAddress(std::string ip) { ipAddress = sf::IpAddress(ip); };
 
 		/**
 		* Connect to the host.
@@ -90,27 +90,27 @@ namespace cf
 		* must not already be connected to a server or the new connection attempt will fail.
 		* @returns True if connection attempt succeeded, false if not.
 		*/
-		bool connect();
+		DLL bool connect();
 
 		/**
 		* Disconnect from the host.
 		* If the client is not connected, this has no effect.
 		* @returns void.
 		*/
-		void disconnect();
+		DLL void disconnect();
 
 		/**
 		* Add a task to the task queue for processing.
 		* @param task The task to add.
 		* @returns void.
 		*/
-		void addTaskToQueue(Task *task);
+		DLL void addTaskToQueue(Task *task);
 
 		/**
 		* Check if the client is currently connected to a host.
 		* @returns True if this client is connected to as host, false if not.
 		*/
-		inline bool isConnected() const { return connected; };
+		DLL inline bool isConnected() const { return connected; };
 
 		/**
 		* Set thread concurrency to use while procesing tasks.
@@ -120,7 +120,7 @@ namespace cf
 		* @param n The number of concurrent threads to run while processing tasks.
 		* @returns void.
 		*/
-		inline void setConcurrency(unsigned int n) 
+		DLL inline void setConcurrency(unsigned int n)
 		{ 
 			if (n > 65535) CF_THROW("Invalid concurrency value.");
 			if (n == 0) n = std::thread::hardware_concurrency();

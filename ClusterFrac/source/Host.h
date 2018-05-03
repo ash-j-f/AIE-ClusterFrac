@@ -26,7 +26,7 @@ namespace cf
 	* and sends/receives work packets.
 	* @author Ashley Flynn - Academy of Interactive Entertainment - 2018.
 	*/
-	class DLL Host
+	class Host
 	{
 
 		//These classes require full access to host.
@@ -39,12 +39,12 @@ namespace cf
 		/**
 		* Default constructor.
 		*/
-		Host();
+		DLL Host();
 
 		/**
 		* Default destructor.
 		*/
-		~Host();
+		DLL ~Host();
 
 		/**
 		* Register new task construction callback.
@@ -52,7 +52,7 @@ namespace cf
 		* @param f The callback function to use to construct a new task of this type.
 		* @returns void.
 		*/
-		inline void registerTaskType(std::string name, std::function<Task *()> f) 
+		DLL inline void registerTaskType(std::string name, std::function<Task *()> f)
 		{
 			CF_SAY("Registered task type " + name, Settings::LogLevels::Info); 
 			taskConstuctMap[name] = f; 
@@ -64,7 +64,7 @@ namespace cf
 		* @param f The callback function to use to construct a new result of this type.
 		* @returns void.
 		*/
-		inline void registerResultType(std::string name, std::function<Result *()> f) 
+		DLL inline void registerResultType(std::string name, std::function<Result *()> f)
 		{
 			CF_SAY("Registered result type " + name, Settings::LogLevels::Info);
 			resultConstructMap[name] = f; 
@@ -74,28 +74,28 @@ namespace cf
 		* Start a host server.
 		* @returns void.
 		*/
-		void start();
+		DLL void start();
 
 		/**
 		* Stop a host server.
 		* Disconnects all connected clients and deletes all task and result data.
 		* @returns void.
 		*/
-		void stop();
+		DLL void stop();
 
 		/**
 		* Set the port number for the host server.
 		* @param portNum The port number to use. Must be in the range [1 .. 65535].
 		* @returns void.
 		*/
-		void setPort(int portNum);
+		DLL void setPort(int portNum);
 
 		/**
 		* Add a task to the task queue for sending to clients.
 		* @param task The task to add.
 		* @returns void.
 		*/
-		void addTaskToQueue(Task *task);
+		DLL void addTaskToQueue(Task *task);
 
 		/**
 		* Divide tasks into subtask queue for processing.
@@ -103,54 +103,54 @@ namespace cf
 		* each task will be broken up in to.
 		* @returns True if sending succeeded, false if not.
 		*/
-		bool divideTasksIntoSubTaskQueue();
+		DLL bool divideTasksIntoSubTaskQueue();
 
 		/**
 		* Add a result to the result queue.
 		* @param result The result to add.
 		* @returns void.
 		*/
-		void addResultToQueue(Result *result);
+		DLL void addResultToQueue(Result *result);
 
 		/**
 		* Remove a result from the result queue.
 		* @param result The result to remove.
 		* @returns void.
 		*/
-		void removeResultFromQueue(Result *result);
+		DLL void removeResultFromQueue(Result *result);
 
 		/**
 		* Get a count of all connected clients.
 		* Includes the host itself if hostAsClient is set true.
 		* @returns The number of connected clients.
 		*/
-		inline int getClientsCount();
+		DLL inline int getClientsCount();
 
 		/**
 		* Get a count of the tasks in the task queue.
 		* @returns The number of tasks in the task queue.
 		*/
-		inline int getTasksCount() { std::unique_lock<std::mutex> lock(taskQueueMutex); return (int)taskQueue.size(); };
+		DLL inline int getTasksCount() { std::unique_lock<std::mutex> lock(taskQueueMutex); return (int)taskQueue.size(); };
 
 		/**
 		* Check if a result with a specified task ID is available in the results queue.
 		* @param taskID The ID of the task that created the result.
 		* @returns True if the result is in the queue, false if not.
 		*/
-		bool checkAvailableResult(unsigned __int64 taskID);
+		DLL bool checkAvailableResult(unsigned __int64 taskID);
 
 		/**
 		* Get a pointer to a result in results queue based on its task ID.
 		* @param taskID The ID of the task that created the result.
 		* @returns A pointer to the result if it is available, or nullptr if it is not available.
 		*/
-		Result* getAvailableResult(unsigned __int64 taskID);
+		DLL Result* getAvailableResult(unsigned __int64 taskID);
 
 		/**
 		* Is host-as-client enabled on this host?
 		* @returns True if host-as-client is enabled, false if not.
 		*/
-		inline bool getHostAsClient() const { return hostAsClient; };
+		DLL inline bool getHostAsClient() const { return hostAsClient; };
 
 		/**
 		* Enable or disable the host-as-client feature for this host.
@@ -158,7 +158,7 @@ namespace cf
 		* @param state Set true to enable host-as-client, false to disable.
 		* @returns void.
 		*/
-		void setHostAsClient(bool state);
+		DLL void setHostAsClient(bool state);
 
 		/**
 		* Set thread concurrency to use while procesing tasks.
@@ -168,7 +168,7 @@ namespace cf
 		* @param n The number of concurrent threads to run while processing tasks.
 		* @returns void.
 		*/
-		inline void setConcurrency(unsigned int n)
+		DLL inline void setConcurrency(unsigned int n)
 		{
 			if (n > 65535) CF_THROW("Invalid concurrency value.");
 			if (n == 0) n = std::thread::hardware_concurrency();
@@ -182,7 +182,7 @@ namespace cf
 		* Assign a task to this host as a client so that its progress can be tracked.
 		* @returns void.
 		*/
-		inline void trackTask(Task* t) { std::unique_lock<std::mutex> lock(tasksAssignedAsClientMutex); tasksAssignedAsClient.push_back(t); };
+		DLL inline void trackTask(Task* t) { std::unique_lock<std::mutex> lock(tasksAssignedAsClientMutex); tasksAssignedAsClient.push_back(t); };
 
 		/**
 		* Check which client (or host-as-client) was processing the task associated with a final result object.
@@ -190,13 +190,13 @@ namespace cf
 		* @param result A pointer to the result to check.
 		* @returns True if a task matching the given result was found, and the task removal was successful, false if not.
 		*/
-		bool markTaskFinished(Result *result);
+		DLL bool markTaskFinished(Result *result);
 
 		/**
 		* Get the average elapsed time for task processing.
 		* @returns The average elapsed time for task processing, in sf::Time format.
 		*/
-		sf::Time getAverageBenchmarkTime();
+		DLL sf::Time getAverageBenchmarkTime();
 
 	private:
 

@@ -1,5 +1,4 @@
 #pragma once
-#pragma once
 #include "DllExport.h"
 
 #define CF_ID cf::IDManager::getInstance()

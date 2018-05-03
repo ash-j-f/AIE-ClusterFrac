@@ -12,7 +12,7 @@ namespace cf
 	* Extends the SFML Packet class by adding packet flag type and data compression.
 	* @author Ashley Flynn - Academy of Interactive Entertainment - 2018.
 	*/
-	class DLL WorkPacket : public sf::Packet
+	class WorkPacket : public sf::Packet
 	{
 	public:
 		
@@ -27,18 +27,18 @@ namespace cf
 		/**
 		* Default constructor.
 		*/
-		WorkPacket();
+		DLL WorkPacket();
 
 		/**
 		* Constructor with packet flag specified.
 		* @param newFlag Set the packet flag.
 		*/
-		WorkPacket(Flag newFlag);
+		DLL WorkPacket(Flag newFlag);
 
 		/**
 		* Default constructor.
 		*/
-		~WorkPacket();
+		DLL ~WorkPacket();
 
 		//Is compression during network send on or off?
 		bool compression;
@@ -47,28 +47,28 @@ namespace cf
 		* Initialise the work packet.
 		* @returns void.
 		*/
-		void init();
+		DLL void init();
 
 		/*
 		* Set the work packet flag.
 		* Flags are used to identify the packet type when decoding.
 		* @returns void.
 		*/
-		inline void setFlag(Flag newFlag) { flag = newFlag; };
+		DLL inline void setFlag(Flag newFlag) { flag = newFlag; };
 
 		/**
 		* Get the work packet flag.
 		* Flags are used to identify the packet type when decoding.
 		* @returns The work packet's identifying flag.
 		*/
-		inline Flag getFlag() const { return static_cast<Flag>(flag); }
+		DLL inline Flag getFlag() const { return static_cast<Flag>(flag); }
 
 		/**
 		* Clear the packet, and set the packet flag to None.
 		* Hides the base class clear() function.
 		* @returns void.
 		*/
-		inline virtual void clear() { static_cast<sf::Packet*>(this)->clear(); flag = None; };
+		DLL inline virtual void clear() { static_cast<sf::Packet*>(this)->clear(); flag = None; };
 
 	private:
 

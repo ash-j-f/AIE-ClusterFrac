@@ -16,7 +16,7 @@ namespace cf
 	* to a new client.
 	* @author Ashley Flynn - Academy of Interactive Entertainment - 2018.
 	*/
-	class DLL HostTaskWatcher
+	class HostTaskWatcher
 	{
 
 	public:
@@ -25,24 +25,24 @@ namespace cf
 		* Constructor that takes a host object as a prameter.
 		* @param newHost The host object this host task watcher belongs to.
 		*/
-		HostTaskWatcher(Host *newHost);
+		DLL HostTaskWatcher(Host *newHost);
 
 		/**
 		* Default destructor.
 		*/
-		~HostTaskWatcher();
+		DLL ~HostTaskWatcher();
 
 		/**
 		* Start the host task watcher.
 		* @return void.
 		*/
-		void start();
+		DLL void start();
 
 		/**
 		* Stop the host task watcher.
 		* @return void.
 		*/
-		void stop();
+		DLL void stop();
 
 	private:
 

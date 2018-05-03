@@ -3,6 +3,7 @@
 #include <mutex>
 #include <SFML\Network.hpp>
 #include "Task.h"
+#include "DllExport.h"
 
 namespace cf
 {
@@ -21,7 +22,7 @@ namespace cf
 		* Constructor with client ID.
 		* @param newID The client ID to use for this new client.
 		*/
-		ClientDetails(unsigned __int64 newID)
+		DLL ClientDetails(unsigned __int64 newID)
 		{
 			ID = newID;
 			init();
@@ -30,7 +31,7 @@ namespace cf
 		/**
 		* Default destructor.
 		*/
-		~ClientDetails()
+		DLL ~ClientDetails()
 		{
 			//Delete from memory any tasks still assigned to this client.
 			std::unique_lock<std::mutex> lock(taskMutex);
@@ -50,7 +51,7 @@ namespace cf
 		* Standard class initialisation.
 		* @returns void.
 		*/
-		void init()
+		DLL void init()
 		{
 			socket = new sf::TcpSocket();
 			socket->setBlocking(false);
@@ -80,13 +81,13 @@ namespace cf
 		* Assign a task to this client so that its progress can be tracked.
 		* @returns void.
 		*/
-		inline void trackTask(Task* t) { std::unique_lock<std::mutex> lock(taskMutex); tasks.push_back(t); };
+		DLL inline void trackTask(Task* t) { std::unique_lock<std::mutex> lock(taskMutex); tasks.push_back(t); };
 
 		/**
 		* Get client ID.
 		* @returns The client's ID.
 		*/
-		inline unsigned __int64 getClientID() const { return ID; }
+		DLL inline unsigned __int64 getClientID() const { return ID; }
 
 	private:
 

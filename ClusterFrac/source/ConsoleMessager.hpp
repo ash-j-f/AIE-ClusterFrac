@@ -24,7 +24,7 @@ namespace cf
 	* Singleton class.
 	* @author Ashley Flynn - Academy of Interactive Entertainment - 2018.
 	*/
-	class DLL ConsoleMessager
+	class ConsoleMessager
 	{
 
 	public:
@@ -33,7 +33,7 @@ namespace cf
 		* Create or get static instance.
 		* @returns A pointer to the single ConsoleMessager object.
 		*/
-		inline static class ConsoleMessager *getInstance() { static ConsoleMessager cm; return &cm; };
+		DLL inline static class ConsoleMessager *getInstance() { static ConsoleMessager cm; return &cm; };
 
 		/**
 		* Print a message to the console.
@@ -41,7 +41,7 @@ namespace cf
 		* @param level The log level of the message.
 		* @returns void.
 		*/
-		inline void say(std::string s, int level)
+		DLL inline void say(std::string s, int level)
 		{ 
 			std::unique_lock<std::mutex> lock(console); 
 			//Ignore the message if it is not covered by the current log level setting.

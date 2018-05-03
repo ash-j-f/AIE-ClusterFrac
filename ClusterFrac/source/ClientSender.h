@@ -14,7 +14,7 @@ namespace cf
 	* This is an essential component of the Client class.
 	* @author Ashley Flynn - Academy of Interactive Entertainment - 2018.
 	*/
-	class DLL ClientSender
+	class ClientSender
 	{
 
 	public:
@@ -23,24 +23,24 @@ namespace cf
 		* Constructor that takes a client object as a parameter.
 		* @param newClient Pointer to the client object.
 		*/
-		ClientSender(Client *newClient);
+		DLL ClientSender(Client *newClient);
 
 		/**
 		* Default destructor.
 		*/
-		~ClientSender();
+		DLL ~ClientSender();
 
 		/**
 		* Start the client sender thread.
 		* @returns void.
 		*/
-		void start();
+		DLL void start();
 
 		/**
 		* Stop the client sender thread.
 		* @returns void.
 		*/
-		void stop();
+		DLL void stop();
 
 	private:
 		

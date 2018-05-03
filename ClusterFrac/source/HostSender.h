@@ -18,7 +18,7 @@ namespace cf
 	* This is an essential component of the Host class.
 	* @author Ashley Flynn - Academy of Interactive Entertainment - 2018.
 	*/
-	class DLL HostSender
+	class HostSender
 	{
 
 	public:
@@ -27,12 +27,12 @@ namespace cf
 		* Constructor that takes a host object as a parameter.
 		* @param newClient Pointer to the host object.
 		*/
-		HostSender(Host *newHost);
+		DLL HostSender(Host *newHost);
 
 		/**
 		* Default destructor.
 		*/
-		~HostSender();
+		DLL ~HostSender();
 
 		/**
 		* Send a task to the selected client.
@@ -40,13 +40,13 @@ namespace cf
 		* @param task The task to send to the client.
 		* @returns void.
 		*/
-		void sendTask(ClientDetails *client, Task *task);
+		DLL void sendTask(ClientDetails *client, Task *task);
 
 		/**
 		* Wait for all tasks being sent to clients to complete sending.
 		* @returns void.
 		*/
-		void waitForComplete();
+		DLL void waitForComplete();
 
 	private:
 

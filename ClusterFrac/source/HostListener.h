@@ -15,7 +15,7 @@ namespace cf
 	* This is an essential component of the Host class.
 	* @author Ashley Flynn - Academy of Interactive Entertainment - 2018.
 	*/
-	class DLL HostListener
+	class HostListener
 	{
 
 	public:
@@ -24,24 +24,24 @@ namespace cf
 		* Constructor that takes a host object as a parameter.
 		* @param newClient Pointer to the host object.
 		*/
-		HostListener(Host *newHost);
+		DLL HostListener(Host *newHost);
 
 		/**
 		* Default destructor.
 		*/
-		~HostListener();
+		DLL ~HostListener();
 
 		/**
 		* Start the host listener thread.
 		* @returns void.
 		*/
-		void start();
+		DLL void start();
 
 		/**
 		* Stop the host listener thread.
 		* @returns void.
 		*/
-		void stop();
+		DLL void stop();
 
 	private:
 
