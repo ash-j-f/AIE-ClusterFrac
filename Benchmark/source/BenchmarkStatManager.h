@@ -31,6 +31,10 @@ public:
 	*/
 	inline void addStat(double timeMilliseconds) { stats.push_back(timeMilliseconds); save(); };
 
+	inline double getAverage() const { double size = (double)stats.size(); if (size == 0) return 0; double avg = 0; for (auto &s : stats) avg += s; avg /= size; return avg; };
+
+	inline unsigned int getCount() const { return (unsigned int)stats.size(); };
+
 private:
 
 	//Time data entries, in seconds per total network and computation time for each test run.

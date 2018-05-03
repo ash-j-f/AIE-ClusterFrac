@@ -191,8 +191,11 @@ int main(int argc, char *argv[], char *envp[])
 			output = nullptr;
 			double timeMilliseonds = std::chrono::duration <double, std::milli>(diff).count();
 			bsm.addStat(timeMilliseonds);
+			double average = bsm.getAverage();
+			unsigned int testCount = bsm.getCount();
 
 			CF_SAY("Computation and network time: " + std::to_string(timeMilliseonds) + " ms.", cf::Settings::LogLevels::Info);
+			if (testCount > 0) CF_SAY("Previous " + std::to_string(testCount) + " tests average time: " + std::to_string(average) + " ms.", cf::Settings::LogLevels::Info);
 			CF_SAY("Test complete.\n", cf::Settings::LogLevels::Info);
 
 			if (autoRun)
