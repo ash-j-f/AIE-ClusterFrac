@@ -128,7 +128,7 @@ namespace cf
 		CF_SAY("Added task " + std::to_string(task->getInitialTaskID()) + " to queue.", Settings::LogLevels::Info);
 	}
 
-	bool Host::sendTasks()
+	bool Host::divideTasksIntoSubTaskQueue()
 	{
 
 		int clientCount = getClientsCount();
@@ -571,7 +571,7 @@ namespace cf
 
 	}
 
-	void Host::distributeSubTasks()
+	void Host::sendSubTasks()
 	{
 
 		//Do nothing if subtask queue is empty. 

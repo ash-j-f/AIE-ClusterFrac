@@ -98,10 +98,12 @@ namespace cf
 		void addTaskToQueue(Task *task);
 
 		/**
-		* Send tasks to clients for processing.
+		* Divide tasks into subtask queue for processing.
+		* Uses client count at the time the function is called to determine how many subtasks
+		* each task will be broken up in to.
 		* @returns True if sending succeeded, false if not.
 		*/
-		bool sendTasks();
+		bool divideTasksIntoSubTaskQueue();
 
 		/**
 		* Add a result to the result queue.
@@ -298,10 +300,10 @@ namespace cf
 		void checkForCompleteResults();
 
 		/**
-		* Send sub tasks to connecte clients, and/or to the host as if it were a client if host-as-client is enabled.
+		* Send sub tasks to connected clients, and/or to the host as if it were a client if host-as-client is enabled.
 		* @returns void.
 		*/
-		void distributeSubTasks();
+		void sendSubTasks();
 
 		/**
 		* Add an elapsed task time to the benchmark list.

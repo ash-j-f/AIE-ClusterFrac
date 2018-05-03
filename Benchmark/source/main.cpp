@@ -42,6 +42,10 @@ int main(int argc, char *argv[], char *envp[])
 			host->setConcurrency(atoi(argv[2]));
 		}
 
+		bool autoRun = false;
+
+		bool quit = false;
+
 		//Set user defined Task and Result types.
 		host->registerTaskType("BenchmarkTask", []{ BenchmarkTask *b = new BenchmarkTask(); return static_cast<cf::Task *>(b); });
 		host->registerResultType("BenchmarkResult", []{ BenchmarkResult *b = new BenchmarkResult(); return static_cast<cf::Result *>(b); });
@@ -111,7 +115,7 @@ int main(int argc, char *argv[], char *envp[])
 
 		CF_SAY("Generating test data - complete.", cf::Settings::LogLevels::Info);
 
-		while (true)
+		while (true && !quit)
 		{
 			BenchmarkTask *testTask = new BenchmarkTask();
 			
@@ -183,9 +187,55 @@ int main(int argc, char *argv[], char *envp[])
 			output = nullptr;
 
 			CF_SAY("Computation and network time: " + std::to_string(std::chrono::duration <double, std::milli>(diff).count()) + " ms.", cf::Settings::LogLevels::Info);
-			
-			CF_SAY("Test complete. Running again in 3 secs. Hold Ctrl-Q to quit.", cf::Settings::LogLevels::Info);
-			std::this_thread::sleep_for(std::chrono::milliseconds(3000));
+			CF_SAY("Test complete.\n", cf::Settings::LogLevels::Info);
+
+			if (autoRun)
+			{
+				CF_SAY("Automatically running test again in 3 seconds. Q to cancel.", cf::Settings::LogLevels::Info);
+				sf::Clock elapsed;
+				while (elapsed.getElapsedTime().asSeconds() < 3.0f)
+				{
+					if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q))
+					{
+						CF_SAY("Auto-run cancelled.\n", cf::Settings::LogLevels::Info);
+						autoRun = false;
+						break;
+					}
+					std::this_thread::sleep_for(std::chrono::milliseconds(1));
+				}
+				CF_SAY("Running test.\n", cf::Settings::LogLevels::Info);
+			}
+
+			if (!autoRun)
+			{
+				CF_SAY("R to run test again. A to enable auto-run. Ctrl-Q to quit.", cf::Settings::LogLevels::Info);
+
+				while (true)
+				{
+
+					if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q) && (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl) || sf::Keyboard::isKeyPressed(sf::Keyboard::RControl)))
+					{
+						CF_SAY("User requested program shutdown.\n", cf::Settings::LogLevels::Info);
+						quit = true;
+						break;
+					}
+
+					if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+					{
+						CF_SAY("Auto-run enabled.", cf::Settings::LogLevels::Info);
+						CF_SAY("Running test.\n", cf::Settings::LogLevels::Info);
+						autoRun = true;
+						break;
+					}
+
+					if (sf::Keyboard::isKeyPressed(sf::Keyboard::R))
+					{
+						CF_SAY("Running test.\n", cf::Settings::LogLevels::Info);
+						break;
+					}
+				}
+			}
+
 		}
 
 		delete host;
