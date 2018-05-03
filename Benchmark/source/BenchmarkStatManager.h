@@ -2,6 +2,7 @@
 #include <string>
 #include <stdio.h>
 #include <Windows.h>
+#include <vector>
 #include <ConsoleMessager.hpp>
 
 /**
@@ -23,7 +24,17 @@ public:
 
 	void load();
 
+	/**
+	* Record a test run computation and network time.
+	* Time is in milliseconds.
+	* @returns void.
+	*/
+	inline void addStat(double timeMilliseconds) { stats.push_back(timeMilliseconds); save(); };
+
 private:
+
+	//Time data entries, in seconds per total network and computation time for each test run.
+	std::vector<double> stats;
 
 	/**
 	* Get the full path to the location of this executable file.

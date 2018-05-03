@@ -6,6 +6,7 @@
 #include <SFML\Window\Keyboard.hpp>
 #include "BenchmarkTask.hpp" 
 #include "BenchmarkResult.hpp" 
+#include "BenchmarkStatManager.h"
 
 /**
 * Benchmark reference application that provides an example of using the ClusterFrac library host class.
@@ -24,6 +25,9 @@ int main(int argc, char *argv[], char *envp[])
 	{
 		//Set log level for console messages.
 		//CF_SETTINGS->setLogLevel(cf::Settings::LogLevels::Debug);
+
+		//Statistics record manager. Saves and loads statistics.
+		BenchmarkStatManager bsm;
 
 		CF_SAY("Hold Ctrl-Q to quit.", cf::Settings::LogLevels::Info);
 
@@ -185,8 +189,10 @@ int main(int argc, char *argv[], char *envp[])
 			host->removeResultFromQueue(finished);
 			finished = nullptr;
 			output = nullptr;
+			double timeMilliseonds = std::chrono::duration <double, std::milli>(diff).count();
+			bsm.addStat(timeMilliseonds);
 
-			CF_SAY("Computation and network time: " + std::to_string(std::chrono::duration <double, std::milli>(diff).count()) + " ms.", cf::Settings::LogLevels::Info);
+			CF_SAY("Computation and network time: " + std::to_string(timeMilliseonds) + " ms.", cf::Settings::LogLevels::Info);
 			CF_SAY("Test complete.\n", cf::Settings::LogLevels::Info);
 
 			if (autoRun)

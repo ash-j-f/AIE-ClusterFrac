@@ -2,17 +2,19 @@
 
 BenchmarkStatManager::BenchmarkStatManager()
 {
+	load();
 }
 
 BenchmarkStatManager::~BenchmarkStatManager()
 {
+	save();
 }
 
 void BenchmarkStatManager::save() const
 {
 	FILE *pFile;
 
-	fopen_s(&pFile, (getExecutableFolder() + "\\" + "savedata.bin").c_str(), "wb");
+	fopen_s(&pFile, (getExecutableFolder() + "\\" + "benchmarkstats.bin").c_str(), "wb");
 
 	if (!pFile) return;
 
@@ -20,19 +22,25 @@ void BenchmarkStatManager::save() const
 
 	try
 	{
-		fwrite(&offsetX, sizeof(char), sizeof(offsetX), pFile);
-		fwrite(&offsetY, sizeof(char), sizeof(offsetY), pFile);
-		fwrite(&zoom, sizeof(char), sizeof(zoom), pFile);
-		fwrite(&zoomLevel, sizeof(char), sizeof(zoomLevel), pFile);
-		fwrite(&defaultZoom, sizeof(char), sizeof(defaultZoom), pFile);
+		//Write total stats count.
+		size_t size = stats.size();
+		fwrite(&size, sizeof(char), sizeof(size), pFile);
+		
+		//Write each stat entry.
+		for (auto &s : stats)
+		{
+			fwrite(&s, sizeof(char), sizeof(s), pFile);
+		}
+
+		CF_SAY("Saved benchmark statistics to file benchmarkstats.bin.", cf::Settings::LogLevels::Info);
 	}
 	catch (...)
 	{
 		fclose(pFile);
 		closed = true;
 		//Invalid data in file. Proceed with default values.
-		CF_SAY("Unable to write Mandelbrot data file " + getExecutableFolder() + "\\"
-			+ "savedata.bin. Zoom and offset values not saved.", cf::Settings::LogLevels::Error);
+		CF_SAY("Unable to write benchmark stats file " + getExecutableFolder() + "\\"
+			+ "benchmarkstats.bin.", cf::Settings::LogLevels::Error);
 	}
 
 	if (!closed) fclose(pFile);
@@ -40,9 +48,12 @@ void BenchmarkStatManager::save() const
 
 void BenchmarkStatManager::load()
 {
+	//Clear any curent stat entries.
+	stats.clear();
+
 	FILE *pFile;
 
-	fopen_s(&pFile, (getExecutableFolder() + "\\" + "savedata.bin").c_str(), "rb");
+	fopen_s(&pFile, (getExecutableFolder() + "\\" + "benchmarkstats.bin").c_str(), "rb");
 
 	if (!pFile) return;
 
@@ -51,31 +62,38 @@ void BenchmarkStatManager::load()
 	try
 	{
 		size_t byteSize;
-		byteSize = fread(&offsetX, sizeof(char), sizeof(offsetX), pFile);
-		if (byteSize != sizeof(offsetX)) throw "Invalid data.";
-		byteSize = fread(&offsetY, sizeof(char), sizeof(offsetY), pFile);
-		if (byteSize != sizeof(offsetY)) throw "Invalid data.";
-		byteSize = fread(&zoom, sizeof(char), sizeof(zoom), pFile);
-		if (byteSize != sizeof(zoom)) throw "Invalid data.";
-		byteSize = fread(&zoomLevel, sizeof(char), sizeof(zoomLevel), pFile);
-		if (byteSize != sizeof(zoomLevel)) throw "Invalid data.";
-		byteSize = fread(&defaultZoom, sizeof(char), sizeof(defaultZoom), pFile);
-		if (byteSize != sizeof(defaultZoom)) throw "Invalid data.";
+		size_t size;
+		double newStatEntry;
+
+		//Read number of entries in the file.
+		byteSize = fread(&size, sizeof(char), sizeof(size), pFile);
+		if (byteSize != sizeof(size)) throw "Invalid data.";
+
+		//Read entries into the object vector.
+		for (size_t i = 0; i < size; i++)
+		{
+			byteSize = fread(&newStatEntry, sizeof(char), sizeof(newStatEntry), pFile);
+			if (byteSize != sizeof(newStatEntry)) throw "Invalid data.";
+			stats.push_back(newStatEntry);
+		}
+
+		CF_SAY("Loaded benchmark statistics from file benchmarkstats.bin.", cf::Settings::LogLevels::Info);
 	}
 	catch (...)
 	{
 		//Invalid data in file. Proceed with default values.
-		CF_SAY("Invalid Mandelbrot data file " + getExecutableFolder() + "\\"
-			+ "savedata.bin. Using default zoom and offset values.", cf::Settings::LogLevels::Error);
+		CF_SAY("Invalid benchmark stats file " + getExecutableFolder() + "\\"
+			+ "benchmarkstats.bin.", cf::Settings::LogLevels::Error);
 		fclose(pFile);
 		closed = true;
-		//Reset to defaults.
-		reset();
+		//Reset to default state.
+		stats.clear();
 		//Save the defaults to repair the file.
 		save();
 	}
 
 	if (!closed) fclose(pFile);
+
 }
 
 std::string BenchmarkStatManager::getExecutableFolder() const

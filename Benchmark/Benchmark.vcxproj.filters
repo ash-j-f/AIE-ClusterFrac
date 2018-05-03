@@ -18,12 +18,18 @@
     <ClCompile Include="source\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="source\BenchmarkStatManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\BenchmarkResult.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="source\BenchmarkTask.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\BenchmarkStatManager.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -88,10 +88,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="source\BenchmarkStatManager.cpp" />
     <ClCompile Include="source\main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\BenchmarkResult.hpp" />
+    <ClInclude Include="source\BenchmarkStatManager.h" />
     <ClInclude Include="source\BenchmarkTask.hpp" />
   </ItemGroup>
   <ItemGroup>
