@@ -189,6 +189,8 @@ int main(int argc, char *argv[], char *envp[])
 			host->removeResultFromQueue(finished);
 			finished = nullptr;
 			output = nullptr;
+
+			//Collect test statistics.
 			double timeMilliseonds = std::chrono::duration <double, std::milli>(diff).count();
 			bsm.addStat(timeMilliseonds);
 			double average = bsm.getAverage();
