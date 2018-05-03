@@ -56,6 +56,17 @@ int main(int argc, char *argv[], char *envp[])
 			port = 5000;
 		}
 
+		int concurrency;
+		//Check if a non default concurrency was specified.
+		if (argc > 3)
+		{
+			concurrency = atoi(argv[3]);
+		}
+		else
+		{
+			concurrency = 0;
+		}
+
 		cf::Client *c = new cf::Client();
 
 		//Set user defined Task and Result types.
@@ -67,6 +78,8 @@ int main(int argc, char *argv[], char *envp[])
 		c->setPort(port);
 
 		c->setIPAddress(ip);
+
+		c->setConcurrency(concurrency);
 
 		c->start();
 

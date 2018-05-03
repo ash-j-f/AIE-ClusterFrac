@@ -253,6 +253,9 @@ namespace cf
 						std::unique_lock<std::mutex> lock3(host->resultsQueueIncompleteMutex);
 						host->resultQueueIncomplete.push_back(result);
 						lock3.unlock();
+
+						//Scan the incomplete results queue for complete results sets and move them to the complete results queue.
+						host->checkForCompleteResults();
 					}
 					else
 					{
@@ -260,9 +263,6 @@ namespace cf
 						delete result;
 						result = nullptr;
 					}
-
-					//Scan the incomplete results queue for complete results sets and move them to the complete results queue.
-					host->checkForCompleteResults();
 
 					client->busy = false;
 
@@ -301,7 +301,7 @@ namespace cf
 
 				if (redistTasks.size() > 0)
 				{
-					//Redistribute sub tasks to other clients.
+					//Redistribute sub tasks to other clients. 
 					std::unique_lock<std::mutex> lock3(host->subTaskQueueMutex);
 					host->subTaskQueue.insert(host->subTaskQueue.end(), redistTasks.begin(), redistTasks.end());
 					lock3.unlock();

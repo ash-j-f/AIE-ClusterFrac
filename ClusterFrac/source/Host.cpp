@@ -6,7 +6,7 @@ namespace cf
 	{
 
 		//Use default max thread concurrency setting determined by the OS.
-		setConcurrency(0);
+		MAX_THREADS = std::thread::hardware_concurrency();
 
 		started = false;
 
@@ -128,12 +128,14 @@ namespace cf
 		CF_SAY("Added task " + std::to_string(task->getInitialTaskID()) + " to queue.", Settings::LogLevels::Info);
 	}
 
-	bool Host::sendTasks()
+	bool Host::divideTasksIntoSubTaskQueue()
 	{
 
-		std::unique_lock<std::mutex> lock(taskQueueMutex);
+		int clientCount = getClientsCount();
 
-		if (getClientsCount() < 1)
+		std::unique_lock<std::mutex> taskQueueLock(taskQueueMutex);
+
+		if (clientCount < 1)
 		{
 			CF_SAY("Cannot send tasks. No clients connected.", Settings::LogLevels::Error);
 			return false;
@@ -148,14 +150,15 @@ namespace cf
 		//Divide tasks among clients.
 		std::vector<Task *> tmpSubTaskQueue;
 		std::vector<Task *> dividedTasks;
+
 		CF_SAY("Dividing tasks among clients.", Settings::LogLevels::Info);
 		for (auto &task : taskQueue)
 		{
 			//Only divide task if there's more than one client, and the task allows itself to be split,
 			//and allows itself to be run on remote clients. Otherwise just use pointer to the original task.
-			if (task->allowNodeTaskSplit && task->getNodeTargetType() != cf::Task::NodeTargetTypes::Local && getClientsCount() > 1)
+			if (task->allowNodeTaskSplit && task->getNodeTargetType() != cf::Task::NodeTargetTypes::Local && clientCount > 1)
 			{
-				dividedTasks = task->split(getClientsCount());
+				dividedTasks = task->split(clientCount);
 				//Remove original task from memory.
 				delete task;
 				task = nullptr;
@@ -172,12 +175,12 @@ namespace cf
 		//Empty the main task queue.
 		taskQueue.clear();
 
-		lock.unlock();
+		taskQueueLock.unlock();
 
-		//Add sub tasks to sub task queue.
-		std::unique_lock<std::mutex> lock2(subTaskQueueMutex);
+		//Add sub tasks to sub task queue. 
+		std::unique_lock<std::mutex> subTaskQueueLock(subTaskQueueMutex);
 		subTaskQueue.insert(subTaskQueue.end(), tmpSubTaskQueue.begin(), tmpSubTaskQueue.end());
-		lock2.unlock();
+		subTaskQueueLock.unlock();
 
 		return true;
 	}
@@ -355,6 +358,7 @@ namespace cf
 	{
 		while (hostAsClientTaskProcessThreadRun)
 		{
+			
 			if (localHostAsClientTaskQueue.size() > 0)
 			{
 				//Copy the local task queue.
@@ -457,7 +461,10 @@ namespace cf
 					//If a client is found to own the task, remove the task from the client and delete it from memory.
 					//If no clients own this task, ignore it.
 					//The host is also checked in case it was running as a pseudo-client for this task.
-					if (!markTaskFinished(result)) CF_THROW("Results processed locally are invalid. No owner found.");
+					if (!markTaskFinished(result))
+					{
+						CF_THROW("Results processed locally are invalid. No owner found.");
+					}
 
 					//Place the result in the host result parts queue.
 					std::unique_lock<std::mutex> lock2(resultsQueueIncompleteMutex);
@@ -479,9 +486,9 @@ namespace cf
 	void Host::checkForCompleteResults()
 	{
 		//Aquire lock on result queues.
-		std::unique_lock<std::mutex> lock(resultsQueueIncompleteMutex);
+		std::unique_lock<std::mutex> lockResCopy(resultsQueueIncompleteMutex);
 		std::list<Result *> resultQueueIncompleteCOPY = resultQueueIncomplete;
-		lock.unlock();
+		lockResCopy.unlock();
 
 		std::vector<Result *> set;
 		std::vector<Result *> remove;
@@ -533,9 +540,9 @@ namespace cf
 				addBenchmarkTime(rNew->getHostTimeFinished() - rNew->getHostTimeSent());
 
 				//Store the completed result.
-				std::unique_lock<std::mutex> lock2(resultsQueueCompleteMutex);
+				std::unique_lock<std::mutex> lockComp(resultsQueueCompleteMutex);
 				resultQueueComplete.push_back(rNew);
-				lock2.unlock();
+				lockComp.unlock();
 
 				//Record these results for removal from the incomplete results set.
 				remove.insert(remove.end(), set.begin(), set.end());
@@ -544,7 +551,7 @@ namespace cf
 			set.clear();
 		}
 
-		std::unique_lock<std::mutex> lock3(resultsQueueIncompleteMutex);
+		std::unique_lock<std::mutex> lockRemove(resultsQueueIncompleteMutex);
 		for (auto &r : remove)
 		{
 
@@ -560,20 +567,24 @@ namespace cf
 			}
 
 		}
-		lock3.unlock();
+		lockRemove.unlock();
 
 	}
 
-	void Host::distributeSubTasks()
+	void Host::sendSubTasks()
 	{
 
-		//Do nothing if subtask queue is empty.
+		//Do nothing if subtask queue is empty. 
 		if (subTaskQueue.size() == 0) return;
 
-		std::unique_lock<std::mutex> lock(subTaskQueueMutex);
+		//Copy current subtask queue entries for processing.
+		std::unique_lock<std::mutex> copyLock(subTaskQueueMutex);
+		std::list<Task *> subTaskQueueCOPY = subTaskQueue;
+		copyLock.unlock();
 
-		std::list<Task *>::iterator it = subTaskQueue.begin();
-		while (it != subTaskQueue.end())
+		std::list<Task *>::iterator it = subTaskQueueCOPY.begin();
+
+		while (it != subTaskQueueCOPY.end())
 		{
 
 			Task *task = *it;
@@ -592,7 +603,7 @@ namespace cf
 				(hostAsClient && !busy && task->getNodeTargetType() == Task::NodeTargetTypes::Remote && getClientsCount() == 1)
 				)
 			{
-				std::unique_lock<std::mutex> lock2(localHostAsClientTaskQueueMutex);
+				std::unique_lock<std::mutex> hostAsClientLock(localHostAsClientTaskQueueMutex);
 				CF_SAY("Sending task to local client.", Settings::LogLevels::Info);
 
 				busy = true;
@@ -602,7 +613,7 @@ namespace cf
 				//Assign the task to the host-as-client so we can track its progress.
 				trackTask(task);
 				localHostAsClientTaskQueue.push_back(task);
-				lock2.unlock();
+				hostAsClientLock.unlock();
 
 				it++;
 			}
@@ -617,6 +628,7 @@ namespace cf
 					if (client->busy || client->remove) continue;
 					freeClient = client;
 				}
+				clientsLock.unlock();
 
 				if (freeClient != nullptr)
 				{
@@ -634,7 +646,7 @@ namespace cf
 
 					it++;
 				}
-				clientsLock.unlock();
+
 			}
 
 			std::this_thread::sleep_for(std::chrono::milliseconds(1));
@@ -647,7 +659,14 @@ namespace cf
 		//Wait for sender threads to finish.
 		sender.waitForComplete();
 
-		CF_SAY("Task sending finished.", Settings::LogLevels::Info);
+		std::unique_lock<std::mutex> lockRemove(subTaskQueueMutex);
+		for (auto &r : subTaskQueueCOPY)
+		{
+			//Remove subtasks from queue that have been sent.
+			subTaskQueue.erase(std::remove(subTaskQueue.begin(), subTaskQueue.end(), r), subTaskQueue.end());
+		}
+		lockRemove.unlock();
+
 	}
 
 	void Host::addBenchmarkTime(const sf::Time elapsed)

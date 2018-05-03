@@ -98,11 +98,11 @@ namespace cf
 				lock3.unlock();
 			}
 
-			//Send any pending tasks waiting on the host.
-			if (host->getTasksCount() > 0 && host->getClientsCount() > 0) host->sendTasks();
+			//Divide any pending tasks into the sub task queue.
+			if (host->getTasksCount() > 0 && host->getClientsCount() > 0) host->divideTasksIntoSubTaskQueue();
 
-			//Send any pending subtasks waiting on the host.
-			host->distributeSubTasks();
+			//Send pending subtasks waiting on the host to clients.
+			if (host->subTaskQueue.size() > 0) host->sendSubTasks();
 
 			std::this_thread::sleep_for(std::chrono::milliseconds(1));
 		}
