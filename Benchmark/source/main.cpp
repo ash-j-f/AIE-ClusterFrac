@@ -203,7 +203,7 @@ int main(int argc, char *argv[], char *envp[])
 					}
 					std::this_thread::sleep_for(std::chrono::milliseconds(1));
 				}
-				CF_SAY("Running test.\n", cf::Settings::LogLevels::Info);
+				if (autoRun) CF_SAY("Running test.\n", cf::Settings::LogLevels::Info);
 			}
 
 			if (!autoRun)
