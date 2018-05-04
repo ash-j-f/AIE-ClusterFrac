@@ -692,7 +692,7 @@ namespace cf
 		}
 	}
 
-	sf::Time Host::getAverageBenchmarkTime()
+	sf::Time Host::getAverageBenchmarkTime() const
 	{
 		sf::Time sum;
 

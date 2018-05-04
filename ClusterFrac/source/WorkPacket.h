@@ -9,7 +9,7 @@ namespace cf
 	/**
 	* Work packet class based on SFML Packet class.
 	* Work packets are serialised data designed to be sent over a network.
-	* Extends the SFML Packet class by adding packet flag type and data compression.
+	* Extends the SFML Packet class by adding packet flag type and data compression options.
 	* @author Ashley Flynn - Academy of Interactive Entertainment - 2018.
 	*/
 	class WorkPacket : public sf::Packet
@@ -65,7 +65,7 @@ namespace cf
 		* Hides the base class clear() function.
 		* @returns void.
 		*/
-		DLL inline virtual void clear() { static_cast<sf::Packet*>(this)->clear(); flag = None; };
+		DLL inline void clear() { static_cast<sf::Packet*>(this)->clear(); flag = None; };
 
 		/**
 		* Turn compression during send/receive on or off.
@@ -89,14 +89,16 @@ namespace cf
 
 		/**
 		* Actions to perform before the work packet is sent across the network.
+		* Overrides virtual function in base class.
 		* @returns void.
 		*/
-		virtual const void* onSend(std::size_t& size);
+		const void* onSend(std::size_t& size) override;
 
 		/**
 		* Actions to perform after the work packet is received from the network.
+		* Overrides virtual function in base class.
 		* @returns void.
 		*/
-		virtual void onReceive(const void* data, std::size_t size);
+		void onReceive(const void* data, std::size_t size) override;
 	};
 }

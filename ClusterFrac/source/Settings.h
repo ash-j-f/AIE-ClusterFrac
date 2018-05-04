@@ -32,7 +32,7 @@ namespace cf
 		* Get the log level.
 		* @returns The current log level.
 		*/
-		int getLogLevel() const { return logLevel; }
+		inline int getLogLevel() const { return logLevel; }
 
 		/**
 		* Set the log level chosen from the LogLevels enum.
@@ -42,7 +42,7 @@ namespace cf
 		* @param level The chosen log level from the LogLevels enum.
 		* @returns void.
 		*/
-		void setLogLevel(LogLevels level) { logLevel = level; };
+		inline void setLogLevel(LogLevels level) { logLevel = level; };
 
 	private:
 

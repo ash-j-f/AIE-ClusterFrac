@@ -43,6 +43,7 @@ private:
 
 	/**
 	* Merge other results in a std::vector into this result.
+	* Overrides virtual function in base class.
 	* @param others A std::vector of pointers to the all results in a set to merge with this one.
 	* @returns void.
 	*/
@@ -78,6 +79,7 @@ private:
 
 	/**
 	* Serialize this result and store the data in a given packet.
+	* Overrides virtual function in base class.
 	* @param p The packet to store the data in.
 	* @returns void.
 	*/
@@ -94,6 +96,7 @@ private:
 
 	/**
 	* Deserialize this result from data provided by a packet.
+	* Overrides virtual function in base class.
 	* @param p The packet to retrieve the result data from.
 	* @returns void.
 	*/

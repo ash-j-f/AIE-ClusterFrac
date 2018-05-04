@@ -66,6 +66,6 @@ namespace cf
 		* @param Task the task to send.
 		* @returns void.
 		*/
-		void sendTaskThread(ClientDetails *client, Task *task);
+		void sendTaskThread(ClientDetails *client, Task *task) const;
 	};
 }

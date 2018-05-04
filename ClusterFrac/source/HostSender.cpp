@@ -31,7 +31,7 @@ namespace cf
 		taskSendThreads.clear();
 	}
 
-	void HostSender::sendTaskThread(ClientDetails *client, Task *task)
+	void HostSender::sendTaskThread(ClientDetails *client, Task *task) const
 	{
 		try
 		{

@@ -196,7 +196,7 @@ namespace cf
 		* Get the average elapsed time for task processing.
 		* @returns The average elapsed time for task processing, in sf::Time format.
 		*/
-		DLL sf::Time getAverageBenchmarkTime();
+		DLL sf::Time getAverageBenchmarkTime() const;
 
 		/**
 		* Set network compression on or off on the host.
@@ -306,6 +306,10 @@ namespace cf
 		//Benchmark elapsed times for results processing.
 		std::list<sf::Time> benchmarkTimes;
 
+		/**
+		* Thread for processing tasks as a virtual client using the local CPU.
+		* @returns void.
+		*/
 		void hostAsClientProcessTaskThread();
 
 		/**

@@ -38,6 +38,7 @@ private:
 	/**
 	* Split this task up as equally as possible in to N chunks, and return
 	* a std::vector of pointers to those split tasks.
+	* Overrides virtual function in base class.
 	* @param count Split the task into this many subtasks.
 	* @returns A std::vector of pointers to the new split tasks.
 	*/
@@ -81,6 +82,7 @@ private:
 
 	/**
 	* Serialize this task and store the data in a given packet.
+	* Overrides virtual function in base class.
 	* @param p The packet to store the data in.
 	* @returns void.
 	*/
@@ -93,6 +95,7 @@ private:
 
 	/**
 	* Deserialize this task from data provided by a packet.
+	* Overrides virtual function in base class.
 	* @param p The packet to retrieve the task data from.
 	* @returns void.
 	*/
@@ -105,6 +108,7 @@ private:
 
 	/**
 	* Run the task and produce a results object.
+	* Overrides virtual function in base class.
 	* @returns A pointer to the new results object.
 	*/
 	inline cf::Result *runLocal() const override
