@@ -43,6 +43,18 @@ int main(int argc, char *argv[], char *envp[])
 			host->setConcurrency(atoi(argv[2]));
 		}
 
+		bool compression;
+		//Check if a non default compression status was specified.
+		if (argc > 3)
+		{
+			if (std::string(argv[3]) != "compression_on" && std::string(argv[3]) != "compression_off") CF_THROW("Unrecognised compression option on command line.");
+			compression = std::string(argv[3]) == "compression_on";
+		}
+		else
+		{
+			compression = false;
+		}
+
 		//Create Mandelbrot object.
 		Mandelbrot mb{ host };
 
@@ -105,6 +117,9 @@ int main(int argc, char *argv[], char *envp[])
 		//Set user defined Task and Result types.
 		host->registerTaskType("MandelbrotTask", [] { MandelbrotTask *m = new MandelbrotTask(); return static_cast<cf::Task *>(m); });
 		host->registerResultType("MandelbrotResult", [] { MandelbrotResult *m = new MandelbrotResult(); return static_cast<cf::Result *>(m); });
+
+		//Set chosen network compression status.
+		host->setCompression(compression);
 
 		//Start the host with ability to process tasks as a client itself.
 		host->setHostAsClient(true);

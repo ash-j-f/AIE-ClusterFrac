@@ -198,6 +198,19 @@ namespace cf
 		*/
 		DLL sf::Time getAverageBenchmarkTime();
 
+		/**
+		* Set network compression on or off on the host.
+		* @param newStatus Set true to enable compression, false to disable.
+		* @returns void.
+		*/
+		DLL inline void setCompression(bool newStatus) { CF_SAY("Network compression " + std::string(newStatus ? "enabled." : "disabled."), Settings::LogLevels::Info); compression = newStatus; };
+
+		/**
+		* Get the network compression status of the host.
+		* @returns The network compression status of the host.
+		*/
+		DLL inline bool getCompression() const { return compression; };
+
 	private:
 
 		//clock used to track time since startup.
@@ -211,6 +224,9 @@ namespace cf
 
 		//Port number this server is using.
 		int port;
+
+		//Is network compression enabled on the host?
+		bool compression;
 
 		//Listener object responsible for managing the TCP listener thread.
 		HostListener listener{ this };

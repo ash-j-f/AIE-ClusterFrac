@@ -130,10 +130,26 @@ namespace cf
 			if (MAX_THREADS > std::thread::hardware_concurrency()) CF_SAY("WARNING: Concurrency is HIGHER than CPU max concurrent threads.", Settings::LogLevels::Info);
 		};
 
+		/**
+		* Set network compression on or off on the client.
+		* @param newStatus Set true to enable compression, false to disable.
+		* @returns void.
+		*/
+		DLL inline void setCompression(bool newStatus) { CF_SAY("Network compression " + std::string(newStatus ? "enabled." : "disabled."), Settings::LogLevels::Info); compression = newStatus; };
+
+		/**
+		* Get the network compression status of the client.
+		* @returns The network compression status of the client.
+		*/
+		DLL inline bool getCompression() const { return compression; };
+
 	private:
 
 		//Maximum threads for multi process forking.
 		unsigned int MAX_THREADS;
+
+		//Is network compression enabled on the host?
+		bool compression;
 
 		//Socket for the network connection.
 		sf::TcpSocket socket;

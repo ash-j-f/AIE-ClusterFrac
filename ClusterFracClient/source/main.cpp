@@ -67,6 +67,18 @@ int main(int argc, char *argv[], char *envp[])
 			concurrency = 0;
 		}
 
+		bool compression;
+		//Check if a non default compression status was specified.
+		if (argc > 4)
+		{
+			if (std::string(argv[4]) != "compression_on" && std::string(argv[4]) != "compression_off") CF_THROW("Unrecognised compression option on command line.");
+			compression = std::string(argv[4]) == "compression_on";
+		}
+		else
+		{
+			compression = false;
+		}
+
 		cf::Client *c = new cf::Client();
 
 		//Set user defined Task and Result types.
@@ -80,6 +92,8 @@ int main(int argc, char *argv[], char *envp[])
 		c->setIPAddress(ip);
 
 		c->setConcurrency(concurrency);
+
+		c->setCompression(compression);
 
 		c->start();
 

@@ -47,6 +47,18 @@ int main(int argc, char *argv[], char *envp[])
 			host->setConcurrency(atoi(argv[2]));
 		}
 
+		bool compression;
+		//Check if a non default compression status was specified.
+		if (argc > 3)
+		{
+			if (std::string(argv[3]) != "compression_on" && std::string(argv[3]) != "compression_off") CF_THROW("Unrecognised compression option on command line.");
+			compression = std::string(argv[3]) == "compression_on";
+		}
+		else
+		{
+			compression = false;
+		}
+
 		bool autoRun = false;
 
 		bool quit = false;
@@ -54,6 +66,8 @@ int main(int argc, char *argv[], char *envp[])
 		//Set user defined Task and Result types.
 		host->registerTaskType("BenchmarkTask", []{ BenchmarkTask *b = new BenchmarkTask(); return static_cast<cf::Task *>(b); });
 		host->registerResultType("BenchmarkResult", []{ BenchmarkResult *b = new BenchmarkResult(); return static_cast<cf::Result *>(b); });
+
+		host->setCompression(compression);
 
 		//Allow this host to process tasks as a client.
 		host->setHostAsClient(true);

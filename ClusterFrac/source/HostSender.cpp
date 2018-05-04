@@ -47,6 +47,9 @@ namespace cf
 
 					cf::WorkPacket packet(cf::WorkPacket::Flag::Task);
 
+					//Enable compression if requested.
+					packet.setCompression(host->compression);
+
 					task->serialize(packet);
 
 					//Socket is in non blocking mode, so more than one call to send may be needed to send all the data.

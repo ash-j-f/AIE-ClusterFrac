@@ -19,6 +19,9 @@ namespace cf
 
 		//Set network socket to non blocking mode by default.
 		socket.setBlocking(false);
+
+		//Default network compression status for the host.
+		compression = false;
 	}
 
 	Client::~Client()

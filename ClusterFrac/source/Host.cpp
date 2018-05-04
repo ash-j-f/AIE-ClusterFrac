@@ -22,6 +22,9 @@ namespace cf
 		//Max benchmark elapsed times to store.
 		maxBenchmarkTimes = 100;
 
+		//Default network compression status for the host.
+		compression = false;
+
 	}
 	
 	Host::~Host()

@@ -207,6 +207,9 @@ namespace cf
 			// The client has sent some data, we can receive it
 			cf::WorkPacket *packet = new cf::WorkPacket();
 
+			//Enable compression if requested by host.
+			packet->setCompression(host->compression);
+
 			sf::Socket::Status status;
 
 			//Loop continuously until a useful status is returned from the socket.
@@ -281,7 +284,7 @@ namespace cf
 					}
 					else
 					{
-						CF_THROW("Invalid flag data in packet from client " + std::to_string(client->getClientID()) + ".");
+						CF_THROW("Invalid flag data in packet from client " + std::to_string(client->getClientID()) + ". Are compression options set correctly on host and client?");
 					}
 
 					break;

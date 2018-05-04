@@ -60,6 +60,9 @@ namespace cf
 
 			cf::WorkPacket packet;
 
+			//Enable compression if requested.
+			packet.setCompression(client->compression);
+
 			CF_SAY("Listener thread started. Waiting for data from host.", Settings::LogLevels::Info);
 			//Endless loop that waits for new connections.
 			//Aborts if listening flag is set false.
@@ -135,7 +138,7 @@ namespace cf
 							}
 							else
 							{
-								CF_THROW("Invalid flag data in packet from host.");
+								CF_THROW("Invalid flag data in packet from host. Are compression options set correctly on host and client?");
 							}
 
 							packet.clear();

@@ -112,7 +112,7 @@ namespace cf
 
 			//Assert that the uncompressed size is the same as the
 			//size we were sent for the buffer
-			if (dstSize != uncompressedSize) CF_THROW("Size mismatch during data decompression.");
+			if (dstSize != uncompressedSize) CF_THROW("Size mismatch during data decompression. Are compression options set correctly on host and client?");
 
 			//Retrieve the packet flag data.
 			std::size_t soFlag = sizeof flag;

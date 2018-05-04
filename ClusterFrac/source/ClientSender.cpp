@@ -73,6 +73,9 @@ namespace cf
 
 					cf::WorkPacket packet(cf::WorkPacket::Flag::Result);
 
+					//Enable compression if requested by host.
+					packet.setCompression(client->compression);
+
 					result->serialize(packet);
 
 					CF_SAY("Sending results packet.", Settings::LogLevels::Info);
