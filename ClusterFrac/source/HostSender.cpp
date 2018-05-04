@@ -89,6 +89,12 @@ namespace cf
 		catch (...)
 		{
 			//Do nothing with exceptions in threads. Main thread will see the exception message via ConsoleMessager object.
+
+			if (!cf::ConsoleMessager::getInstance()->exceptionThrown)
+			{
+				cf::ConsoleMessager::getInstance()->exceptionThrown = true;
+				cf::ConsoleMessager::getInstance()->exceptionMessage = "Unknown exception in HostSender sendTaskThread.";
+			}
 		}
 	}
 }

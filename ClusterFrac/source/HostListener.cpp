@@ -193,6 +193,12 @@ namespace cf
 		catch (...)
 		{
 			//Do nothing with exceptions in threads. Main thread will see the exception message via ConsoleMessager object.
+
+			if (!cf::ConsoleMessager::getInstance()->exceptionThrown)
+			{
+				cf::ConsoleMessager::getInstance()->exceptionThrown = true;
+				cf::ConsoleMessager::getInstance()->exceptionMessage = "Unknown exception in HostListener listenThread.";
+			}
 		}
 	}
 
@@ -215,7 +221,7 @@ namespace cf
 			//Loop continuously until a useful status is returned from the socket.
 			//We have to do this as the socket is in non blocking mode, and may require more than one 
 			//status check before all data is received.
-			while (true)
+			while (!cf::ConsoleMessager::getInstance()->exceptionThrown)
 			{
 				//Get socket status
 				status = (*client->socket).receive(*packet);
@@ -351,6 +357,12 @@ namespace cf
 		{
 			//Do nothing with exceptions in threads. Main thread will see the exception message via ConsoleMessager object.
 			*cFlag = true;
+
+			if (!cf::ConsoleMessager::getInstance()->exceptionThrown)
+			{
+				cf::ConsoleMessager::getInstance()->exceptionThrown = true;
+				cf::ConsoleMessager::getInstance()->exceptionMessage = "Unknown exception in HostListener clientReceiveThread.";
+			}
 		}
 	}
 }

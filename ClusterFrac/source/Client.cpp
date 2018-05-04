@@ -27,13 +27,13 @@ namespace cf
 	Client::~Client()
 	{
 
-		if (ProcessTaskThreadRun)
+		if (processTaskThreadRun)
 		{
 			//Shut down task processing.
-			ProcessTaskThreadRun = false;
+			processTaskThreadRun = false;
 
 			//Wait for task processing thread to finish.
-			if (TaskProcessingThread.joinable()) TaskProcessingThread.join();
+			if (taskProcessingThread.joinable()) taskProcessingThread.join();
 		}
 
 		//Stop the listener.
@@ -78,8 +78,8 @@ namespace cf
 
 		sender.start();
 
-		ProcessTaskThreadRun = true;
-		TaskProcessingThread = std::thread([this] { ProcessTaskThread(); });
+		processTaskThreadRun = true;
+		taskProcessingThread = std::thread([this] { processTaskThread(); });
 		
 	}
 
@@ -155,11 +155,11 @@ namespace cf
 		CF_SAY("Added task " + std::to_string(task->getInitialTaskID()) + " to queue.", Settings::LogLevels::Info);
 	}
 
-	void Client::ProcessTaskThread()
+	void Client::processTaskThread()
 	{
 		try
 		{
-			while (ProcessTaskThreadRun && !cf::ConsoleMessager::getInstance()->exceptionThrown)
+			while (processTaskThreadRun && !cf::ConsoleMessager::getInstance()->exceptionThrown)
 			{
 				//Copy the local task queue.
 				std::unique_lock<std::mutex> lock(taskQueueMutex);
@@ -274,6 +274,12 @@ namespace cf
 		catch (...)
 		{
 			//Do nothing with exceptions in threads. Main thread will see the exception message via ConsoleMessager object.
+
+			if (!cf::ConsoleMessager::getInstance()->exceptionThrown)
+			{
+				cf::ConsoleMessager::getInstance()->exceptionThrown = true;
+				cf::ConsoleMessager::getInstance()->exceptionMessage = "Unknown exception in Client processTaskThread.";
+			}
 		}
 	}
 

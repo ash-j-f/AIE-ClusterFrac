@@ -197,16 +197,16 @@ namespace cf
 		std::map<std::string, std::function<Result *()>> resultConstructMap;
 
 		//Thread used to process task chunks locally on the host.
-		std::thread TaskProcessingThread;
+		std::thread taskProcessingThread;
 
 		//Should the client tasks processing thread continue to run?
-		std::atomic<bool> ProcessTaskThreadRun;
+		std::atomic<bool> processTaskThreadRun;
 
 		/**
 		* Process tasks that have been added to the task queue.
 		* @returns void.
 		*/
-		void ProcessTaskThread();
+		void processTaskThread();
 
 		/**
 		* Check the incomplete results queue for complete result sets.

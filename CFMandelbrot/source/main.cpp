@@ -211,7 +211,7 @@ int main(int argc, char *argv[], char *envp[])
 				{
 					int zoomFactor = 0;
 
-					while (true)
+					while (!cf::ConsoleMessager::getInstance()->exceptionThrown)
 					{
 						bool found = false;
 

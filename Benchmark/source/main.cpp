@@ -134,7 +134,7 @@ int main(int argc, char *argv[], char *envp[])
 
 		CF_SAY("Generating test data - complete.", cf::Settings::LogLevels::Info);
 
-		while (true && !quit && !cf::ConsoleMessager::getInstance()->exceptionThrown)
+		while (!quit && !cf::ConsoleMessager::getInstance()->exceptionThrown)
 		{
 			BenchmarkTask *testTask = new BenchmarkTask();
 			
