@@ -23,6 +23,7 @@ int main(int argc, char *argv[], char *envp[])
 {
 	try
 	{
+
 		//Set log level for console messages.
 		//CF_SETTINGS->setLogLevel(cf::Settings::LogLevels::Debug);
 
@@ -64,7 +65,7 @@ int main(int argc, char *argv[], char *envp[])
 		int dataRangeStart = 1;
 		int dataRangeEnd = 100;
 		unsigned int cycles = 10000000; //100000000;
-		int timeout = 10000; //Timeout per task chunk in ms.
+		int timeout = 30000; //Timeout per task chunk in ms.
 		int valueCount = (dataRangeEnd - dataRangeStart) + 1;
 		std::vector<double> expectedResults(valueCount);
 
@@ -119,7 +120,7 @@ int main(int argc, char *argv[], char *envp[])
 
 		CF_SAY("Generating test data - complete.", cf::Settings::LogLevels::Info);
 
-		while (true && !quit)
+		while (true && !quit && !cf::ConsoleMessager::getInstance()->exceptionThrown)
 		{
 			BenchmarkTask *testTask = new BenchmarkTask();
 			
@@ -153,11 +154,14 @@ int main(int argc, char *argv[], char *envp[])
 
 			//Wait for results to be complete.
 			CF_SAY("Waiting for completed results.", cf::Settings::LogLevels::Info);
-			while (!host->checkAvailableResult(taskID))
+			while (!host->checkAvailableResult(taskID) && !cf::ConsoleMessager::getInstance()->exceptionThrown)
 			{
 				//WAIT
 				std::this_thread::sleep_for(std::chrono::milliseconds(1));
 			}
+
+			//Abort main loop if exception was thrown by a thread.
+			if (cf::ConsoleMessager::getInstance()->exceptionThrown) break;
 
 			cf::Result *finished = host->getAvailableResult(taskID);
 			BenchmarkResult *output = static_cast<BenchmarkResult *>(finished);
@@ -199,6 +203,9 @@ int main(int argc, char *argv[], char *envp[])
 			CF_SAY("Computation and network time: " + std::to_string(timeMilliseonds) + " ms.", cf::Settings::LogLevels::Info);
 			if (testCount > 0) CF_SAY("Previous " + std::to_string(testCount) + " tests average time: " + std::to_string(average) + " ms.", cf::Settings::LogLevels::Info);
 			CF_SAY("Test complete.\n", cf::Settings::LogLevels::Info);
+
+			//Abort main loop if exception was thrown by a thread.
+			if (cf::ConsoleMessager::getInstance()->exceptionThrown) break;
 
 			if (autoRun)
 			{
@@ -247,6 +254,12 @@ int main(int argc, char *argv[], char *envp[])
 				}
 			}
 
+		}
+
+		if (cf::ConsoleMessager::getInstance()->exceptionThrown)
+		{
+			CF_SAY("\nExeception thrown. Aborting.", cf::Settings::LogLevels::Error);
+			CF_SAY("Exeception was: " + cf::ConsoleMessager::getInstance()->exceptionMessage + "\n", cf::Settings::LogLevels::Error);
 		}
 
 		delete host;

@@ -84,10 +84,10 @@ int main(int argc, char *argv[], char *envp[])
 		c->start();
 
 		//Loop infinitely, trying to connect to host, and processing tasks once connected.
-		while (!quit)
+		while (!quit && !cf::ConsoleMessager::getInstance()->exceptionThrown)
 		{
 			//Try to connect to host.
-			while (true)
+			while (!cf::ConsoleMessager::getInstance()->exceptionThrown)
 			{
 				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q) && (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl) || sf::Keyboard::isKeyPressed(sf::Keyboard::RControl)))
 				{
@@ -99,8 +99,11 @@ int main(int argc, char *argv[], char *envp[])
 				std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 			}
 
+			//Abort main loop if exception was thrown by a thread.
+			if (cf::ConsoleMessager::getInstance()->exceptionThrown) break;
+
 			//Process tasks while connected.
-			while (c->isConnected())
+			while (c->isConnected() && !cf::ConsoleMessager::getInstance()->exceptionThrown)
 			{
 				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q) && (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl) || sf::Keyboard::isKeyPressed(sf::Keyboard::RControl)))
 				{
@@ -110,6 +113,12 @@ int main(int argc, char *argv[], char *envp[])
 				//Sleep while threads wait for tasks and process them.
 				std::this_thread::sleep_for(std::chrono::milliseconds(1));
 			}
+		}
+
+		if (cf::ConsoleMessager::getInstance()->exceptionThrown)
+		{
+			CF_SAY("\nExeception thrown. Aborting.", cf::Settings::LogLevels::Error);
+			CF_SAY("Exeception was: " + cf::ConsoleMessager::getInstance()->exceptionMessage + "\n", cf::Settings::LogLevels::Error);
 		}
 
 		delete c;

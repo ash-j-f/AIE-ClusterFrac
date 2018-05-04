@@ -47,68 +47,60 @@ namespace cf
 
 	void HostTaskWatcher::watchThread()
 	{
-		//If there is already a thread watching, abort.
-		if (watching) return;
-
-		//Register watcher active.
-		watching = true;
-
-		CF_SAY("Watcher thread started. Watching task status.", Settings::LogLevels::Info);
-		//Endless loop that watches task status.
-		//Aborts if watch flag is set false.
-		while (watch)
+		try
 		{
-			//CF_SAY("Watching.");
 
-			//Check client tasks for any that have taken too long.
-			std::vector<Task *> redistributeTasks;
-			std::unique_lock<std::mutex> clientsLock(host->clientsMutex);
-			for (auto &c : host->clients)
+			//If there is already a thread watching, abort.
+			if (watching) return;
+
+			//Register watcher active.
+			watching = true;
+
+			CF_SAY("Watcher thread started. Watching task status.", Settings::LogLevels::Info);
+			//Endless loop that watches task status.
+			//Aborts if watch flag is set false.
+			while (watch && !cf::ConsoleMessager::getInstance()->exceptionThrown)
 			{
-				//Skip removed clients.
-				if (c->remove) continue;
 
-				std::unique_lock<std::mutex> taskLock(c->taskMutex);
-				std::vector<Task *>::iterator it;
-				for (it = c->tasks.begin(); it != c->tasks.end();)
+				//Check client tasks for any that have taken too long.
+				std::unique_lock<std::mutex> clientsLock(host->clientsMutex);
+				for (auto &c : host->clients)
 				{
-					Task *t = *it;
-					if ((host->getTime() - t->getHostTimeSent()).asMilliseconds() > (sf::Int32)t->getMaxTaskTimeMilliseconds())
+					//Skip removed clients.
+					if (c->remove) continue;
+
+					std::unique_lock<std::mutex> taskLock(c->taskMutex);
+					std::vector<Task *>::iterator it;
+					for (auto &t : c->tasks)
 					{
-						//Task has taken too long, add it to the list of tasks to distribute to other clients.
-						CF_SAY("Client " + std::to_string(c->getClientID()) + " task " + std::to_string(t->getInitialTaskID()) + " timed out. Redistributing.", Settings::LogLevels::Info);
-						redistributeTasks.push_back(t);
-						//Remove this task from the client's own assigned task list.
-						it = c->tasks.erase(it);
+						if ((host->getTime() - t->getHostTimeSent()).asMilliseconds() > (sf::Int32)t->getMaxTaskTimeMilliseconds())
+						{
+							//Task has taken too long, abort.
+							std::string s = "Client " + std::to_string(c->getClientID()) + " task " + std::to_string(t->getInitialTaskID()) + " timed out. Aborting.";
+							CF_SAY(s, Settings::LogLevels::Error);
+							CF_THROW(s);
+						}
 					}
-					else
-					{
-						it++;
-					}
+					taskLock.unlock();
 				}
-				taskLock.unlock();
+				clientsLock.unlock();
+
+				//Divide any pending tasks into the sub task queue.
+				if (host->getTasksCount() > 0 && host->getClientsCount() > 0) host->divideTasksIntoSubTaskQueue();
+
+				//Send pending subtasks waiting on the host to clients.
+				if (host->subTaskQueue.size() > 0) host->sendSubTasks();
+
+				std::this_thread::sleep_for(std::chrono::milliseconds(1));
 			}
-			clientsLock.unlock();
 
-			//Distribute any now unowned tasks to other clients.
-			if (redistributeTasks.size() > 0)
-			{
-				std::unique_lock<std::mutex> lock3(host->subTaskQueueMutex);
-				host->subTaskQueue.insert(host->subTaskQueue.end(), redistributeTasks.begin(), redistributeTasks.end());
-				lock3.unlock();
-			}
-
-			//Divide any pending tasks into the sub task queue.
-			if (host->getTasksCount() > 0 && host->getClientsCount() > 0) host->divideTasksIntoSubTaskQueue();
-
-			//Send pending subtasks waiting on the host to clients.
-			if (host->subTaskQueue.size() > 0) host->sendSubTasks();
-
-			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+			watching = false;
+			CF_SAY("Watcher thread ended.", Settings::LogLevels::Info);
 		}
-
-		watching = false;
-		CF_SAY("Watcher thread ended.", Settings::LogLevels::Info);
+		catch (...)
+		{
+			//Do nothing with exceptions in threads. Main thread will see the exception message via ConsoleMessager object.
+		}
 	}
 
 }

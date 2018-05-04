@@ -35,71 +35,59 @@ namespace cf
 
 	void HostSender::sendTaskThread(ClientDetails *client, Task *task)
 	{
-		bool done = false;
-		while (!done)
+		try
 		{
-			//CF_SAY("sendTaskThread trying lock.");
-			std::unique_lock<std::mutex> lock(client->socketMutex, std::try_to_lock);
-			if (lock.owns_lock())
+
+			bool done = false;
+			while (!done && !cf::ConsoleMessager::getInstance()->exceptionThrown)
 			{
-				CF_SAY("Sending task to client " + std::to_string(client->getClientID()) + ".", Settings::LogLevels::Info);
 
-				//Send task to client.
-				cf::WorkPacket packet(cf::WorkPacket::Flag::Task);
-				task->serialize(packet);
-
-				//Socket is in non blocking mode, so more than one call to send may be needed to send all the data.
-				sf::Socket::Status status;
-				std::vector<cf::Task *> redistTasks;
-				while (true)
+				std::unique_lock<std::mutex> lock(client->socketMutex, std::try_to_lock);
+				if (lock.owns_lock())
 				{
-					status = client->socket->send(packet);
-					if (status == sf::Socket::Status::Done)
+					CF_SAY("Sending task to client " + std::to_string(client->getClientID()) + ".", Settings::LogLevels::Info);
+
+					//Send task to client.
+					cf::WorkPacket packet(cf::WorkPacket::Flag::Task);
+					task->serialize(packet);
+
+					//Socket is in non blocking mode, so more than one call to send may be needed to send all the data.
+					sf::Socket::Status status;
+					while (true && !cf::ConsoleMessager::getInstance()->exceptionThrown)
 					{
-						CF_SAY("Sending task finished for client " + std::to_string(client->getClientID()) + ".", Settings::LogLevels::Info);
-						break;
-					}
-					else if (status == sf::Socket::Status::Partial)
-					{
-						//Partial send, so keep looping to continue sending.
-						CF_SAY("Partial send to client " + std::to_string(client->getClientID()) + ".", Settings::LogLevels::Debug);
-					}
-					else
-					{
-						std::string s = "Error while sending to client " + std::to_string(client->getClientID()) + ". Disconnecting client and redistributing tasks.";
-						CF_SAY(s, Settings::LogLevels::Error);
-						redistTasks = client->tasks;
-						break;
-					}
-				};
+						status = client->socket->send(packet);
+						if (status == sf::Socket::Status::Done)
+						{
+							CF_SAY("Sending task finished for client " + std::to_string(client->getClientID()) + ".", Settings::LogLevels::Info);
+							break;
+						}
+						else if (status == sf::Socket::Status::Partial)
+						{
+							//Partial send, so keep looping to continue sending.
+							CF_SAY("Partial send to client " + std::to_string(client->getClientID()) + ".", Settings::LogLevels::Debug);
+						}
+						else
+						{
+							std::string s = "Error while sending to client " + std::to_string(client->getClientID()) + ". Aborting.";
+							CF_SAY(s, Settings::LogLevels::Error);
+							CF_THROW(s);
+							break;
+						}
+					};
 
-				packet.clear();
-				lock.unlock();
+					packet.clear();
+					lock.unlock();
 
-				if (redistTasks.size() > 0)
-				{
+					done = true;
 
-					client->socket->disconnect();
-					std::unique_lock<std::mutex> taskLock(client->taskMutex);
-					//Remove the disconnected clients tasks.
-					client->tasks.clear();
-					taskLock.unlock();
-					//Mark client data for erasure.
-					client->remove = true;
-
-					//Place the client's old tasks back on the sub task queue.
-					std::unique_lock<std::mutex> lock3(host->subTaskQueueMutex);
-					host->subTaskQueue.insert(host->subTaskQueue.end(), redistTasks.begin(), redistTasks.end());
-					lock3.unlock();
-
-					//xxxx doesn't work? Host appears to hangs waiting for all tasks to finish.
 				}
 
-				done = true;
-
+				std::this_thread::sleep_for(std::chrono::milliseconds(1));
 			}
-			
-			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		}
+		catch (...)
+		{
+			//Do nothing with exceptions in threads. Main thread will see the exception message via ConsoleMessager object.
 		}
 	}
 }

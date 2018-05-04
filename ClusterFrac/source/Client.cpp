@@ -154,115 +154,123 @@ namespace cf
 
 	void Client::ProcessTaskThread()
 	{
-		while (ProcessTaskThreadRun)
+		try
 		{
-			//Copy the local task queue.
-			std::unique_lock<std::mutex> lock(taskQueueMutex);
-			std::list<Task *> taskQueueCOPY = taskQueue;
-			lock.unlock();
-
-			for (auto &t : taskQueueCOPY)
+			while (ProcessTaskThreadRun && !cf::ConsoleMessager::getInstance()->exceptionThrown)
 			{
-				unsigned __int64 taskID = t->getInitialTaskID();
+				//Copy the local task queue.
+				std::unique_lock<std::mutex> lock(taskQueueMutex);
+				std::list<Task *> taskQueueCOPY = taskQueue;
+				lock.unlock();
 
-				CF_SAY("Task " + std::to_string(taskID) + " - started.", Settings::LogLevels::Info);
-
-				//Split the task among available threads and run.
-				std::vector<Task *> tasks;
-				Task *removeTask = t;
-				if (MAX_THREADS > 1)
+				for (auto &t : taskQueueCOPY)
 				{
-					tasks = t->split(MAX_THREADS);
-					
-					//Remove the original task from memory.
-					delete t;
-					t = nullptr;
-				}
-				else
-				{
-					tasks = std::vector<Task *>{t};
-					//Don't remove original task from memory here. We'll be using it passed on as a subtask.
-					//IT will get cleaned up later as a subtask.
-				}
+					unsigned __int64 taskID = t->getInitialTaskID();
 
-				//Remove the task from the local task parts queue.
-				std::unique_lock<std::mutex> lock3(taskQueueMutex);
-				taskQueue.erase(std::remove(taskQueue.begin(), taskQueue.end(), removeTask), taskQueue.end());
-				lock3.unlock();
+					CF_SAY("Task " + std::to_string(taskID) + " - started.", Settings::LogLevels::Info);
 
-				std::vector<std::future<Result *>> threads = std::vector<std::future<Result *>>();
-
-				//Start benchmark timer.
-				auto start = std::chrono::steady_clock::now();
-
-				for (auto &task : tasks)
-				{
-					threads.push_back(std::async(std::launch::async, [&task]() { return task->run(); }));
-				}
-
-				std::vector<Result *> results;
-
-				unsigned int threadID = 0;
-				for (auto &thread : threads)
-				{
-					CF_SAY("Task " + std::to_string(taskID) + " - processing on thread " + std::to_string(threadID++) + ".", Settings::LogLevels::Info);
-					auto result = thread.get();
-					results.push_back(result);
-				}
-
-				for (auto &task : tasks)
-				{
-					delete task;
-					task = nullptr;
-				}
-
-				//Stop benchmark test clock.
-				auto end = std::chrono::steady_clock::now();
-				auto diff = end - start;
-
-				CF_SAY("Task " + std::to_string(taskID) + " time: " + std::to_string(std::chrono::duration <double, std::milli>(diff).count()) + " ms.", Settings::LogLevels::Info);
-
-				Result *result; 
-				
-				//Merge result objects if there was more than one in the resulting set.
-				if (results.size() > 1)
-				{
-					if (resultConstructMap.size() == 0 || resultConstructMap.find(results.front()->getSubtype()) == resultConstructMap.end()) CF_THROW("Invalid results type.");
-					result = resultConstructMap[results.front()->getSubtype()]();
-
-					result->merge(results);
-				}
-				else
-				{
-					result = results.front();
-				}
-
-				//Clean up temporary results objects, but only if they were a set of more than one.
-				//If there was just one result than we need to keep the single result object in memory
-				//and just pass it to the completed results list.
-				if (results.size() > 1)
-				{
-					for (auto &r : results)
+					//Split the task among available threads and run.
+					std::vector<Task *> tasks;
+					Task *removeTask = t;
+					if (MAX_THREADS > 1)
 					{
-						delete r;
-						r = nullptr;
+						tasks = t->split(MAX_THREADS);
+
+						//Remove the original task from memory.
+						delete t;
+						t = nullptr;
 					}
+					else
+					{
+						tasks = std::vector<Task *>{ t };
+						//Don't remove original task from memory here. We'll be using it passed on as a subtask.
+						//IT will get cleaned up later as a subtask.
+					}
+
+					//Remove the task from the local task parts queue.
+					std::unique_lock<std::mutex> lock3(taskQueueMutex);
+					taskQueue.erase(std::remove(taskQueue.begin(), taskQueue.end(), removeTask), taskQueue.end());
+					lock3.unlock();
+
+					std::vector<std::future<Result *>> threads = std::vector<std::future<Result *>>();
+
+					//Start benchmark timer.
+					auto start = std::chrono::steady_clock::now();
+
+					for (auto &task : tasks)
+					{
+						threads.push_back(std::async(std::launch::async, [&task]() { return task->run(); }));
+					}
+
+					std::vector<Result *> results;
+
+					unsigned int threadID = 0;
+					for (auto &thread : threads)
+					{
+						CF_SAY("Task " + std::to_string(taskID) + " - processing on thread " + std::to_string(threadID++) + ".", Settings::LogLevels::Info);
+						auto result = thread.get();
+						results.push_back(result);
+					}
+
+					for (auto &task : tasks)
+					{
+						delete task;
+						task = nullptr;
+					}
+
+					//Stop benchmark test clock.
+					auto end = std::chrono::steady_clock::now();
+					auto diff = end - start;
+
+					CF_SAY("Task " + std::to_string(taskID) + " time: " + std::to_string(std::chrono::duration <double, std::milli>(diff).count()) + " ms.", Settings::LogLevels::Info);
+
+					Result *result;
+
+					//Merge result objects if there was more than one in the resulting set.
+					if (results.size() > 1)
+					{
+						if (resultConstructMap.size() == 0 || resultConstructMap.find(results.front()->getSubtype()) == resultConstructMap.end()) CF_THROW("Invalid results type.");
+						result = resultConstructMap[results.front()->getSubtype()]();
+
+						result->merge(results);
+					}
+					else
+					{
+						result = results.front();
+					}
+
+					//Clean up temporary results objects, but only if they were a set of more than one.
+					//If there was just one result than we need to keep the single result object in memory
+					//and just pass it to the completed results list.
+					if (results.size() > 1)
+					{
+						for (auto &r : results)
+						{
+							delete r;
+							r = nullptr;
+						}
+					}
+
+					CF_SAY("Task " + std::to_string(taskID) + " - completed.", Settings::LogLevels::Info);
+
+					//Place the result in the client COMPLETED result queue.
+					//Even if this is a result part, we know it must be sent back to the host
+					//for merging with other result parts. So we treat it like a complete result.
+					std::unique_lock<std::mutex> lock2(resultsQueueMutex);
+					resultQueueComplete.push_back(result);
+					lock2.unlock();
+
+					//Scan the incomplete results queue for complete results sets and move them to the complete results queue.
+					checkForCompleteResults();
 				}
 
-				CF_SAY("Task " + std::to_string(taskID) + " - completed.", Settings::LogLevels::Info);
-
-				//Place the result in the client COMPLETED result queue.
-				//Even if this is a result part, we know it must be sent back to the host
-				//for merging with other result parts. So we treat it like a complete result.
-				std::unique_lock<std::mutex> lock2(resultsQueueMutex);
-				resultQueueComplete.push_back(result);
-				lock2.unlock();
-
-				//Scan the incomplete results queue for complete results sets and move them to the complete results queue.
-				checkForCompleteResults();
+				std::this_thread::sleep_for(std::chrono::milliseconds(1));
 			}
 
-			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		}
+		catch (...)
+		{
+			//Do nothing with exceptions in threads. Main thread will see the exception message via ConsoleMessager object.
 		}
 	}
 

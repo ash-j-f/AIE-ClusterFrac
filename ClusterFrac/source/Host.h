@@ -45,7 +45,7 @@ namespace cf
 		* Default destructor.
 		*/
 		DLL ~Host();
-
+		
 		/**
 		* Register new task construction callback.
 		* @param name The name of the new task.

@@ -7,6 +7,7 @@
 #include "WorkPacket.h"
 #include "Result.h"
 #include "IDManager.h"
+#include "ConsoleMessager.hpp"
 
 namespace cf
 {
