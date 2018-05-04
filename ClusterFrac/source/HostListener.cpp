@@ -164,7 +164,6 @@ namespace cf
 					{
 						//Check if any other process still using the client socket.
 						//If so, then try again later.
-						//CF_SAY("listenThread remove dead clients try lock.");
 						std::unique_lock<std::mutex> lock(client->socketMutex, std::try_to_lock);
 						if (lock.owns_lock())
 						{

@@ -6,8 +6,6 @@ namespace cf
 	HostSender::HostSender(Host *newHost)
 	{
 		host = newHost;
-
-		
 	}
 
 	HostSender::~HostSender()
@@ -53,7 +51,7 @@ namespace cf
 
 					//Socket is in non blocking mode, so more than one call to send may be needed to send all the data.
 					sf::Socket::Status status;
-					while (true && !cf::ConsoleMessager::getInstance()->exceptionThrown)
+					while (!cf::ConsoleMessager::getInstance()->exceptionThrown)
 					{
 						status = client->socket->send(packet);
 						if (status == sf::Socket::Status::Done)
