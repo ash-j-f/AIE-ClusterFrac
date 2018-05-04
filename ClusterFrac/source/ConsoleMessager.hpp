@@ -46,6 +46,11 @@ namespace cf
 		*/
 		DLL inline static class ConsoleMessager *getInstance() { static ConsoleMessager cm; return &cm; };
 
+		/**
+		* Raise an exception with a given message string.
+		* @param s The string to send as part of the exception.
+		* @returns void.
+		*/
 		DLL inline void except(std::string s)
 		{
 			exceptionMessage = s;

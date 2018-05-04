@@ -73,7 +73,16 @@ namespace cf
 
 					cf::WorkPacket packet;
 
-					packet.setFlag(cf::WorkPacket::Flag::Result);
+					//Enable compression for network sending if required.
+					if (result->getCompression())
+					{
+						packet.setFlag(cf::WorkPacket::Flag::ResultCompressed);
+
+					}
+					else
+					{
+						packet.setFlag(cf::WorkPacket::Flag::Result);
+					}
 
 					result->serialize(packet);
 

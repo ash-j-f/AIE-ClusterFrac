@@ -7,6 +7,9 @@ namespace cf
 		initialTaskID = 0;
 		taskPartNumberStack.push_back(0);
 		taskPartsTotalStack.push_back(1);
+
+		//Default network compression status for a new result.
+		compression = false;
 	}
 
 	Result::~Result()

@@ -21,6 +21,10 @@ namespace cf
 
 		//Allow task splitting between nodes by default.
 		allowNodeTaskSplit = true;
+
+		//Default network compression status for a new task.
+		compression = false;
+
 	}
 
 	Task::~Task()

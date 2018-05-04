@@ -144,13 +144,13 @@ namespace cf
 		* the parent anyway.
 		* @returns void.
 		*/
-		DLL void assignID() { if (initialTaskID == 0) initialTaskID = CF_ID->getNextTaskID();  };
+		DLL inline void assignID() { if (initialTaskID == 0) initialTaskID = CF_ID->getNextTaskID();  };
 
 		/**
 		* Get the client node type this task may be executed on.
 		* @returns The node type this task may be executed on.
 		*/
-		DLL NodeTargetTypes getNodeTargetType() { return (NodeTargetTypes)nodeTargetType; };
+		DLL inline NodeTargetTypes getNodeTargetType() const { return (NodeTargetTypes)nodeTargetType; };
 
 		/**
 		* Set the client node type this task may be executed on.
@@ -158,16 +158,32 @@ namespace cf
 		* @param newNodeTargetType The node target type as a sf::Uint8.
 		* @returns void.
 		*/
-		DLL void setNodeTargetType(sf::Uint8 newNodeTargetType) { nodeTargetType = newNodeTargetType; };
+		DLL inline void setNodeTargetType(sf::Uint8 newNodeTargetType) { nodeTargetType = newNodeTargetType; };
 		
 		/**
 		* Set the client node type this task may be executed on.
 		* @param newNodeTargetType The node target type as an entry from NodeTargetTypes enum.
 		* @returns void.
 		*/
-		DLL void setNodeTargetType(NodeTargetTypes newNodeTargetType) { nodeTargetType = (sf::Uint8)newNodeTargetType; };
+		DLL inline void setNodeTargetType(NodeTargetTypes newNodeTargetType) { nodeTargetType = (sf::Uint8)newNodeTargetType; };
+
+		/**
+		* Enable compression when sending this task type?
+		* @param state Set true to enable compression, false to disable.
+		* @returns void.
+		*/
+		DLL inline void setCompression(bool newState) { compression = newState; };
+
+		/**
+		* Should compression be enabled when sending this task type?
+		* @returns bool True for compression enabled, false for disabled.
+		*/
+		DLL inline bool getCompression() const { return compression; };
 
 	private:
+
+		//Enable compression when sending this task type?
+		bool compression;
 
 		//Which node type does this task prefer to be run on?
 		//See NodeTargetTypes enum.

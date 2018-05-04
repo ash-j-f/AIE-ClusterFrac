@@ -21,7 +21,9 @@ namespace cf
 		{
 			None,
 			Task,
-			Result
+			Result,
+			TaskCompressed,
+			ResultCompressed
 		};
 
 		/**
@@ -40,9 +42,6 @@ namespace cf
 		*/
 		DLL ~WorkPacket();
 
-		//Is compression during network send on or off?
-		bool compression;
-
 		/**
 		* Initialise the work packet.
 		* @returns void.
@@ -54,7 +53,7 @@ namespace cf
 		* Flags are used to identify the packet type when decoding.
 		* @returns void.
 		*/
-		DLL inline void setFlag(Flag newFlag) { flag = newFlag; };
+		DLL void setFlag(Flag newFlag);
 
 		/**
 		* Get the work packet flag.
@@ -71,6 +70,9 @@ namespace cf
 		DLL inline virtual void clear() { static_cast<sf::Packet*>(this)->clear(); flag = None; };
 
 	private:
+
+		//Is compression during network sending turned on or off?
+		bool compression;
 
 		//The work packet's identifying type flag. Stored as a Uint8 for 
 		//maximum cross platform and network compatibility.

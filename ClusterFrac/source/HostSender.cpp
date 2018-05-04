@@ -45,8 +45,19 @@ namespace cf
 				{
 					CF_SAY("Sending task to client " + std::to_string(client->getClientID()) + ".", Settings::LogLevels::Info);
 
-					//Send task to client.
-					cf::WorkPacket packet(cf::WorkPacket::Flag::Task);
+					cf::WorkPacket packet;
+
+					//Enable compression for network sending if required.
+					if (task->getCompression())
+					{
+						packet.setFlag(cf::WorkPacket::Flag::TaskCompressed);
+						
+					}
+					else
+					{
+						packet.setFlag(cf::WorkPacket::Flag::Task);
+					}
+
 					task->serialize(packet);
 
 					//Socket is in non blocking mode, so more than one call to send may be needed to send all the data.

@@ -14,7 +14,7 @@ namespace cf
 	WorkPacket::WorkPacket(Flag newFlag)
 	{
 		//Set flag.
-		flag = newFlag;
+		setFlag(newFlag);
 
 		init();
 	}
@@ -29,8 +29,25 @@ namespace cf
 		compression = false;
 	}
 
+	DLL void WorkPacket::setFlag(Flag newFlag)
+	{
+		flag = newFlag;
+		switch (flag)
+		{
+			//Enable compression for certain task and results types.
+			case cf::WorkPacket::Flag::TaskCompressed:
+			case cf::WorkPacket::Flag::ResultCompressed:
+				compression = true;
+				break;
+			default:
+				compression = false;
+				break;
+		}
+	}
+
 	const void * WorkPacket::onSend(std::size_t & size)
 	{
+
 		//Append flag to data stream.
 		*this << flag;
 
@@ -86,6 +103,15 @@ namespace cf
 
 	void WorkPacket::onReceive(const void *data, std::size_t size)
 	{
+
+		//Check the packet flag data to determine compression status.
+		Flag tmpFlag;
+		std::size_t soFlag = sizeof tmpFlag;
+		std::memcpy(&tmpFlag, (Bytef*)data + size - soFlag, soFlag);
+
+		//Setting the detected flag will enable or disable compression status as needed.
+		setFlag(tmpFlag);
+
 		if (compression)
 		{
 			//Cast the data to Bytef*, the format zlib deals with
