@@ -45,6 +45,7 @@ namespace cf
 			t->taskPartNumberStack.push_back(i++);
 			t->taskPartsTotalStack = taskPartsTotalStack;
 			t->taskPartsTotalStack.push_back((sf::Uint32)tmp.size());
+			t->compression = compression;
 		};  
 		return tmp;
 	}
@@ -57,6 +58,7 @@ namespace cf
 		p << nodeTargetType;
 		p << allowNodeTaskSplit;
 		p << maxTaskTimeMilliseconds;
+		p << compression;
 
 		//Uint32 for best cross platform compatibility for serialisation/deserialisation.
 		sf::Uint32 size = (sf::Uint32)taskPartNumberStack.size();
@@ -75,6 +77,7 @@ namespace cf
 		p >> nodeTargetType;
 		p >> allowNodeTaskSplit;
 		p >> maxTaskTimeMilliseconds;
+		p >> compression;
 
 		//Uint32 for best cross platform compatibility for serialisation/deserialisation.
 		sf::Uint32 size;
