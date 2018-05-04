@@ -21,9 +21,7 @@ namespace cf
 		{
 			None,
 			Task,
-			Result,
-			TaskCompressed,
-			ResultCompressed
+			Result
 		};
 
 		/**
@@ -68,6 +66,14 @@ namespace cf
 		* @returns void.
 		*/
 		DLL inline virtual void clear() { static_cast<sf::Packet*>(this)->clear(); flag = None; };
+
+		/**
+		* Turn compression during send/receive on or off.
+		* NOTE: Send/receive will FAIL if the compression status does not match for the work packets
+		* used by the host and client when sneding/receiving.
+		* @param state True to enable compression, false to disable.
+		*/
+		DLL inline void setCompression(bool state) { compression = state; };
 
 	private:
 

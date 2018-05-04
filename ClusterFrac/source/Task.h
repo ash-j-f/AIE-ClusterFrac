@@ -167,23 +167,7 @@ namespace cf
 		*/
 		DLL inline void setNodeTargetType(NodeTargetTypes newNodeTargetType) { nodeTargetType = (sf::Uint8)newNodeTargetType; };
 
-		/**
-		* Enable compression when sending this task type?
-		* @param state Set true to enable compression, false to disable.
-		* @returns void.
-		*/
-		DLL inline void setCompression(bool newState) { compression = newState; };
-
-		/**
-		* Should compression be enabled when sending this task type?
-		* @returns bool True for compression enabled, false for disabled.
-		*/
-		DLL inline bool getCompression() const { return compression; };
-
 	private:
-
-		//Enable compression when sending this task type?
-		bool compression;
 
 		//Which node type does this task prefer to be run on?
 		//See NodeTargetTypes enum.

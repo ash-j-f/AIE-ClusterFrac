@@ -71,18 +71,7 @@ namespace cf
 				if (client->connected && result != nullptr)
 				{
 
-					cf::WorkPacket packet;
-
-					//Enable compression for network sending if required.
-					if (result->getCompression())
-					{
-						packet.setFlag(cf::WorkPacket::Flag::ResultCompressed);
-
-					}
-					else
-					{
-						packet.setFlag(cf::WorkPacket::Flag::Result);
-					}
+					cf::WorkPacket packet(cf::WorkPacket::Flag::Result);
 
 					result->serialize(packet);
 

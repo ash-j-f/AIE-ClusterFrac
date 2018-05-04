@@ -223,7 +223,7 @@ namespace cf
 					{
 						CF_SAY("Received unknown packet from client " + std::to_string(client->getClientID()) + ".", Settings::LogLevels::Error);
 					}
-					else if (packet->getFlag() == cf::WorkPacket::Flag::Result || packet->getFlag() == cf::WorkPacket::Flag::ResultCompressed)
+					else if (packet->getFlag() == cf::WorkPacket::Flag::Result)
 					{
 
 						CF_SAY("Received result packet from client " + std::to_string(client->getClientID()) + ".", Settings::LogLevels::Info);

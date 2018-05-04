@@ -7,9 +7,6 @@ namespace cf
 		initialTaskID = 0;
 		taskPartNumberStack.push_back(0);
 		taskPartsTotalStack.push_back(1);
-
-		//Default network compression status for a new result.
-		compression = false;
 	}
 
 	Result::~Result()
@@ -51,9 +48,6 @@ namespace cf
 		taskPartsTotalStack = others[0]->taskPartsTotalStack;
 		taskPartsTotalStack.pop_back(); //Unwind the stack by one.
 
-		//Inherit compression status from the results.
-		compression = others[0]->compression;
-
 		//Order of results must be preserved. Reorder parts by part number before passing them to local merge.
 		std::sort(others.begin(), others.end(), 
 			[](cf::Result *a, cf::Result *b) 
@@ -72,8 +66,6 @@ namespace cf
 		
 		p << initialTaskID;
 
-		p << compression;
-
 		//Uint32 for best cross platform compatibility for serialisation/deserialisation.
 		sf::Uint32 size = (sf::Uint32)taskPartNumberStack.size();
 		p << size;
@@ -89,8 +81,6 @@ namespace cf
 	{
 
 		p >> initialTaskID;
-
-		p >> compression;
 
 		//Uint32 for best cross platform compatibility for serialisation/deserialisation.
 		sf::Uint32 size;

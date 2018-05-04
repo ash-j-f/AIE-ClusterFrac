@@ -122,23 +122,7 @@ namespace cf
 		*/
 		DLL inline sf::Time getHostTimeFinished() const { return hostTimeFinished; };
 
-		/**
-		* Enable compression when sending this result type?
-		* @param state Set true to enable compression, false to disable.
-		* @returns void.
-		*/
-		DLL inline void setCompression(bool newState) { compression = newState; };
-
-		/**
-		* Should compression be enabled when sending this result type?
-		* @returns bool True for compression enabled, false for disabled.
-		*/
-		DLL inline bool getCompression() const { return compression; };
-
 	private:
-
-		//Enable compression when sending this task type?
-		bool compression;
 
 		//The ID of the initial task before it was split.
 		sf::Uint64 initialTaskID;
