@@ -14,7 +14,7 @@ OVERVIEW
 	
 	This project demonstrates the following complex systems:
 	
-	- Cluster computing.
+	- Cluster computing including the parallelisation and distribution of tasks.
 	- Multithreaded processing.
 	- Thread-safe objects utilising mutexes.
 	- Exception handling in a multithreaded environment.
@@ -31,6 +31,10 @@ OVERVIEW
 	
 FILES
 
+	Final Project Brief
+
+		/Complex System Project Brief - Ashley Flynn.pdf
+
 	ClusterFrac Library
 	
 		/DISTRIBUTABLE/ClusterFrac Library Distributable/
@@ -43,11 +47,15 @@ FILES
 	
 		A benchmarking host application that implements the ClusterFrac Host and tests all functionality by distributing 100 CPU-intensive test calculations among all connected clients.
 		
+		Follow prompts in the console output for user interaction keys.
+		
 	CFMandelbrot
 	
 		/DISTRIBUTABLE/(DEMOS - Static or Dynamic)/ClusterFrac Host - CFMandelbrot/
 		
 		A test application that implements the ClusterFrac Host and renders the Mandelbrot set to screen, allowing the user to navigate the set in real time. This demonstrates the functionality by dividing hundreds of thousdands of calculations among all connected clients each frame.
+		
+		Follow prompts on the graphical display for user interaction keys. Esc to quit.
 		
 	ClusterFrac Client
 	
@@ -93,7 +101,7 @@ COMMAND LINE OPTIONS
 	
 HOW TO USE CLUSTERFRAC
 
-	ClusterFrac relies on SFML to provide the networking layer, and ZLIB to provide data compression. These libraries may need to be included in your application if you extend functionaily of ClusterFrac classes. Copies of these libraries can be found in /DISTRIBUTABLE/ClusterFrac Library Distributable/
+	ClusterFrac relies on SFML to provide the networking layer, and ZLIB to provide data compression. These libraries may need to be included in your application if you extend the functionaily of ClusterFrac classes. Copies of these libraries can be found in /DISTRIBUTABLE/ClusterFrac Library Distributable/
 	
 	An application using ClusterFrac would typically implement the ClusterFrac Host class, which manages distribution of tasks to all connected clients.
 	
@@ -103,7 +111,7 @@ HOW TO USE CLUSTERFRAC
 	
 	Tasks are defined in custom classes which extend the ClusterFrac Task and Result base classes. Tasks must be parallelisable and divisible into sub components to be suitable for cluster computing. See MandebrotTask, MandelbrotResult, BenchmarkTask and Benchmarkresult classes in the example host applications.
 	
-	The Client must be compiled with your custom classes for it to be able to accept and process those tasks from a host.
+	The Client must be compiled with your custom Task and Result classes for it to be able to accept and process custom tasks from a host.
 	
 	Custom classes must be registered on the Host and Client using the registerTaskType and registerResultType functions that are members of the Host and Client classes.
 	

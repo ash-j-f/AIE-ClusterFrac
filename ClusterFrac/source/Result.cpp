@@ -77,6 +77,7 @@ namespace cf
 
 		serializeLocal(p);
 	}
+
 	void Result::deserialize(cf::WorkPacket & p)
 	{
 
