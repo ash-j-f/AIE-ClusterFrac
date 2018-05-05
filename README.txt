@@ -8,11 +8,27 @@ Ashley Flynn - Academy of Interactive Entertainment - 2018
 
 OVERVIEW
 
-	ClusterFrac is a C++ library that facilitates the distributed computing of parallelisable tasks. The module allows any parallelisable task to be broken down into discreet work packages which can then be shared among multiple computers on a network.
+	ClusterFrac is a C++ library as a static LIB and a dynamic DLL that facilitates the distributed computing of parallelisable tasks. The module allows any parallelisable task to be broken down into discreet work packages which can then be shared among multiple computers on a network.
 
 	ClusterFrac is for use with the Windows operating system and relies on standard libraries included with Visual Studio 2017.
 	
-
+	This project demonstrates the following complex systems:
+	
+	- Cluster computing.
+	- Multithreaded processing.
+	- Thread-safe objects utilising mutexes.
+	- Exception handling in a multithreaded environment.
+	- Networking.
+	- Data compression.
+	- The mathematics of the Mandelbrot set, comprised of complex numbers which involve real and imaginary components https://en.wikipedia.org/wiki/Mandelbrot_set
+	
+	This project also includes:
+	
+	- Library provided as LIB and DLL.
+	- User interaction in Benchmark and CFMandelbrot.
+	- Saving and loading of data between sessions, with data serialised in binary format and stored on disk.
+	
+	
 FILES
 
 	ClusterFrac Library
@@ -68,8 +84,27 @@ COMMAND LINE OPTIONS
 		
 			Port Number - A port number in the range 1025 - 65535. Default is 5000.
 			
-			Concurrency - Number of threads to use for host based calculations. Default is to use max threads available.
+			Concurrency - Number of threads to use for client based calculations. Default is to use max threads available.
 			
 			Compression on/off - Set to compression_on to enable network compression. Default is compression_off.
 	
 		Eg: Client.exe 10.10.0.126 5000 2
+		
+	
+HOW TO USE CLUSTERFRAC
+
+	ClusterFrac relies on SFML to provide the networking layer, and ZLIB to provide data compression. These libraries may need to be included in your application if you extend functionaily of ClusterFrac classes. Copies of these libraries can be found in /DISTRIBUTABLE/ClusterFrac Library Distributable/
+	
+	An application using ClusterFrac would typically implement the ClusterFrac Host class, which manages distribution of tasks to all connected clients.
+	
+	See the Benchmark and CFMandelbrot applications for examples of using the Host class.
+	
+	Each client node will need to run an executable implementing the Client class. See the ClusterFrac Client application for an example of using the Client class.
+	
+	Tasks are defined in custom classes which extend the ClusterFrac Task and Result base classes. Tasks must be parallelisable and divisible into sub components to be suitable for cluster computing. See MandebrotTask, MandelbrotResult, BenchmarkTask and Benchmarkresult classes in the example host applications.
+	
+	The Client must be compiled with your custom classes for it to be able to accept and process those tasks from a host.
+	
+	Custom classes must be registered on the Host and Client using the registerTaskType and registerResultType functions that are members of the Host and Client classes.
+	
+	During execution, ClusterFrac will write status and error information to the console.
