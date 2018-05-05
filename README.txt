@@ -3,7 +3,7 @@ CLUSTERFRAC DISTRIBUTED COMPUTING LIBRARY
 Ashley Flynn - Academy of Interactive Entertainment - 2018
 
 
-*** This file is vest viewed with Notepad++ or any viewer with text auto-wrap.
+*** This file is best viewed with Notepad++ or any viewer with text auto-wrap.
 
 
 OVERVIEW
@@ -101,7 +101,7 @@ COMMAND LINE OPTIONS
 	
 HOW TO USE CLUSTERFRAC
 
-	ClusterFrac relies on SFML to provide the networking layer, and ZLIB to provide data compression. These libraries may need to be included in your application if you extend the functionaily of ClusterFrac classes. Copies of these libraries can be found in /DISTRIBUTABLE/ClusterFrac Library Distributable/
+	ClusterFrac relies on SFML to provide the networking layer, and ZLIB to provide data compression. These libraries may need to be included in your application if you extend the functionality of ClusterFrac classes. Copies of these libraries can be found in /DISTRIBUTABLE/ClusterFrac Library Distributable/
 	
 	An application using ClusterFrac would typically implement the ClusterFrac Host class, which manages distribution of tasks to all connected clients.
 	
@@ -109,7 +109,7 @@ HOW TO USE CLUSTERFRAC
 	
 	Each client node will need to run an executable implementing the Client class. See the ClusterFrac Client application for an example of using the Client class.
 	
-	Tasks are defined in custom classes which extend the ClusterFrac Task and Result base classes. Tasks must be parallelisable and divisible into sub components to be suitable for cluster computing. See MandebrotTask, MandelbrotResult, BenchmarkTask and Benchmarkresult classes in the example host applications.
+	Tasks are defined in custom classes which extend the ClusterFrac Task and Result base classes. Tasks must be parallelisable and divisible into sub components to be suitable for cluster computing. See MandelbrotTask, MandelbrotResult, BenchmarkTask and BenchmarkResult classes in the example host applications.
 	
 	The Client must be compiled with your custom Task and Result classes for it to be able to accept and process custom tasks from a host.
 	
