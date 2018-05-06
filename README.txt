@@ -49,6 +49,8 @@ FILES
 		
 		Follow prompts in the console output for user interaction keys.
 		
+		Statistical data about previous benchmark test runs is saved and loaded each session.
+		
 	CFMandelbrot
 	
 		/DISTRIBUTABLE/(DEMOS - Static or Dynamic)/ClusterFrac Host - CFMandelbrot/
@@ -56,6 +58,8 @@ FILES
 		A test application that implements the ClusterFrac Host and renders the Mandelbrot set to screen, allowing the user to navigate the set in real time. This demonstrates the functionality by dividing hundreds of thousdands of calculations among all connected clients each frame.
 		
 		Follow prompts on the graphical display for user interaction keys. Esc to quit.
+		
+		Zoom and pan position data is saved and loaded each session.
 		
 	ClusterFrac Client
 	
