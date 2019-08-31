@@ -1,4 +1,4 @@
-![ClusterFrac Logo](ClusterFrac_smaller.png)
+![ClusterFrac Logo](ClusterFracIcon_smaller.png)
 
 # ClusterFrac C++ Distributed Computing Library
 
