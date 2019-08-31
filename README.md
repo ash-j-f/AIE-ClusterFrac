@@ -1,3 +1,5 @@
+![lusterFrac Logo](ClusterFrac.png)
+
 # ClusterFrac C++ Distributed Computing Library
 
 Copyright (c) Ashley Flynn - Academy of Interactive Entertainment - 2018
