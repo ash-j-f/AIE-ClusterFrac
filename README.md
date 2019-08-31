@@ -40,7 +40,7 @@ This project also includes:
 	
 /DISTRIBUTABLE/ClusterFrac Library Distributable/
 	
-The ClusterFrac library in DLL and LIB formats, along with header files and other depndencies.
+The ClusterFrac library in DLL and LIB formats, along with header files and other dependencies.
 		
 ### Benchmark
 	
