@@ -32,9 +32,9 @@ This project also includes:
 	
 ## Files
 
-### Final Project Brief
+### Project Brief
 
-/Complex System Project Brief - Ashley Flynn.pdf
+/ClusterFrac Project Brief.pdf
 
 ### ClusterFrac Library
 	
