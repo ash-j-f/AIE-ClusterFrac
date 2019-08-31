@@ -2,7 +2,7 @@
 
 # ClusterFrac C++ Distributed Computing Library
 
-Copyright (c) Ashley Flynn - Academy of Interactive Entertainment - 2018
+Copyright (c) Ashley Flynn - Academy of Interactive Entertainment - 2018 - https://ajflynn.io/
 
 Released under the GPL v3 license - See the LICENSE file for more details
 
