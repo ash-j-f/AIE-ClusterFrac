@@ -9,7 +9,7 @@ Released under the GPL v3 license - See the LICENSE file for more details
 
 ## Overview
 
-ClusterFrac is a C++ library as a static LIB and a dynamic DLL that facilitates the distributed computing of parallelisable tasks. The module allows any parallelisable task to be broken down into discreet work packages which are then processed by multiple CPU cores and shared among multiple computers on a network.
+ClusterFrac is a C++ library as a static LIB and a dynamic DLL that facilitates the distributed computing of parallelisable tasks. The module allows any parallelisable task to be broken down into discreet work packages which are then shared among multiple computers on a network and processed by their multiple CPU cores.
 
 ClusterFrac is for use with the Windows operating system and relies on standard libraries included with Visual Studio 2017.
 	
